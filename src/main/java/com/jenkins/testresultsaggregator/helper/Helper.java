@@ -274,6 +274,7 @@ public class Helper {
 				}
 			} else { // if (a < b)
 				if (curr == 0) {
+					// ??? If current = 0 and previous has tests print - or nothing ?
 					return text + colorize("-" + (prev - curr), Colors.BLACK) + percentageIcon;
 				} else {
 					return text + colorize(curr, color) + colorize("(-" + (prev - curr) + ")", Colors.BLACK) + percentageIcon;
