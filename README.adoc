@@ -4,13 +4,13 @@
 
 == Description
 
-It's a jenkins plugin that collects job and test results and reports them :
+It's a jenkins plugin that collects jobs and test results and reports them in :
 
-* in a single html view,
+* view,
 * email, 
 * graphs
 
-Test Results Aggregator can merge test results for : 
+Test Results Aggregator can collect test results for : 
 
 * https://plugins.jenkins.io/junit[Junit], 
 * https://plugins.jenkins.io/testng-plugin[TestNG]
@@ -29,7 +29,7 @@ image:https://img.shields.io/jenkins/plugin/i/test-results-aggregator.svg?color=
 
 It's advisable to be used as the last step in a CI/CD pipeline.
  
-Supports 'free style project' and 'Groovy pipeline[[bookmark-a]]' syntax after 1.1.8.
+Supports 'free style project' and 'pipeline' after 1.1.8.
 
 Requires both global and job configuration.
 
