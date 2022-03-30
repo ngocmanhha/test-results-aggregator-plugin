@@ -56,20 +56,24 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 	
 	private static final String displayName = "Aggregate Test Results";
 	
-	private String subject;
-	private String recipientsList;
-	private String beforebody;
-	private String afterbody;
-	private String theme;
-	private String sortresults;
-	private String outOfDateResults;
+	public String subject;
+	public String recipientsList;
+	public String recipientsListCC;
+	public String recipientsListBCC;
+	public String recipientsListIgnored;
+	public String beforebody;
+	public String afterbody;
+	public String theme;
+	public String sortresults;
+	public String outOfDateResults;
 	public Boolean compareWithPreviousRun;
 	public Boolean ignoreNotFoundJobs;
 	public Boolean ignoreDisabledJobs;
 	public Boolean ignoreAbortedJobs;
-	private String columns;
-	private List<Data> data;
-	private List<DataPipeline> jobs;
+	public Boolean ignoreRunningJobs;
+	public String columns;
+	public List<Data> data;
+	public List<DataPipeline> jobs;
 	
 	private Properties properties;
 	public static final String DISPLAY_NAME = "Job Results Aggregated";
@@ -86,7 +90,14 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		THEME,
 		SORT_JOBS_BY,
 		SUBJECT_PREFIX,
-		RECIPIENTS_LIST
+		RECIPIENTS_LIST,
+		RECIPIENTS_LIST_CC,
+		RECIPIENTS_LIST_BCC,
+		RECIPIENTS_LIST_IGNORED,
+		IGNORE_NOTFOUND_JOBS,
+		IGNORE_DISABLED_JOBS,
+		IGNORE_ABORTED_JOBS,
+		IGNORE_RUNNING_JOBS;
 	}
 	
 	public enum SortResultsBy {
@@ -116,10 +127,14 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 	}
 	
 	@DataBoundConstructor
-	public TestResultsAggregator(final String subject, final String recipientsList, final String outOfDateResults, final List<Data> data, final List<DataPipeline> jobs, String beforebody, String afterbody, String theme,
+	public TestResultsAggregator(final String subject, final String recipientsList, final String recipientsListCC, final String recipientsListBCC, final String recipientsListIgnored, final String outOfDateResults,
+			final List<Data> data, final List<DataPipeline> jobs, String beforebody, String afterbody, String theme,
 			String sortresults,
-			String columns, Boolean compareWithPreviousRun, Boolean ignoreNotFoundJobs, Boolean ignoreDisabledJobs, Boolean ignoreAbortedJobs) {
+			String columns, Boolean compareWithPreviousRun, Boolean ignoreNotFoundJobs, Boolean ignoreDisabledJobs, Boolean ignoreAbortedJobs, Boolean ignoreRunningJobs) {
 		this.setRecipientsList(recipientsList);
+		this.setRecipientsListBCC(recipientsListBCC);
+		this.setRecipientsListCC(recipientsListCC);
+		this.setRecipientsListIgnored(recipientsListIgnored);
 		this.setOutOfDateResults(outOfDateResults);
 		this.setData(data);
 		this.setBeforebody(beforebody);
@@ -132,6 +147,7 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		this.setIgnoreDisabledJobs(ignoreDisabledJobs);
 		this.setIgnoreNotFoundJobs(ignoreNotFoundJobs);
 		this.setIgnoreAbortedJobs(ignoreAbortedJobs);
+		this.setIgnoreRunningJobs(ignoreRunningJobs);
 		this.setJobs(jobs);
 	}
 	
@@ -162,7 +178,7 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 			// Analyze Results
 			Aggregated aggregated = new Analyzer(logger).analyze(validatedData, properties);
 			// Reporter for HTML and mail
-			Reporter reporter = new Reporter(logger, workspace, run.getRootDir(), desc.getMailNotificationFrom(), ignoreDisabledJobs, ignoreNotFoundJobs, ignoreAbortedJobs);
+			Reporter reporter = new Reporter(logger, workspace, run.getRootDir(), desc.getMailNotificationFrom(), ignoreDisabledJobs, ignoreNotFoundJobs, ignoreAbortedJobs, ignoreRunningJobs);
 			reporter.publishResuts(aggregated, properties, localizedColumns, run.getRootDir());
 			// Add Build Action
 			run.addAction(new TestResultsAggregatorTestResultBuildAction(aggregated));
@@ -200,7 +216,8 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 			// Analyze Results
 			Aggregated aggregated = new Analyzer(logger).analyze(validatedData, properties);
 			// Reporter for HTML and mail
-			Reporter reporter = new Reporter(logger, build.getProject().getSomeWorkspace(), build.getRootDir(), desc.getMailNotificationFrom(), ignoreDisabledJobs, ignoreNotFoundJobs, ignoreAbortedJobs);
+			Reporter reporter = new Reporter(logger, build.getProject().getSomeWorkspace(), build.getRootDir(), desc.getMailNotificationFrom(), ignoreDisabledJobs, ignoreNotFoundJobs, ignoreAbortedJobs,
+					ignoreRunningJobs);
 			reporter.publishResuts(aggregated, properties, localizedColumns, build.getRootDir());
 			// Add Build Action
 			build.addAction(new TestResultsAggregatorTestResultBuildAction(aggregated));
@@ -223,6 +240,9 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		properties.put(AggregatorProperties.SORT_JOBS_BY.name(), getSortresults() != null ? getSortresults() : "Job Name");
 		properties.put(AggregatorProperties.SUBJECT_PREFIX.name(), getSubject());
 		properties.put(AggregatorProperties.RECIPIENTS_LIST.name(), getRecipientsList() != null ? getRecipientsList() : "");
+		properties.put(AggregatorProperties.RECIPIENTS_LIST_BCC.name(), getRecipientsListBcc() != null ? getRecipientsListBcc() : "");
+		properties.put(AggregatorProperties.RECIPIENTS_LIST_CC.name(), getRecipientsListCc() != null ? getRecipientsListCc() : "");
+		properties.put(AggregatorProperties.RECIPIENTS_LIST_IGNORED.name(), getRecipientsListIgnored() != null ? getRecipientsListIgnored() : "");
 		
 	}
 	
@@ -489,6 +509,21 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 	}
 	
 	@DataBoundSetter
+	public void setRecipientsListCC(@CheckForNull String recipientsListCC) {
+		this.recipientsListCC = recipientsListCC;
+	}
+	
+	@DataBoundSetter
+	public void setRecipientsListBCC(@CheckForNull String recipientsListBCC) {
+		this.recipientsListBCC = recipientsListBCC;
+	}
+	
+	@DataBoundSetter
+	public void setRecipientsListIgnored(@CheckForNull String recipientsListIgnored) {
+		this.recipientsListIgnored = recipientsListIgnored;
+	}
+	
+	@DataBoundSetter
 	public void setOutOfDateResults(@CheckForNull String outOfDateResults) {
 		this.outOfDateResults = outOfDateResults;
 	}
@@ -543,8 +578,25 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		this.ignoreAbortedJobs = ignoreAbortedJobs;
 	}
 	
+	@DataBoundSetter
+	public void setIgnoreRunningJobs(Boolean ignoreRunningJobs) {
+		this.ignoreRunningJobs = ignoreRunningJobs;
+	}
+	
 	public String getRecipientsList() {
 		return recipientsList;
+	}
+	
+	public String getRecipientsListCc() {
+		return recipientsListCC;
+	}
+	
+	public String getRecipientsListBcc() {
+		return recipientsListBCC;
+	}
+	
+	public String getRecipientsListIgnored() {
+		return recipientsListIgnored;
 	}
 	
 	public String getOutOfDateResults() {

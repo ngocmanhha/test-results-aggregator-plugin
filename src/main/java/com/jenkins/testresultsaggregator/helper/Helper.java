@@ -187,16 +187,16 @@ public class Helper {
 		}
 	}
 	
-	public static FilePath createFolder(FilePath filePath, String folder) throws IOException, InterruptedException {
+	public static FilePath createFolder(FilePath filePath, String folder, boolean delete) throws IOException, InterruptedException {
 		FilePath fp;
 		if (filePath.isRemote()) {
 			VirtualChannel channel = filePath.getChannel();
-			if (filePath.child(folder).exists()) {
+			if (filePath.child(folder).exists() && delete) {
 				filePath.child(folder).deleteRecursive();
 			}
 			fp = new FilePath(channel, filePath.child(folder).getRemote());
 		} else {
-			if (filePath.child(folder).exists()) {
+			if (filePath.child(folder).exists() && delete) {
 				filePath.child(folder).deleteRecursive();
 			}
 			fp = new FilePath(new File(filePath.getRemote(), folder));
@@ -274,7 +274,6 @@ public class Helper {
 				}
 			} else { // if (a < b)
 				if (curr == 0) {
-					// ??? If current = 0 and previous has tests print - or nothing ?
 					return text + colorize("-" + (prev - curr), Colors.BLACK) + percentageIcon;
 				} else {
 					return text + colorize(curr, color) + colorize("(-" + (prev - curr) + ")", Colors.BLACK) + percentageIcon;

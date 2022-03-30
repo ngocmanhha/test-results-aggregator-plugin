@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -34,10 +35,12 @@ public class Reporter {
 	private Boolean ignoreNotFoundJobs;
 	private Boolean ignoreDisabledJobs;
 	private Boolean ignoreAbortedJobs;
-	
+	private Boolean ignoreRunningJobs;
 	private boolean foundAtLeastOneGroupName;
 	
-	public Reporter(PrintStream logger, FilePath workspace, File rootDir, String mailNotificationFrom, Boolean ignoreDisabledJobs, Boolean ignoreNotFoundJobs, Boolean ignoreAbortedJobs) {
+	private Set<Job> ignoredDataJobs = new HashSet<>();
+	
+	public Reporter(PrintStream logger, FilePath workspace, File rootDir, String mailNotificationFrom, Boolean ignoreDisabledJobs, Boolean ignoreNotFoundJobs, Boolean ignoreAbortedJobs, Boolean ignoreRunningJobs) {
 		this.logger = logger;
 		this.workspace = workspace;
 		this.rootDir = rootDir;
@@ -45,12 +48,12 @@ public class Reporter {
 		this.ignoreDisabledJobs = ignoreDisabledJobs;
 		this.ignoreNotFoundJobs = ignoreNotFoundJobs;
 		this.ignoreAbortedJobs = ignoreAbortedJobs;
+		this.ignoreRunningJobs = ignoreRunningJobs;
 	}
 	
 	public void publishResuts(Aggregated aggregated, Properties properties, List<LocalMessages> columns, File rootDirectory) throws Exception {
-		List<Data> dataJob = aggregated.getData();
 		foundAtLeastOneGroupName = false;
-		for (Data data : dataJob) {
+		for (Data data : aggregated.getData()) {
 			if (!Strings.isNullOrEmpty(data.getGroupName())) {
 				foundAtLeastOneGroupName = true;
 				break;
@@ -72,21 +75,39 @@ public class Reporter {
 		if (ignoreAbortedJobs != null && ignoreAbortedJobs) {
 			ignoreJobsFromReport(aggregatedCopy.getData(), JobStatus.ABORTED);
 		}
-		// Generate HTML Report
-		FilePath htmlReport = new HTMLReporter(logger, workspace).createOverview(aggregatedCopy, columns, properties.getProperty(AggregatorProperties.THEME.name()), foundAtLeastOneGroupName);
+		if (ignoreRunningJobs != null && ignoreRunningJobs) {
+			ignoreJobsFromReport(aggregatedCopy.getData(), JobStatus.RUNNING);
+		}
+		HTMLReporter htmlReporter = new HTMLReporter(logger, workspace);
+		// Generate HTML Reports
+		FilePath htmlReport = htmlReporter.createOverview(aggregatedCopy, columns, properties.getProperty(AggregatorProperties.THEME.name()), foundAtLeastOneGroupName);
+		FilePath htmlReportIgnoredDataJobs = htmlReporter.createIgnoredData(ignoredDataJobs, properties.getProperty(AggregatorProperties.THEME.name()));
 		// Generate Body message
 		String bodyText = generateMailBody(htmlReport.read());
+		String bodyTextIgnored = generateMailBody(htmlReportIgnoredDataJobs.read());
 		// Calculate attachments
 		Map<String, ImageData> images = resolveImages(bodyText);
+		MailNotification mailNotification = new MailNotification(logger, aggregatedCopy.getData(), workspace, rootDirectory);
 		// Generate and Send Mail report
-		new MailNotification(logger, aggregatedCopy.getData(), workspace, rootDirectory).send(
+		mailNotification.send(
 				properties.getProperty(AggregatorProperties.RECIPIENTS_LIST.name()),
+				properties.getProperty(AggregatorProperties.RECIPIENTS_LIST_CC.name()),
+				properties.getProperty(AggregatorProperties.RECIPIENTS_LIST_BCC.name()),
 				mailNotificationFrom,
 				generateMailSubject(properties.getProperty(AggregatorProperties.SUBJECT_PREFIX.name()), aggregatedCopy),
 				bodyText,
 				images,
 				properties.getProperty(AggregatorProperties.TEXT_BEFORE_MAIL_BODY.name()),
 				properties.getProperty(AggregatorProperties.TEXT_AFTER_MAIL_BODY.name()));
+		//
+		mailNotification.sendIgnoredData(
+				properties.getProperty(AggregatorProperties.RECIPIENTS_LIST_IGNORED.name()),
+				mailNotificationFrom,
+				"Test Results Aggregator Ignored Jobs",
+				bodyTextIgnored,
+				properties.getProperty(AggregatorProperties.TEXT_BEFORE_MAIL_BODY.name()),
+				properties.getProperty(AggregatorProperties.TEXT_AFTER_MAIL_BODY.name()));
+		
 	}
 	
 	private void ignoreJobsFromReport(List<Data> list, JobStatus status) {
@@ -95,6 +116,8 @@ public class Reporter {
 			for (Job temp : tempData.getJobs()) {
 				if (temp.getResults() != null && !status.name().equalsIgnoreCase(temp.getResults().getStatus())) {
 					tempList.add(temp);
+				} else {
+					ignoredDataJobs.add(temp);
 				}
 			}
 			tempData.setJobs(tempList);
@@ -132,7 +155,7 @@ public class Reporter {
 	
 	private String generateMailSubject(String subjectPrefix, Aggregated aggregated) {
 		String subject = subjectPrefix;
-		if (aggregated.getRunningJobs() > 0) {
+		if (aggregated.getRunningJobs() > 0 && !ignoreRunningJobs) {
 			subject += " " + LocalMessages.RESULTS_RUNNING.toString() + " : " + aggregated.getRunningJobs();
 		}
 		if (aggregated.getSuccessJobs() > 0 || aggregated.getFixedJobs() > 0) {
@@ -144,7 +167,7 @@ public class Reporter {
 		if (aggregated.getUnstableJobs() > 0 || aggregated.getKeepUnstableJobs() > 0) {
 			subject += " " + LocalMessages.RESULTS_UNSTABLE.toString() + " : " + (aggregated.getUnstableJobs() + aggregated.getKeepUnstableJobs());
 		}
-		if (aggregated.getAbortedJobs() > 0) {
+		if (aggregated.getAbortedJobs() > 0 && !ignoreAbortedJobs) {
 			subject += " " + LocalMessages.RESULTS_ABORTED.toString() + " : " + aggregated.getAbortedJobs();
 		}
 		return subject;
