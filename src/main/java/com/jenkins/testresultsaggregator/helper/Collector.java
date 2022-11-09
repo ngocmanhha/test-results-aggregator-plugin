@@ -200,6 +200,10 @@ public class Collector {
 	public BuildInfo getJobInfoLastBuild(Job dataJobDTO) {
 		return getJobInfoWithUrl(dataJobDTO.getJobInfo().getUrl() + "/" + LASTBUILD + "/" + API_JSON_JACOCO);
 	}
+
+	public BuildInfo getJobInfoByBuildNumber(Job dataJobDTO) {
+		return getJobInfoWithUrl(dataJobDTO.getJobInfo().getUrl() + "/" + API_JSON_JACOCO);
+	}
 	
 	public BuildInfo getJobInfo(String url) {
 		return getJobInfoWithUrl(url + "/" + API_JSON_JACOCO);
@@ -317,7 +321,10 @@ public class Collector {
 								job.setUpdated("");
 							}
 						} else {
-							String currentUrl = job.getJobInfo().getLastBuild().getUrl().toString();
+							String currentUrl = job.getJobInfo().getUrl().toString();
+							if (job.getBuildNumber() == 0) {
+								currentUrl = job.getJobInfo().getLastBuild().getUrl().toString();
+							}
 							if (currentUrl.equals(job.getSavedJobUrl())) {
 								// No new Run for this Job
 								jenkinsPreviousBuildDTO = getJobInfo(job.getBuildInfo().getPreviousBuild().getUrl().toString());
@@ -486,23 +493,28 @@ public class Collector {
 				job.getResults().setUrl(null);
 				job.setReport(new ReportJob());
 				logger.println(LocalMessages.COLLECT_DATA.toString() + " '" + job.getJobName() + "' " + LocalMessages.JOB_NOT_FOUND.toString());
-			} else if (!job.getJobInfo().getBuildable()) {
-				// Job is Disabled/ Not Buildable
-				String tempUrl = job.getJobInfo().getUrl().toString();
-				job.setJobInfo(new JobInfo());
-				job.setResults(new Results(JobStatus.DISABLED.name(), null));
-				job.getResults().setUrl(tempUrl);
-				job.setReport(new ReportJob());
-				logger.println(LocalMessages.COLLECT_DATA.toString() + " '" + job.getJobName() + "' " + LocalMessages.JOB_IS_DISABLED.toString());
-			} else if (job.getJobInfo() != null) {
-				// Job Found and is Buildable
-				// Get Job Results
-				job.setBuildInfo(getJobInfoLastBuild(job));
-				// Get Actual Results
-				job.setResults(calculateResults(job, compareWithPreviousRun));
-				logger.println(LocalMessages.COLLECT_DATA.toString() + " '" + job.getJobName() + "' " + LocalMessages.FINISHED.toString());
 			} else {
-				logger.println("...");
+				job.getJobInfo().setBuildable(true);
+				if (job.getJobInfo().getBuildable()) {
+					// Job Found and is Buildable
+					// Get Job Results
+					if (job.getBuildNumber() > 0) {
+						job.setBuildInfo(getJobInfoByBuildNumber(job));
+					} else {
+						job.setBuildInfo(getJobInfoLastBuild(job));
+					}
+					// Get Actual Results
+					job.setResults(calculateResults(job, compareWithPreviousRun));
+					logger.println(LocalMessages.COLLECT_DATA.toString() + " '" + job.getJobName() + "' " + LocalMessages.FINISHED.toString());
+				} else {
+					// Job is Disabled/ Not Buildable
+					String tempUrl = job.getJobInfo().getUrl().toString();
+					job.setJobInfo(new JobInfo());
+					job.setResults(new Results(JobStatus.DISABLED.name(), null));
+					job.getResults().setUrl(tempUrl);
+					job.setReport(new ReportJob());
+					logger.println(LocalMessages.COLLECT_DATA.toString() + " '" + job.getJobName() + "' " + LocalMessages.JOB_IS_DISABLED.toString());
+				}
 			}
 		}
 	}

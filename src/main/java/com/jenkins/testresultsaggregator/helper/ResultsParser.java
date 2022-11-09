@@ -137,7 +137,7 @@ public class ResultsParser {
 			for (int i = 0; i < jobs.getChildNodes().getLength(); i++) {
 				Node currentNodeResults = jobs.getChildNodes().item(i);
 				if (XMLReporter.JOB.equalsIgnoreCase(currentNodeResults.getNodeName())) {
-					Job dataJob = new Job("", "");
+					Job dataJob = new Job("", "", 0);
 					dataJobs.add(dataJob);
 					dataJob.setResults(new Results(null, null));
 					dataJob.setJobInfo(new JobInfo());

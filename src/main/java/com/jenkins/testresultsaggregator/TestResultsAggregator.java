@@ -480,13 +480,24 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 							folders.append(spliter[i] + "/");
 						}
 						job.setFolder(folders.toString().replaceAll("/", "/" + Collector.JOB + "/"));
-						job.setUrl(jenkinsUrl + "/" + Collector.JOB + "/" + Helper.encodeValue(job.getFolder()).replace("%2F", "/")
-								+ Helper.encodeValue(spliter[spliter.length - 1]));
+						int buildNumber = job.getBuildNumber();
+						if (buildNumber == 0) {
+							job.setUrl(jenkinsUrl + "/" + Collector.JOB + "/" + Helper.encodeValue(job.getFolder()).replace("%2F", "/")
+									+ Helper.encodeValue(spliter[spliter.length - 1]));
+						} else {
+							job.setUrl(jenkinsUrl + "/" + Collector.JOB + "/" + Helper.encodeValue(job.getFolder()).replace("%2F", "/")
+									+ Helper.encodeValue(spliter[spliter.length - 1]) + "/" + buildNumber);
+						}
 					}
 				} else {
 					job.setFolder("root");
 					if (Strings.isNullOrEmpty(job.getUrl())) {
-						job.setUrl(jenkinsUrl + "/" + Collector.JOB + "/" + Helper.encodeValue(job.getJobName()));
+						int buildNumber = job.getBuildNumber();
+						if (buildNumber == 0) {
+							job.setUrl(jenkinsUrl + "/" + Collector.JOB + "/" + Helper.encodeValue(job.getJobName()));
+						} else {
+							job.setUrl(jenkinsUrl + "/" + Collector.JOB + "/" + Helper.encodeValue(job.getJobName()) + "/" + buildNumber);
+						}
 					}
 				}
 			}
@@ -695,7 +706,14 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 					List<DataPipeline> listOfJobs = jobs.stream().filter(x -> x.getGroupName().equalsIgnoreCase(group)).collect(Collectors.toList());
 					List<Job> listOfJobsIntoGroup = new ArrayList<>();
 					for (DataPipeline temp : listOfJobs) {
-						listOfJobsIntoGroup.add(new Job(temp.getJobName(), temp.getJobFriendlyName()));
+						String jobName = temp.getJobName();
+						String jobFriendlyName = temp.getJobFriendlyName();
+						Job job = new Job(jobName, jobFriendlyName);
+						int buildNumber = temp.getBuildNumber();
+						if (buildNumber > 0) {
+							job = new Job(jobName, jobFriendlyName, temp.getBuildNumber());
+						}
+						listOfJobsIntoGroup.add(job);
 					}
 					data.add(new Data(group, listOfJobsIntoGroup));
 				}
@@ -704,7 +722,14 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 				List<DataPipeline> dataPipelineItems = jobs.stream().filter(x -> x.getJobName() != null).distinct().collect(Collectors.toList());
 				List<Job> jobs = new ArrayList<>();
 				for (DataPipeline dataPipeline : dataPipelineItems) {
-					jobs.add(new Job(dataPipeline.getJobName(), dataPipeline.getJobFriendlyName()));
+					String jobName = dataPipeline.getJobName();
+					String jobFriendlyName = dataPipeline.getJobFriendlyName();
+					Job job = new Job(jobName, jobFriendlyName);
+					int buildNumber = dataPipeline.getBuildNumber();
+					if (buildNumber > 0) {
+						job = new Job(jobName, jobFriendlyName, buildNumber);
+					}
+					jobs.add(job);
 				}
 				data.add(new Data(null, jobs));
 			}

@@ -16,7 +16,8 @@ public class DataPipeline extends AbstractDescribableImpl<DataPipeline> implemen
 	private String groupName;
 	private String jobName;
 	private String jobFriendlyName;
-	
+	private int buildNumber;
+
 	@Extension
 	public static class DataDescriptor extends Descriptor<DataPipeline> {
 		@Override
@@ -30,10 +31,11 @@ public class DataPipeline extends AbstractDescribableImpl<DataPipeline> implemen
 		
 	}
 	
-	public DataPipeline(String groupName, String jobName, String jobFriendlyName) {
+	public DataPipeline(String groupName, String jobName, String jobFriendlyName, int buildNumber) {
 		setGroupName(groupName);
 		setJobName(jobName);
 		setJobFriendlyName(jobFriendlyName);
+		setBuildNumber(buildNumber);
 	}
 	
 	public String getGroupName() {
@@ -66,5 +68,13 @@ public class DataPipeline extends AbstractDescribableImpl<DataPipeline> implemen
 	public void setJobFriendlyName(String jobFriendlyName) {
 		this.jobFriendlyName = jobFriendlyName;
 	}
-	
+
+	public int getBuildNumber() {
+		return buildNumber;
+	}
+
+	@DataBoundSetter
+	public void setBuildNumber(int buildNumber) {
+		this.buildNumber = buildNumber;
+	}
 }
