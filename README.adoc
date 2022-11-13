@@ -119,7 +119,7 @@ image::AggregatedView.png[Aggregated,900,align="right"]
 
 == Pipeline Syntax
 
-Example : 
+Example 1:
 
     testResultsAggregator columns: 'Job, Build, Status, Percentage, Total, Pass, Fail',
                           recipientsList: 'nick@some.com,mairy@some.com',
@@ -131,6 +131,22 @@ Example :
                                 [jobName: 'My CI Job2', jobFriendlyName: 'Job 2', groupName: 'TeamA'],
                                 [jobName: 'My CI Job3', groupName: 'TeamB'], // jobFriendlyName is optional
                                 [jobName: 'My CI Job4'] // groupName is optional
+                            ]
+
+Example 2 with buildNumber:
+
+    testResultsAggregator columns: 'Job, Build, Status, Percentage, Total, Pass, Fail',
+                          recipientsList: 'nick@some.com,mairy@some.com',
+                          outOfDateResults: '10',
+                          sortresults: 'Name',
+                          subject: 'Test Results'
+                        	 jobs: [
+                                [jobName: 'My CI Job1', jobFriendlyName: 'Job 1', groupName: 'TeamA', buildNumber: 1],
+                                [jobName: 'My CI Job1', jobFriendlyName: 'Job 1', groupName: 'TeamA', buildNumber: 2],
+                                [jobName: 'My CI Job3', groupName: 'TeamB', buildNumber: 1], // jobFriendlyName is optional
+                                [jobName: 'My CI Job3', groupName: 'TeamB', buildNumber: 2], // jobFriendlyName is optional
+                                [jobName: 'My CI Job4', buildNumber: 1], // groupName is optional
+                                [jobName: 'My CI Job4', buildNumber: 2] // groupName is optional
                             ]
 
 

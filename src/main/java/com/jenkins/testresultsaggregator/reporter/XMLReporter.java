@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.net.URL;
 
 import com.jenkins.testresultsaggregator.TestResultsAggregatorProjectAction;
 import com.jenkins.testresultsaggregator.data.Aggregated;
@@ -71,10 +72,18 @@ public class XMLReporter {
 							} else if (JobStatus.NOT_FOUND.name().equalsIgnoreCase(dataJob.getResults().getCurrentResult())) {
 								jobStatus(writer, dataJob, null, false);
 							} else {
-								jobStatus(writer, dataJob, dataJob.getJobInfo().getLastBuild().getUrl(), true);
+								URL currentUrl = dataJob.getJobInfo().getUrl();
+								if (dataJob.getBuildNumber() == 0) {
+									currentUrl = dataJob.getJobInfo().getLastBuild().getUrl();
+								}
+								jobStatus(writer, dataJob, currentUrl, true);
 							}
 						} else {
-							jobStatus(writer, dataJob, dataJob.getJobInfo().getLastBuild().getUrl(), true);
+							URL currentUrl = dataJob.getJobInfo().getUrl();
+							if (dataJob.getBuildNumber() == 0) {
+								currentUrl = dataJob.getJobInfo().getLastBuild().getUrl();
+							}
+							jobStatus(writer, dataJob, currentUrl, true);
 						}
 						writer.println(TAB + TAB + SE + JOB + E);
 					}

@@ -19,10 +19,12 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	private String jobName;
 	
 	private String jobFriendlyName;
-	//
+
+	private int buildNumber;
+
 	private String folder;
 	private String updated;
-	//
+
 	private JobInfo jobInfo;
 	private BuildInfo buildInfo;
 	private Results results;
@@ -43,10 +45,16 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	public Job() {
 		
 	}
-	
+
 	public Job(String jobName, String jobFriendlyName) {
 		setJobName(jobName);
 		setJobFriendlyName(jobFriendlyName);
+	}
+
+	public Job(String jobName, String jobFriendlyName, int buildNumber) {
+		setJobName(jobName);
+		setJobFriendlyName(jobFriendlyName);
+		setBuildNumber(buildNumber);
 	}
 	
 	public String getJobName() {
@@ -162,5 +170,13 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	
 	public void setFolder(String folder) {
 		this.folder = folder;
+	}
+
+	public int getBuildNumber() {
+		return buildNumber;
+	}
+
+	public void setBuildNumber(int buildNumber) {
+		this.buildNumber = buildNumber;
 	}
 }
