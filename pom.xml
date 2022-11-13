@@ -38,8 +38,8 @@
         </repository>
     </repositories>
     <scm>
-        <connection>scm:git:https://github.com/gooddata/test-results-aggregator-plugin.git</connection>
-        <developerConnection>scm:git:https://github.com/gooddata/test-results-aggregator-plugin.git
+        <connection>scm:git:git@github.com:gooddata/test-results-aggregator-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:gooddata/test-results-aggregator-plugin.git
         </developerConnection>
         <url>https://github.com/gooddata/test-results-aggregator-plugin</url>
         <tag>test-results-aggregator-1.1.11</tag>
@@ -65,11 +65,11 @@
     <distributionManagement>
         <repository>
             <id>gooddata</id>
-            <url>https://nexus.intgdc.com/nexus/content/repositories/gooddata/</url>
+            <url>https://nexus.intgdc.com/repository/gooddata/</url>
         </repository>
         <snapshotRepository>
             <id>gooddata-snapshots</id>
-            <url>https://nexus.intgdc.com/nexus/content/repositories/gooddata-snapshots/</url>
+            <url>https://nexus.intgdc.com/repository/gooddata-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
     <dependencies>
