@@ -43,9 +43,14 @@ if (my.result.abortedJobs > 0) {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
 					if(job.getResults()!=null && "${JobStatus.ABORTED.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
+						String jobURL = job.getJobInfo().getUrl()
+						String jobName = job.getJobName().replace("/", " » ")
+						String jobBuildNumber = "#${jobURL.split("/").last()}"
 						tr() {
 							td(align: "left") {
-								text("${job.getJobName()}")
+								 a(href: "${jobURL}") {
+                                    text("${jobName} ${jobBuildNumber}")
+                                }
 							}
 							td(align: "center") {
 								raw("${job.getResults().getCalculatedTotal()}")
@@ -60,7 +65,7 @@ if (my.result.abortedJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href: "${jobURL}") {
 									text(">>>")
 								}
 								text(" ")
@@ -105,9 +110,14 @@ if (my.result.failedJobs > 0) {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
 					if(job.getResults()!=null && "${JobStatus.FAILURE.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
+						String jobURL = job.getJobInfo().getUrl()
+						String jobName = job.getJobName().replace("/", " » ")
+						String jobBuildNumber = "#${jobURL.split("/").last()}"
 						tr() {
 							td(align: "left") {
-								text("${job.getJobName()}")
+								 a(href: "${jobURL}") {
+                                    text("${jobName} ${jobBuildNumber}")
+                                }
 							}
 							td(align: "center") {
 								raw("${job.getResults().getCalculatedTotal()}")
@@ -122,7 +132,7 @@ if (my.result.failedJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href: "${jobURL}") {
 									text(">>>")
 								}
 								text(" ")
@@ -167,9 +177,14 @@ if (my.result.keepFailJobs > 0) {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
 					if("${JobStatus.STILL_FAILING.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
+						String jobURL = job.getJobInfo().getUrl()
+						String jobName = job.getJobName().replace("/", " » ")
+						String jobBuildNumber = "#${jobURL.split("/").last()}"
 						tr() {
 							td(align: "left") {
-								text("${job.getJobName()}")
+								 a(href: "${jobURL}") {
+                                    text("${jobName} ${jobBuildNumber}")
+                                }
 							}
 							td(align: "center") {
 								raw("${job.getResults().getCalculatedTotal()}")
@@ -184,7 +199,7 @@ if (my.result.keepFailJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href: "${jobURL}") {
 									text(">>>")
 								}
 								text(" ")
@@ -229,9 +244,14 @@ if (my.result.unstableJobs > 0) {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
 					if(job.getResults()!=null && "${JobStatus.UNSTABLE.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
+						String jobURL = job.getJobInfo().getUrl()
+						String jobName = job.getJobName().replace("/", " » ")
+						String jobBuildNumber = "#${jobURL.split("/").last()}"
 						tr() {
 							td(align: "left") {
-								text("${job.getJobName()}")
+								 a(href: "${jobURL}") {
+                                    text("${jobName} ${jobBuildNumber}")
+                                }
 							}
 							td(align: "center") {
 								raw("${job.getResults().getCalculatedTotal()}")
@@ -246,7 +266,7 @@ if (my.result.unstableJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href: "${jobURL}") {
 									text(">>>")
 								}
 								text(" ")
@@ -291,9 +311,14 @@ if (my.result.keepUnstableJobs > 0) {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
 					if(job.getResults()!=null && "${JobStatus.STILL_UNSTABLE.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
+						String jobURL = job.getJobInfo().getUrl()
+						String jobName = job.getJobName().replace("/", " » ")
+						String jobBuildNumber = "#${jobURL.split("/").last()}"
 						tr() {
 							td(align: "left") {
-								text("${job.getJobName()}")
+								 a(href: "${jobURL}") {
+                                    text("${jobName} ${jobBuildNumber}")
+                                }
 							}
 							td(align: "center") {
 								raw("${job.getResults().getCalculatedTotal()}")
@@ -308,7 +333,7 @@ if (my.result.keepUnstableJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href: "${jobURL}") {
 									text(">>>")
 								}
 								text(" ")
@@ -353,9 +378,14 @@ if (my.result.fixedJobs > 0) {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
 					if(job.getResults()!=null && "${JobStatus.FIXED.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
+						String jobURL = job.getJobInfo().getUrl()
+						String jobName = job.getJobName().replace("/", " » ")
+						String jobBuildNumber = "#${jobURL.split("/").last()}"
 						tr() {
 							td(align: "left") {
-								text("${job.getJobName()}")
+								 a(href: "${jobURL}") {
+                                    text("${jobName} ${jobBuildNumber}")
+                                }
 							}
 							td(align: "center") {
 								raw("${job.getResults().getCalculatedTotal()}")
@@ -370,7 +400,7 @@ if (my.result.fixedJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href: "${jobURL}") {
 									text(">>>")
 								}
 								text(" ")
@@ -415,9 +445,14 @@ if (my.result.successJobs > 0) {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
 					if(job.getResults()!=null && "${JobStatus.SUCCESS.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
+						String jobURL = job.getJobInfo().getUrl()
+						String jobName = job.getJobName().replace("/", " » ")
+						String jobBuildNumber = "#${jobURL.split("/").last()}"
 						tr() {
 							td(align: "left") {
-								text("${job.getJobName()}")
+								a(href: "${jobURL}") {
+									text("${jobName} ${jobBuildNumber}")
+								}
 							}
 							td(align: "center") {
 								raw("${job.getResults().getCalculatedTotal()}")
@@ -432,7 +467,7 @@ if (my.result.successJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href: "${jobURL}") {
 									text(">>>")
 								}
 								text(" ")
@@ -477,9 +512,14 @@ if (my.result.runningJobs > 0) {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
 					if(job.getResults()!=null && "${JobStatus.RUNNING.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
+						String jobURL = job.getJobInfo().getUrl()
+						String jobName = job.getJobName().replace("/", " » ")
+						String jobBuildNumber = "#${jobURL.split("/").last()}"
 						tr() {
 							td(align: "left") {
-								text("${job.getJobName()}")
+								 a(href: "${jobURL}") {
+                                    text("${jobName} ${jobBuildNumber}")
+                                }
 							}
 							td(align: "center") {
 								raw("${job.getResults().getCalculatedTotal()}")
@@ -494,7 +534,7 @@ if (my.result.runningJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href: "${jobURL}") {
 									text(">>>")
 								}
 								text(" ")
