@@ -32,15 +32,15 @@ public class TestResultHistoryUtil {
 	}
 	
 	public static String toSummary(TestResultsAggregatorTestResultBuildAction action) {
-		int prevFailed, prevUnstable, prevSucces, prevAborted, prevRunning, prevTotal;
+		int prevFailed, prevUnstable, prevSuccess, prevAborted, prevRunning, prevTotal;
 		Run<?, ?> run = action.run;
 		Aggregated previousResult = TestResultHistoryUtil.getPreviousBuildTestResults(run);
 		prevFailed = previousResult.getFailedJobs() + previousResult.getKeepFailJobs();
 		prevUnstable = previousResult.getUnstableJobs() + previousResult.getKeepUnstableJobs();
-		prevSucces = previousResult.getSuccessJobs() + previousResult.getFixedJobs();
+		prevSuccess = previousResult.getSuccessJobs() + previousResult.getFixedJobs();
 		prevAborted = previousResult.getAbortedJobs();
 		prevRunning = previousResult.getRunningJobs();
-		prevTotal = prevFailed + prevUnstable + prevSucces + prevAborted + prevRunning;
+		prevTotal = prevFailed + prevUnstable + prevSuccess + prevAborted + prevRunning;
 		Aggregated result = action.getResult();
 		int total = result.getAbortedJobs() +
 				result.getFailedJobs() +
@@ -51,6 +51,7 @@ public class TestResultHistoryUtil {
 				result.getUnstableJobs() +
 				result.getKeepUnstableJobs();
 		return "<ul>" + Helper.diff(prevTotal, total, "Total Jobs ", true) +
+				Helper.diff(prevSuccess, result.getSuccessJobs(), TestResultsAggregatorProjectAction.SUCCESS + " Jobs ", true) +
 				Helper.diff(prevFailed, result.getFailedJobs() + result.getKeepFailJobs(), TestResultsAggregatorProjectAction.FAILED + " Jobs ", true) +
 				Helper.diff(prevUnstable, result.getUnstableJobs() + result.getKeepUnstableJobs(), TestResultsAggregatorProjectAction.UNSTABLE + " Jobs ", true) +
 				Helper.diff(prevAborted, result.getAbortedJobs(), TestResultsAggregatorProjectAction.ABORTED + " Jobs ", true) +
@@ -61,21 +62,21 @@ public class TestResultHistoryUtil {
 	public static String toSummaryTest(TestResultsAggregatorTestResultBuildAction action) {
 		int prevFailed = 0;
 		int prevUnstable = 0;
-		int prevSucces = 0;
+		int prevSuccess = 0;
 		int prevTotal = 0;
 		Run<?, ?> run = action.run;
 		Aggregated previousResult = TestResultHistoryUtil.getPreviousBuildTestResults(run);
 		if (previousResult != null && previousResult.getResults() != null) {
 			prevFailed = previousResult.getResults().getFail();
 			prevUnstable = previousResult.getResults().getSkip();
-			prevSucces = previousResult.getResults().getPass();
+			prevSuccess = previousResult.getResults().getPass();
 			prevTotal = previousResult.getResults().getTotal();
 		}
 		Aggregated result = action.getResult();
 		return "<ul>" + Helper.diff(prevTotal, result.getResults().getTotal(), "Total Tests ", true) +
 				Helper.diff(prevFailed, result.getResults().getFail(), TestResultsAggregatorProjectAction.FAILED + " Tests ", true) +
 				Helper.diff(prevUnstable, result.getResults().getSkip(), TestResultsAggregatorProjectAction.ABORTED + " Tests ", true) +
-				Helper.diff(prevSucces, result.getResults().getPass(), TestResultsAggregatorProjectAction.SUCCESS + " Tests ", true) +
+				Helper.diff(prevSuccess, result.getResults().getPass(), TestResultsAggregatorProjectAction.SUCCESS + " Tests ", true) +
 				"</ul>";
 	}
 	

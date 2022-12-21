@@ -51,6 +51,7 @@ public class Analyzer {
 			boolean foundFailure = false;
 			boolean foundRunning = false;
 			boolean foundSkip = false;
+			boolean foundAborted = false;
 			boolean foundDisabled = false;
 			Results resultsPerGroup = new Results();
 			int jobFailed = 0;
@@ -110,7 +111,7 @@ public class Analyzer {
 						data.getReportGroup().setJobSuccess(data.getReportGroup().getJobSuccess() + 1);
 						aggregated.setFixedJobs(aggregated.getFixedJobs() + 1);
 						jobSuccess++;
-					} else if (JobStatus.RUNNING.name().equalsIgnoreCase(job.getReport().getStatus()) && "true".equalsIgnoreCase((String) properties.get(AggregatorProperties.IGNORE_RUNNING_JOBS))) {
+					} else if (JobStatus.RUNNING.name().equalsIgnoreCase(job.getReport().getStatus()) && ((String) properties.get(AggregatorProperties.IGNORE_RUNNING_JOBS.name())).equalsIgnoreCase("false")) {
 						foundRunning = true;
 						data.getReportGroup().setJobRunning(data.getReportGroup().getJobRunning() + 1);
 						aggregated.setRunningJobs(aggregated.getRunningJobs() + 1);
@@ -135,12 +136,17 @@ public class Analyzer {
 						data.getReportGroup().setJobUnstable(data.getReportGroup().getJobUnstable() + 1);
 						aggregated.setKeepUnstableJobs(aggregated.getKeepUnstableJobs() + 1);
 						jobUnstable++;
-					} else if (JobStatus.ABORTED.name().equalsIgnoreCase(job.getReport().getStatus()) && "true".equalsIgnoreCase((String) properties.get(AggregatorProperties.IGNORE_ABORTED_JOBS))) {
-						foundSkip = true;
+					} else if (JobStatus.ABORTED.name().equalsIgnoreCase(job.getReport().getStatus())) {
+						Boolean ignoreAbortedJobs = (Boolean) properties.get(AggregatorProperties.IGNORE_ABORTED_JOBS.name());
+						if (ignoreAbortedJobs.booleanValue()) {
+							foundSkip = true;
+						} else {
+							foundAborted = true;
+						}
 						data.getReportGroup().setJobAborted(data.getReportGroup().getJobAborted() + 1);
 						aggregated.setAbortedJobs(aggregated.getAbortedJobs() + 1);
 						jobAborted++;
-					} else if (JobStatus.DISABLED.name().equalsIgnoreCase(job.getReport().getStatus()) && "true".equalsIgnoreCase((String) properties.get(AggregatorProperties.IGNORE_DISABLED_JOBS))) {
+					} else if (JobStatus.DISABLED.name().equalsIgnoreCase(job.getReport().getStatus()) && ((String) properties.get(AggregatorProperties.IGNORE_DISABLED_JOBS.name())).equalsIgnoreCase("false")) {
 						foundDisabled = true;
 						data.getReportGroup().setJobDisabled(data.getReportGroup().getJobDisabled() + 1);
 						aggregated.setDisabledJobs(aggregated.getDisabledJobs() + 1);
@@ -170,6 +176,10 @@ public class Analyzer {
 				data.getReportGroup().setStatus(JobStatus.FAILURE.name());
 			} else if (foundSkip) {
 				data.getReportGroup().setStatus(JobStatus.UNSTABLE.name());
+			} else if (foundAborted) {
+				data.getReportGroup().setStatus(JobStatus.ABORTED.name());
+			} else if (foundDisabled) {
+				data.getReportGroup().setStatus(JobStatus.DISABLED.name());
 			} else {
 				data.getReportGroup().setStatus(JobStatus.SUCCESS.name());
 			}
@@ -177,7 +187,7 @@ public class Analyzer {
 			data.getReportGroup().setOnlyTests(isOnlyTestIntoGroup);
 			// Calculate Percentage Per Group based on Jobs
 			if (!isOnlyTestIntoGroup) {
-				data.getReportGroup().setPercentageForJobs(Helper.countPercentage(jobSuccess + jobUnstable, jobSuccess + jobRunning + jobAborted + jobUnstable + jobFailed));
+				data.getReportGroup().setPercentageForJobs(Helper.countPercentage(jobSuccess + jobUnstable, jobSuccess + jobRunning + jobAborted + jobUnstable + jobFailed + jobDisabled));
 			}
 			// Calculate Percentage Per Group based on Tests
 			// Skip tests are calculated as success into test percentage

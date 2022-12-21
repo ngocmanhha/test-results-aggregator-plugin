@@ -1,7 +1,7 @@
 %global     plugin_name test-results-aggregator-plugin
 %global     debug_package %{nil}
 Name:       jenkins-in-house-plugins-%{plugin_name}
-Version:    1.1.12
+Version:    1.1.13
 Release:    1%{?dist}
 Summary:    A jenkins in-house plugins %{plugin_name}.hpi
 Obsoletes:  jenkins-upstream-plugins-%{plugin_name} <= %{version}
@@ -36,6 +36,12 @@ mvn package --batch-mode -Dmaven.test.skip=true
 %{_sharedstatedir}/juseppe/%{plugin_name}.hpi
 
 %changelog
+* Wed Dec 21 2022 +0700 Manh Ha <manh.ha@gooddata.com> - 1.1.13-1
+- Add success jobs in the summary report
+- Fix missing aborted jobs in the summary report
+- Fix typo of variable name
+- Bump test-results-aggregator-plugin version
+
 * Thu Dec 01 2022 +0700 Manh Ha <manh.ha@gooddata.com> - 1.1.12-1
 - Reformat the code
 - Add build number on the reports
