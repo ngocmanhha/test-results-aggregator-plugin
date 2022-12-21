@@ -137,8 +137,8 @@ public class Analyzer {
 						aggregated.setKeepUnstableJobs(aggregated.getKeepUnstableJobs() + 1);
 						jobUnstable++;
 					} else if (JobStatus.ABORTED.name().equalsIgnoreCase(job.getReport().getStatus())) {
-						Boolean ignoreAbortedJobs = (Boolean) properties.get(AggregatorProperties.IGNORE_ABORTED_JOBS.name());
-						if (ignoreAbortedJobs.booleanValue()) {
+						String ignoreAbortedJobs = (String) properties.get(AggregatorProperties.IGNORE_ABORTED_JOBS.name());
+						if (ignoreAbortedJobs.equalsIgnoreCase("true")) {
 							foundSkip = true;
 						} else {
 							foundAborted = true;
