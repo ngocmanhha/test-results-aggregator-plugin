@@ -243,7 +243,10 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		properties.put(AggregatorProperties.RECIPIENTS_LIST_BCC.name(), getRecipientsListBcc() != null ? getRecipientsListBcc() : "");
 		properties.put(AggregatorProperties.RECIPIENTS_LIST_CC.name(), getRecipientsListCc() != null ? getRecipientsListCc() : "");
 		properties.put(AggregatorProperties.RECIPIENTS_LIST_IGNORED.name(), getRecipientsListIgnored() != null ? getRecipientsListIgnored() : "");
-		
+		properties.put(AggregatorProperties.IGNORE_RUNNING_JOBS.name(), ignoreRunningJobs());
+		properties.put(AggregatorProperties.IGNORE_ABORTED_JOBS.name(), ignoreAbortedJobs());
+		properties.put(AggregatorProperties.IGNORE_DISABLED_JOBS.name(), ignoreDisabledJobs());
+		properties.put(AggregatorProperties.IGNORE_NOTFOUND_JOBS.name(), ignoreNotFoundJobs());
 	}
 	
 	@Override
@@ -647,25 +650,20 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		return afterbody;
 	}
 	
-	public Boolean isCompareWithPreviousRun() {
-		return compareWithPreviousRun;
-	}
-	
 	public boolean compareWithPrevious() {
 		if (compareWithPreviousRun == null) {
 			compareWithPreviousRun = true;
 		}
 		return compareWithPreviousRun.booleanValue();
 	}
-	
-	public Boolean isIgnoreNotFoundJobs() {
-		return ignoreNotFoundJobs;
+
+	public boolean ignoreRunningJobs() {
+		if (ignoreRunningJobs == null) {
+			ignoreRunningJobs = false;
+		}
+		return ignoreRunningJobs.booleanValue();
 	}
-	
-	public Boolean isIgnoreDisabledJobs() {
-		return ignoreDisabledJobs;
-	}
-	
+
 	public boolean ignoreNotFoundJobs() {
 		if (ignoreNotFoundJobs == null) {
 			ignoreNotFoundJobs = false;
