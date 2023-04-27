@@ -2,7 +2,7 @@
 %global     debug_package %{nil}
 Name:       jenkins-in-house-plugins-%{plugin_name}
 Version:    1.1.13
-Release:    2%{?dist}
+Release:    3%{?dist}
 Summary:    A jenkins in-house plugins %{plugin_name}.hpi
 Obsoletes:  jenkins-upstream-plugins-%{plugin_name} <= %{version}
 Requires:   jenkins
@@ -11,8 +11,8 @@ License:    BSD
 URL:        https://github.com/gooddata/%{plugin_name}
 Source0:    %{name}.tar.gz
 
-BuildRequires: java
-BuildRequires: maven
+BuildRequires: java-1.8.0-openjdk-devel, maven >= 3.5.0, maven-openjdk8 >= 3.5.0
+Requires: java-1.8.0-openjdk-devel, maven-openjdk8 >= 3.5.0
 
 %description
 Packaged jenkins-in-house-plugin-%{plugin_name} %{plugin_name}.hpi file
@@ -36,6 +36,10 @@ mvn package --batch-mode -Dmaven.test.skip=true
 %{_sharedstatedir}/juseppe/%{plugin_name}.hpi
 
 %changelog
+* Thu Apr 27 2023 +0700 Manh Ha <manh.ha@gooddata.com> - 1.1.13-3
+- Lock java version in rpm build
+- Bump test-results-aggregator-plugin version
+
 * Wed Dec 21 2022 +0700 Manh Ha <manh.ha@gooddata.com> - 1.1.13-2
 - Correct cast property value object
 - Bump test-results-aggregator-plugin version
