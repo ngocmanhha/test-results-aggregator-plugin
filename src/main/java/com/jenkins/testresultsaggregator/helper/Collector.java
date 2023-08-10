@@ -26,6 +26,7 @@ import com.jenkins.testresultsaggregator.data.JobListDTO.JobDTO;
 import com.jenkins.testresultsaggregator.data.JobStatus;
 import com.jenkins.testresultsaggregator.data.ReportJob;
 import com.jenkins.testresultsaggregator.data.Results;
+import com.jenkins.testresultsaggregator.helper.Http.AuthenticationType;
 
 import hudson.util.Secret;
 
@@ -53,14 +54,25 @@ public class Collector {
 	
 	private String username;
 	private Secret password;
+	private Secret token;
 	private String jenkinsUrl;
 	private PrintStream logger;
+	private AuthenticationType authenticationType;
+	private String authenticationString;
 	
-	public Collector(PrintStream logger, String username, Secret password, String jenkinsUrl) {
+	public Collector(PrintStream logger, String username, Secret password, Secret token, String jenkinsUrl) {
 		this.username = username;
 		this.password = password;
+		this.token = token;
 		this.jenkinsUrl = jenkinsUrl;
 		this.logger = logger;
+		if (!Strings.isNullOrEmpty(authenticationToken())) {
+			this.authenticationType = AuthenticationType.TOKEN;
+			this.authenticationString = authenticationToken();
+		} else {
+			this.authenticationType = AuthenticationType.CREDENTIALS;
+			this.authenticationString = authenticationString();
+		}
 	}
 	
 	public void collectResults(List<Data> dataJob, boolean compareWithPreviousRun, Boolean ignoreRunningJobs) throws InterruptedException {
@@ -97,9 +109,16 @@ public class Collector {
 		return null;
 	}
 	
+	private String authenticationToken() {
+		if (token != null) {
+			return token.getPlainText();
+		}
+		return null;
+	}
+	
 	public String getAPIConnection() throws IOException {
 		URL jobUrlAPI = new URL(jenkinsUrl + "/" + API_JSON_URL);
-		return Http.get(jobUrlAPI, authenticationString());
+		return Http.get(authenticationType, jobUrlAPI, authenticationString);
 	}
 	
 	public void delay(int millisec) {
@@ -119,7 +138,7 @@ public class Collector {
 		while (jobListDTO == null && retries <= MAXRETRIES) {
 			try {
 				URL jobUrlAPI = new URL(url + "/" + API_JSON_JOBS);
-				jobListDTO = Deserialize.initializeObjectMapper().readValue(Http.get(jobUrlAPI, authenticationString()), JobListDTO.class);
+				jobListDTO = Deserialize.initializeObjectMapper().readValue(Http.get(authenticationType, jobUrlAPI, authenticationString), JobListDTO.class);
 			} catch (IOException e) {
 			}
 			retries++;
@@ -186,7 +205,7 @@ public class Collector {
 				} else {
 					jobUrlAPI = new URL(job.getUrl() + "/" + API_JSON_URL);
 				}
-				jobInfo = Deserialize.initializeObjectMapper().readValue(Http.get(jobUrlAPI, authenticationString()), JobInfo.class);
+				jobInfo = Deserialize.initializeObjectMapper().readValue(Http.get(authenticationType, jobUrlAPI, authenticationString), JobInfo.class);
 			} catch (IOException e) {
 			}
 			if (jobInfo == null) {
@@ -222,7 +241,7 @@ public class Collector {
 		while (buildInfo == null && retries <= customMaxRetries) {
 			try {
 				URL jobUrlAPILastBuild = new URL(url);
-				buildInfo = Deserialize.initializeObjectMapper().readValue(Http.get(jobUrlAPILastBuild, authenticationString()), BuildInfo.class);
+				buildInfo = Deserialize.initializeObjectMapper().readValue(Http.get(authenticationType, jobUrlAPILastBuild, authenticationString), BuildInfo.class);
 			} catch (IOException e) {
 			}
 			retries++;
@@ -237,7 +256,7 @@ public class Collector {
 		try {
 			URL jobUrlAPILastBuild = new URL(url + "/" + API_JSON_COBERTURA);
 			// Get Latest
-			String reply = Http.get(jobUrlAPILastBuild, authenticationString());
+			String reply = Http.get(authenticationType, jobUrlAPILastBuild, authenticationString);
 			return Deserialize.initializeObjectMapper().readValue(reply, CoberturaCoverage.class);
 		} catch (IOException e) {
 		}

@@ -49,6 +49,7 @@ import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import hudson.util.VariableResolver;
+import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 
@@ -196,7 +197,7 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 				previousSavedResults(validatedData, previousSavedAggregatedResults);
 			}
 			// Collect Data
-			Collector collector = new Collector(logger, desc.getUsername(), desc.getPassword(), jenkinsUrl);
+			Collector collector = new Collector(logger, desc.getUsername(), desc.getPassword(), desc.getToken(), jenkinsUrl);
 			collector.collectResults(validatedData, compareWithPrevious(), ignoreRunningJobs());
 			// Analyze Results
 			Aggregated aggregated = new Analyzer(logger).analyze(validatedData, properties);
@@ -261,7 +262,7 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 				previousSavedResults(validatedData, previousSavedAggregatedResults);
 			}
 			// Collect Data
-			Collector collector = new Collector(logger, desc.getUsername(), desc.getPassword(), jenkinsUrl);
+			Collector collector = new Collector(logger, desc.getUsername(), desc.getPassword(), desc.getToken(), jenkinsUrl);
 			collector.collectResults(validatedData, compareWithPrevious(), ignoreRunningJobs());
 			// Analyze Results
 			Aggregated aggregated = new Analyzer(logger).analyze(validatedData, properties);
@@ -316,6 +317,7 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		private String jenkinsUrl;
 		private String username;
 		private Secret password;
+		private Secret token;
 		private String mailNotificationFrom;
 		
 		public String getUsername() {
@@ -361,6 +363,7 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		public boolean configure(StaplerRequest req, JSONObject jsonObject) throws FormException {
 			username = jsonObject.getString("username");
 			password = Secret.fromString((String) jsonObject.get("password"));
+			token = Secret.fromString((String) jsonObject.get("token"));
 			jenkinsUrl = jsonObject.getString("jenkinsUrl");
 			mailNotificationFrom = jsonObject.getString("mailNotificationFrom");
 			save();
@@ -386,13 +389,35 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		}
 		
 		public FormValidation doTestApiConnection(@QueryParameter final String jenkinsUrl, @QueryParameter final String username, @QueryParameter final Secret password) {
+			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 			try {
-				new Collector(null, username, password, jenkinsUrl).getAPIConnection();
+				new Collector(null, username, password, null, jenkinsUrl).getAPIConnection();
 				return FormValidation.ok(LocalMessages.SUCCESS.toString());
 			} catch (Exception e) {
 				return FormValidation.error(LocalMessages.ERROR_OCCURRED.toString() + ": " + e.getMessage());
 			}
 			
+		}
+		
+		public FormValidation doTestTokenConnection(@QueryParameter final String jenkinsUrl, @QueryParameter final Secret token) {
+			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			try {
+				new Collector(null, null, null, token, jenkinsUrl).getAPIConnection();
+				return FormValidation.ok(LocalMessages.SUCCESS.toString());
+			} catch (Exception e) {
+				return FormValidation.error(LocalMessages.ERROR_OCCURRED.toString() + ": " + e.getMessage());
+			}
+			
+		}
+		
+		/*List<TopLevelItem> items = Jenkins.get().getItems();
+			Jenkins.get().getItems().get(0).getUrl();*/
+		public Secret getToken() {
+			return token;
+		}
+		
+		public void setToken(Secret token) {
+			this.token = token;
 		}
 	}
 	
