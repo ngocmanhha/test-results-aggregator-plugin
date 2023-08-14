@@ -120,14 +120,10 @@ public class Helper {
 				percentage = singDoubleSingle((double) (results.getPass() + results.getSkip()) * 100 / results.getTotal());
 				if (percentage.equals("100")) {
 					return 100D;
+				} else if (!Strings.isNullOrEmpty(percentage)) {
+					percentage = percentage.replace(",", ".");
 				}
-				double percentageDouble = 0;
-				try {
-					percentageDouble = Double.parseDouble(percentage);
-				} catch (Exception ex) {
-					
-				}
-				return percentageDouble;
+				return Double.valueOf(percentage);
 			} catch (Exception ex) {
 				
 			}

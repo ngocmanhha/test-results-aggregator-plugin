@@ -31,24 +31,24 @@ public class InfluxdbReporter {
 			for (Data data : aggregated.getData()) {
 				for (Job job : data.getJobs()) {
 					Instant timeStamp = Instant.now();
-					if (!job.getBuildInfo().getBuilding()) {
+					if (!job.getLastBuildDetails().isBuilding()) {
 						// Job has already been completed , is not building post the endTime
-						timeStamp = Instant.ofEpochMilli(job.getBuildInfo().getTimestamp());
+						timeStamp = Instant.ofEpochMilli(job.getLastBuildDetails().getDuration());
 					}
 					Point pointJenkinsJob = Point.measurement("Aggregator")
 							.time(timeStamp, WritePrecision.S)
-							.addTag("identifier", job.getJobName() + "#" + job.getBuildInfo().getNumber())
+							.addTag("identifier", job.getJobName() + "#" + job.getLastBuildDetails().getNumber())
 							.addTag("jobName", job.getJobName())
-							.addTag("name", job.getJobNameFromFriendlyName(false))
+							.addTag("name", job.getJobNameFromFriendlyName())
 							.addTag("url", job.getUrl())
 							.addTag("group", data.getGroupName())
 							.addTag("status", job.getReport().getStatus())
-							.addTag("estimatedDuration", "" + job.getBuildInfo().getEstimatedDuration())
-							.addTag("originalStatus", job.getReport().getOriginalStatus())
-							.addTag("testTotal", Integer.toString(job.getResults().getTotal()))
-							.addTag("testPass", Integer.toString(job.getResults().getPass()))
-							.addTag("testFail", Integer.toString(job.getResults().getFail()))
-							.addTag("testSkip", Integer.toString(job.getResults().getSkip()))
+							.addTag("estimatedDuration", "" + job.getJobDetails().getLastBuild().getQueueId())
+							.addTag("status", job.getReport().getStatus())
+							.addTag("testTotal", Integer.toString(job.getLastBuildResults().getTotal()))
+							.addTag("testPass", Integer.toString(job.getLastBuildResults().getPass()))
+							.addTag("testFail", Integer.toString(job.getLastBuildResults().getFail()))
+							.addTag("testSkip", Integer.toString(job.getLastBuildResults().getSkip()))
 							.addField("result", job.getReport().getStatus());
 					send(pointJenkinsJob, bucket, org);
 					Thread.sleep(200);

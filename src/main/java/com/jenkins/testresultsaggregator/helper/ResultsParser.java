@@ -2,7 +2,6 @@ package com.jenkins.testresultsaggregator.helper;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +17,9 @@ import com.jenkins.testresultsaggregator.TestResultsAggregatorProjectAction;
 import com.jenkins.testresultsaggregator.data.Aggregated;
 import com.jenkins.testresultsaggregator.data.Data;
 import com.jenkins.testresultsaggregator.data.Job;
-import com.jenkins.testresultsaggregator.data.JobInfo;
 import com.jenkins.testresultsaggregator.data.Results;
 import com.jenkins.testresultsaggregator.reporter.XMLReporter;
+import com.offbytwo.jenkins.model.JobWithDetails;
 
 import hudson.FilePath;
 
@@ -139,41 +138,47 @@ public class ResultsParser {
 				if (XMLReporter.JOB.equalsIgnoreCase(currentNodeResults.getNodeName())) {
 					Job dataJob = new Job("", "");
 					dataJobs.add(dataJob);
-					dataJob.setResults(new Results(null, null));
-					dataJob.setJobInfo(new JobInfo());
+					dataJob.setLastBuildResults(new Results(null, null));
+					dataJob.setJobDetails(new JobWithDetails());
 					for (int j = 0; j < currentNodeResults.getChildNodes().getLength(); j++) {
-						Node jobResults = currentNodeResults.getChildNodes().item(j);
-						if (!jobResults.getNodeName().startsWith("#")) {
-							if (jobResults.getNodeName().equalsIgnoreCase(XMLReporter.NAME)) {
-								dataJob.setJobName(getString(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(XMLReporter.STATUS)) {
-								dataJob.getResults().setCurrentResult(getString(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(XMLReporter.URL)) {
+						Node nodeItem = currentNodeResults.getChildNodes().item(j);
+						if (!nodeItem.getNodeName().startsWith("#")) {
+							if (nodeItem.getNodeName().equalsIgnoreCase(XMLReporter.NAME)) {
+								dataJob.setJobName(getString(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(XMLReporter.STATUS)) {
+								dataJob.getLastBuildResults().setCurrentResult(getString(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(XMLReporter.BUILD)) {
 								try {
-									dataJob.getJobInfo().setUrl(new URL(getString(jobResults)));
+									dataJob.setLastBuildNumber(Integer.parseInt(getString(nodeItem)));
 								} catch (Exception ex) {
 									
 								}
-							} else if (jobResults.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_SUCCESS)) {
-								dataJob.getResults().setPass(getInteger(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_SKIPPED)) {
-								dataJob.getResults().setSkip(getInteger(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_FAILED)) {
-								dataJob.getResults().setFail(getInteger(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_TOTAL)) {
-								dataJob.getResults().setTotal(getInteger(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_PACKAGES)) {
-								dataJob.getResults().setCcPackages(getInteger(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_FILES)) {
-								dataJob.getResults().setCcFiles(getInteger(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_CLASSES)) {
-								dataJob.getResults().setCcClasses(getInteger(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_METHODS)) {
-								dataJob.getResults().setCcMethods(getInteger(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_LINES)) {
-								dataJob.getResults().setCcLines(getInteger(jobResults));
-							} else if (jobResults.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_CONDTITIONALS)) {
-								dataJob.getResults().setCcConditions(getInteger(jobResults));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(XMLReporter.URL)) {
+								try {
+									dataJob.setUrl(getString(nodeItem));
+								} catch (Exception ex) {
+									
+								}
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_SUCCESS)) {
+								dataJob.getLastBuildResults().setPass(getInteger(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_SKIPPED)) {
+								dataJob.getLastBuildResults().setSkip(getInteger(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_FAILED)) {
+								dataJob.getLastBuildResults().setFail(getInteger(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_TOTAL)) {
+								dataJob.getLastBuildResults().setTotal(getInteger(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_PACKAGES)) {
+								dataJob.getLastBuildResults().setCcPackages(getInteger(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_FILES)) {
+								dataJob.getLastBuildResults().setCcFiles(getInteger(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_CLASSES)) {
+								dataJob.getLastBuildResults().setCcClasses(getInteger(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_METHODS)) {
+								dataJob.getLastBuildResults().setCcMethods(getInteger(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_LINES)) {
+								dataJob.getLastBuildResults().setCcLines(getInteger(nodeItem));
+							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_CONDTITIONALS)) {
+								dataJob.getLastBuildResults().setCcConditions(getInteger(nodeItem));
 							}
 						}
 					}

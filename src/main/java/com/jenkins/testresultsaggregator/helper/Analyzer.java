@@ -64,43 +64,45 @@ public class Analyzer {
 			
 			for (Job job : data.getJobs()) {
 				job.setReport(new ReportJob());
-				if (job.getResults() != null) {
-					// Calculate Job Status
-					job.getReport().calculateStatus(job);
+				// Calculate Job Status
+				job.getReport().calculateStatus(job);
+				if (job.getLastBuildResults() != null && !job.getLastBuildResults().getStatus().equals(JobStatus.NOT_FOUND.name())) {
+					// Report URL
+					job.getReport().setReportURL(job.getLastBuildResults().getUrl());
 					// Calculate Total
-					job.getReport().calculateTotal(job.getResults());
+					job.getReport().calculateTotal(job.getLastBuildResults());
 					// Calculate Pass
-					job.getReport().calculatePass(job.getResults());
+					job.getReport().calculatePass(job.getLastBuildResults());
 					// Calculate Fail
-					job.getReport().calculateFailedColor(job.getResults());
+					job.getReport().calculateFailedColor(job.getLastBuildResults());
 					// Calculate Skipped
-					job.getReport().calculateSkipped(job.getResults());
+					job.getReport().calculateSkipped(job.getLastBuildResults());
 					// Calculate timestamp
-					job.getReport().calculateTimestamp(job.getResults(), outOfDateResults);
+					job.getReport().calculateTimestamp(job.getLastBuildResults(), outOfDateResults);
 					// Calculate Changes
-					job.getReport().calculateChanges(job.getResults());
+					job.getReport().calculateChanges(job.getLastBuildResults());
 					// Calculate Sonar Url
-					job.getReport().calculateSonar(job.getResults());
+					job.getReport().calculateSonar(job.getLastBuildResults());
 					// Calculate Coverage Packages
-					job.getReport().calculateCCPackages(job.getResults());
-					job.getReport().calculateCCFiles(job.getResults());
-					job.getReport().calculateCCClasses(job.getResults());
-					job.getReport().calculateCCMethods(job.getResults());
-					job.getReport().calculateCCLines(job.getResults());
-					job.getReport().calculateCCConditions(job.getResults());
+					job.getReport().calculateCCPackages(job.getLastBuildResults());
+					job.getReport().calculateCCFiles(job.getLastBuildResults());
+					job.getReport().calculateCCClasses(job.getLastBuildResults());
+					job.getReport().calculateCCMethods(job.getLastBuildResults());
+					job.getReport().calculateCCLines(job.getLastBuildResults());
+					job.getReport().calculateCCConditions(job.getLastBuildResults());
 					
 					// Calculate Duration
-					if (job.getBuildInfo() != null) {
-						job.getReport().calculateDuration(job.getBuildInfo().getDuration());
+					if (job.getLastBuildDetails() != null) {
+						job.getReport().calculateDuration(job.getLastBuildDetails().getDuration());
 						// Total Duration
-						aggregated.setTotalDuration(aggregated.getTotalDuration() + job.getBuildInfo().getDuration());
+						aggregated.setTotalDuration(aggregated.getTotalDuration() + job.getLastBuildDetails().getDuration());
 						// Total Changes
-						aggregated.setTotalNumberOfChanges(aggregated.getTotalNumberOfChanges() + job.getResults().getNumberOfChanges());
+						aggregated.setTotalNumberOfChanges(aggregated.getTotalNumberOfChanges() + job.getLastBuildResults().getNumberOfChanges());
 						// Calculate Description
-						job.getReport().calculateDescription(job.getBuildInfo().getDescription());
+						job.getReport().calculateDescription(job.getLastBuildDetails().getDescription());
 					}
 					// Calculate Percentage
-					job.getReport().calculatePercentage(job.getResults());
+					job.getReport().calculatePercentage(job.getLastBuildResults());
 					// Calculate Group
 					String jobStatus = job.getReport().getStatus();
 					if (jobStatus != null) {
@@ -150,18 +152,16 @@ public class Analyzer {
 						}
 					}
 					// Calculate Total Tests Per Group
-					resultsPerGroup.setPass(resultsPerGroup.getPass() + job.getResults().getPass());
-					resultsPerGroup.setSkip(resultsPerGroup.getSkip() + job.getResults().getSkip());
-					resultsPerGroup.setFail(resultsPerGroup.getFail() + job.getResults().getFail());
-					resultsPerGroup.setTotal(resultsPerGroup.getTotal() + job.getResults().getTotal());
+					resultsPerGroup.setPass(resultsPerGroup.getPass() + job.getLastBuildResults().getPass());
+					resultsPerGroup.setSkip(resultsPerGroup.getSkip() + job.getLastBuildResults().getSkip());
+					resultsPerGroup.setFail(resultsPerGroup.getFail() + job.getLastBuildResults().getFail());
+					resultsPerGroup.setTotal(resultsPerGroup.getTotal() + job.getLastBuildResults().getTotal());
 					// Calculate Total Tests for Summary Column
-					totalResults.addResults(job.getResults());
+					totalResults.addResults(job.getLastBuildResults());
 					// Has tests
-					if (job.getResults().getTotal() <= 0) {
+					if (job.getLastBuildResults().getTotal() <= 0) {
 						isOnlyTestIntoGroup = false;
 					}
-				} else {
-					logger.println("Not found results for " + job.getJobName());
 				}
 			}
 			// Set Results Per Group
@@ -199,23 +199,23 @@ public class Analyzer {
 						} else if (TestResultsAggregator.SortResultsBy.STATUS.name().equalsIgnoreCase(orderBy)) {
 							return dataJobDTO1.getReport().getStatusFromEnum().getPriority() - dataJobDTO2.getReport().getStatusFromEnum().getPriority();
 						} else if (TestResultsAggregator.SortResultsBy.TOTAL_TEST.name().equalsIgnoreCase(orderBy)) {
-							return dataJobDTO2.getResults().getTotal() - dataJobDTO1.getResults().getTotal();
+							return dataJobDTO2.getLastBuildResults().getTotal() - dataJobDTO1.getLastBuildResults().getTotal();
 						} else if (TestResultsAggregator.SortResultsBy.PASS.name().equalsIgnoreCase(orderBy)) {
-							return dataJobDTO2.getResults().getPass() - dataJobDTO1.getResults().getPass();
+							return dataJobDTO2.getLastBuildResults().getPass() - dataJobDTO1.getLastBuildResults().getPass();
 						} else if (TestResultsAggregator.SortResultsBy.FAIL.name().equalsIgnoreCase(orderBy)) {
-							return dataJobDTO2.getResults().getFail() - dataJobDTO1.getResults().getFail();
+							return dataJobDTO2.getLastBuildResults().getFail() - dataJobDTO1.getLastBuildResults().getFail();
 						} else if (TestResultsAggregator.SortResultsBy.SKIP.name().equalsIgnoreCase(orderBy)) {
-							return dataJobDTO2.getResults().getSkip() - dataJobDTO1.getResults().getSkip();
+							return dataJobDTO2.getLastBuildResults().getSkip() - dataJobDTO1.getLastBuildResults().getSkip();
 						} else if (TestResultsAggregator.SortResultsBy.LAST_RUN.name().equalsIgnoreCase(orderBy)) {
-							return dataJobDTO1.getResults().getTimestamp().compareTo(dataJobDTO2.getResults().getTimestamp());
+							return dataJobDTO1.getLastBuildResults().getTimestamp().compareTo(dataJobDTO2.getLastBuildResults().getTimestamp());
 						} else if (TestResultsAggregator.SortResultsBy.COMMITS.name().equalsIgnoreCase(orderBy)) {
-							return dataJobDTO1.getResults().getNumberOfChanges() - dataJobDTO2.getResults().getNumberOfChanges();
+							return dataJobDTO1.getLastBuildResults().getNumberOfChanges() - dataJobDTO2.getLastBuildResults().getNumberOfChanges();
 						} else if (TestResultsAggregator.SortResultsBy.DURATION.name().equalsIgnoreCase(orderBy)) {
-							return dataJobDTO1.getResults().getDuration().compareTo(dataJobDTO2.getResults().getDuration());
+							return dataJobDTO1.getLastBuildResults().getDuration().compareTo(dataJobDTO2.getLastBuildResults().getDuration());
 						} else if (TestResultsAggregator.SortResultsBy.PERCENTAGE.name().equalsIgnoreCase(orderBy)) {
-							return dataJobDTO1.getResults().getPercentage().compareTo(dataJobDTO2.getResults().getPercentage());
+							return dataJobDTO1.getLastBuildResults().getPercentage().compareTo(dataJobDTO2.getLastBuildResults().getPercentage());
 						} else if (TestResultsAggregator.SortResultsBy.BUILD_NUMBER.name().equalsIgnoreCase(orderBy)) {
-							return Integer.toString(dataJobDTO1.getBuildInfo().getNumber()).compareTo(Integer.toString(dataJobDTO2.getBuildInfo().getNumber()));
+							return Integer.toString(dataJobDTO1.getJobDetails().getNextBuildNumber()).compareTo(Integer.toString(dataJobDTO2.getJobDetails().getNextBuildNumber()));
 						} else {
 							// Default
 							return dataJobDTO1.getJobNameFromFriendlyName().compareTo(dataJobDTO2.getJobNameFromFriendlyName());

@@ -52,7 +52,7 @@
 								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getStatusColor(false)}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_HEALTH'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getJobInfo().getHealthReport(true)}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getDetails().getHealthReport(true)}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_PERCENTAGE'}">
 								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getPercentage(true,false)}</td>
@@ -103,7 +103,7 @@
 								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getSonarUrl()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_BUILD_NUMBER'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getBuildInfo().getBuildNumberUrl()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getBuildNumberUrl()}</td>
 							</j:if>
 						</j:forEach>
 					</tr>

@@ -60,7 +60,7 @@ if (my.result.abortedJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -122,7 +122,7 @@ if (my.result.failedJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -184,7 +184,7 @@ if (my.result.keepFailJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -246,7 +246,7 @@ if (my.result.unstableJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -308,7 +308,7 @@ if (my.result.keepUnstableJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -370,7 +370,7 @@ if (my.result.fixedJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -432,7 +432,7 @@ if (my.result.successJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -494,7 +494,7 @@ if (my.result.runningJobs > 0) {
 								raw("${job.getResults().getCalculatedSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
