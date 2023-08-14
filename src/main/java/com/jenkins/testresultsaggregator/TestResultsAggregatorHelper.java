@@ -217,9 +217,12 @@ public class TestResultsAggregatorHelper extends Notifier implements SimpleBuild
 	}
 	
 	public void getPreviousData(Run build, List<Data> validatedData) {
-		// Get Previous Saved Results
-		Aggregated previousSavedAggregatedResults = TestResultHistoryUtil.getTestResults(build.getPreviousSuccessfulBuild());
-		// Check previous Data
-		previousSavedResults(validatedData, previousSavedAggregatedResults);
+		if (build != null) {// Get Previous Saved Results
+			Aggregated previousSavedAggregatedResults = TestResultHistoryUtil.getTestResults(build.getPreviousSuccessfulBuild());
+			if (previousSavedAggregatedResults != null) {
+				// Check previous Data
+				previousSavedResults(validatedData, previousSavedAggregatedResults);
+			}
+		}
 	}
 }

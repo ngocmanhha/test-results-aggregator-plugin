@@ -26,4 +26,30 @@ public class JobWithDetailsAggregator extends JobWithDetails {
 		}
 		return null;
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((healthReport == null) ? 0 : healthReport.hashCode());
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		JobWithDetailsAggregator other = (JobWithDetailsAggregator) obj;
+		if (healthReport == null) {
+			if (other.healthReport != null)
+				return false;
+		} else if (!healthReport.equals(other.healthReport))
+			return false;
+		return true;
+	}
+	
 }
