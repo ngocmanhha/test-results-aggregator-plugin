@@ -1,5 +1,8 @@
 package com.jenkins.testresultsaggregator.data;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -207,13 +210,22 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	public String getBuildNumberUrl() {
 		return "<a href='" + url + "/" + buildNumber + "'>" + buildNumber + "</a>";
 	}
-
+	
 	public JobStatus getJobStatus() {
 		return jobStatus;
 	}
-
+	
 	public void setJobStatus(JobStatus jobStatus) {
 		this.jobStatus = jobStatus;
 	}
 	
+	private void writeObject(ObjectOutputStream stream)
+			throws IOException {
+		stream.defaultWriteObject();
+	}
+	
+	private void readObject(ObjectInputStream stream)
+			throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+	}
 }
