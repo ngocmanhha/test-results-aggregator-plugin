@@ -52,7 +52,8 @@ public enum LocalMessages {
 	COLUMN_BUILD_NUMBER ("columnBuildNumber"),
 	XML_REPORT ("xmlReport"),
 	INFLUXDB ("influxdb"),
-	IGNORE ("ignore");
+	IGNORE ("ignore"),
+	UNKNOWN_HOST_NAME ("Unknown host name");
 	
 	private final static ResourceBundle MESSAGES = ResourceBundle.getBundle("com.jenkins.testresultsaggregator.Messages");
 	private final String msgRef;

@@ -197,16 +197,21 @@ public class TestResultsAggregatorHelper extends Notifier implements SimpleBuild
 					if (spliter[spliter.length - 1].equals("*")) {
 						// Do nothing for now
 					} else {
+						ArrayList<String> foldersArray = new ArrayList<String>();
 						StringBuilder folders = new StringBuilder();
 						for (int i = 0; i < spliter.length - 1; i++) {
 							folders.append(spliter[i] + "/");
+							foldersArray.add(spliter[i]);
 						}
+						job.setJobNameOnly(spliter[spliter.length - 1]);
 						job.setFolder(folders.toString().replaceAll("/", "/" + JOB + "/"));
-						job.setUrl(jenkinsUrl + "/" + JOB + "/" + Helper.encodeValue(job.getFolder()).replace("%2F", "/")
-								+ Helper.encodeValue(spliter[spliter.length - 1]));
+						job.setUrl(jenkinsUrl + "/" + JOB + "/" + Helper.encodeValue(job.getFolder()).replace("%2F", "/") + Helper.encodeValue(spliter[spliter.length - 1]));
 					}
 				} else {
 					job.setFolder("root");
+					ArrayList<String> foldersArray = new ArrayList<String>();
+					foldersArray.add("root");
+					job.setJobNameOnly(job.getJobName());
 					if (Strings.isNullOrEmpty(job.getUrl())) {
 						job.setUrl(jenkinsUrl + "/" + JOB + "/" + Helper.encodeValue(job.getJobName()));
 					}

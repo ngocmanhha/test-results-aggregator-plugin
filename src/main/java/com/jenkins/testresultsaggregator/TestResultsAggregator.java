@@ -2,9 +2,9 @@ package com.jenkins.testresultsaggregator;
 
 import java.io.PrintStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -344,10 +344,14 @@ public class TestResultsAggregator extends TestResultsAggregatorHelper implement
 		public FormValidation doTestApiConnection(@QueryParameter final String jenkinsUrl, @QueryParameter final String username, @QueryParameter final Secret password) {
 			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 			try {
-				JenkinsServer jenkins = new JenkinsServer(new URI(jenkinsUrl, username, password.getPlainText()));
+				JenkinsServer jenkins = new JenkinsServer(new URI(jenkinsUrl), username, password.getPlainText());
+				Map<String, com.offbytwo.jenkins.model.Job> jobsfound = jenkins.getJobs();
+				String message = LocalMessages.SUCCESS.toString() + " (items found " + jobsfound.size() + ")";
 				jenkins.close();
-				return FormValidation.ok(LocalMessages.SUCCESS.toString());
-			} catch (URISyntaxException ex) {
+				return FormValidation.ok(message);
+			} catch (java.net.UnknownHostException ex) {
+				return FormValidation.error(LocalMessages.UNKNOWN_HOST_NAME.toString() + ": " + ex.getMessage());
+			} catch (Exception ex) {
 				ex.printStackTrace();
 				return FormValidation.error(LocalMessages.ERROR_OCCURRED.toString() + ": " + ex.getMessage());
 			}

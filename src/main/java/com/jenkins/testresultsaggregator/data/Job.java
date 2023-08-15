@@ -23,6 +23,7 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	
 	private String jobName;
 	private String jobFriendlyName;
+	private String jobNameOnly;
 	private String url;
 	private String folder;
 	private boolean isBuilding;
@@ -219,13 +220,20 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 		this.jobStatus = jobStatus;
 	}
 	
-	private void writeObject(ObjectOutputStream stream)
-			throws IOException {
+	private void writeObject(ObjectOutputStream stream) throws IOException {
 		stream.defaultWriteObject();
 	}
 	
-	private void readObject(ObjectInputStream stream)
-			throws IOException, ClassNotFoundException {
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
 	}
+	
+	public String getJobNameOnly() {
+		return jobNameOnly;
+	}
+	
+	public void setJobNameOnly(String jobNameOnly) {
+		this.jobNameOnly = jobNameOnly;
+	}
+	
 }

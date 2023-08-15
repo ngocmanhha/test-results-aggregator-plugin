@@ -20,6 +20,7 @@ import com.jenkins.testresultsaggregator.data.JobStatus;
 import com.jenkins.testresultsaggregator.data.JobWithDetailsAggregator;
 import com.jenkins.testresultsaggregator.data.Results;
 import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.client.JenkinsHttpConnection;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.BuildChangeSet;
 import com.offbytwo.jenkins.model.BuildWithDetails;
@@ -48,7 +49,7 @@ public class Collector {
 	Map<String, com.offbytwo.jenkins.model.Job> jobs;
 	
 	public Collector(String jenkinsUrl, String username, Secret password, PrintStream printStream) throws URISyntaxException, IOException {
-		this.jenkins = new JenkinsServer(new URI(jenkinsUrl, username, password.getPlainText()));
+		this.jenkins = new JenkinsServer(new URI(jenkinsUrl), username, password.getPlainText());
 		this.jobs = jenkins.getJobs();
 		this.logger = printStream;
 	}
@@ -59,20 +60,44 @@ public class Collector {
 		}
 	}
 	
-	public JobWithDetailsAggregator getDetails(String jobName) throws IOException {
-		if (jobs.get(jobName) != null) {
-			return jobs.get(jobName).getClient().get(jobs.get(jobName).details().getUrl() + DEPTH, JobWithDetailsAggregator.class);
+	public JobWithDetailsAggregator getDetails(Job job) throws IOException {
+		if (job.getFolder().equalsIgnoreCase("root")) {
+			if (jobs.get(job.getJobNameOnly()) != null) {
+				return jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getUrl() + DEPTH, JobWithDetailsAggregator.class);
+			}
+		} else {
+			JenkinsHttpConnection client = jenkins.getQueue().getClient();
+			if (client != null) {
+				return client.get(job.getUrl() + DEPTH, JobWithDetailsAggregator.class);
+			}
 		}
 		return null;
 	}
 	
-	public BuildWithDetails getLastBuildDetails(String jobName) throws IOException {
-		return jobs.get(jobName).getClient().get(jobs.get(jobName).details().getLastBuild().details().getUrl() + DEPTH, BuildWithDetails.class);
+	public BuildWithDetails getLastBuildDetails(Job job) throws IOException {
+		if (job.getFolder().equalsIgnoreCase("root")) {
+			if (jobs.get(job.getJobNameOnly()) != null) {
+				return jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getLastBuild().details().getUrl() + DEPTH, BuildWithDetails.class);
+			}
+		} else {
+			JenkinsHttpConnection client = jenkins.getQueue().getClient();
+			if (client != null) {
+				return client.get(job.getUrl() + DEPTH, BuildWithDetails.class);
+			}
+		}
+		return null;
 	}
 	
-	public BuildWithDetails getBuildDetails(String jobName, Integer number) throws IOException {
-		if (number != null) {
-			return jobs.get(jobName).getClient().get(jobs.get(jobName).details().getBuildByNumber(number).details().getUrl() + DEPTH, BuildWithDetails.class);
+	public BuildWithDetails getBuildDetails(Job job, Integer number) throws IOException {
+		if (job.getFolder().equalsIgnoreCase("root")) {
+			if (jobs.get(job.getJobNameOnly()) != null && number != null) {
+				return jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getBuildByNumber(number).details().getUrl() + DEPTH, BuildWithDetails.class);
+			} else {
+				JenkinsHttpConnection client = jenkins.getQueue().getClient();
+				if (client != null) {
+					return client.get(job.getUrl() + DEPTH, BuildWithDetails.class);
+				}
+			}
 		}
 		return null;
 	}
@@ -118,7 +143,7 @@ public class Collector {
 		@Override
 		public void run() {
 			try {
-				job.setJobDetails(getDetails(job.getJobName()));
+				job.setJobDetails(getDetails(job));
 				if (job.getJobDetails() == null) {
 					job.setJobStatus(JobStatus.NOT_FOUND);
 					job.setLastBuildResults(new Results(JobStatus.NOT_FOUND.name(), null));
@@ -126,7 +151,7 @@ public class Collector {
 				} else if (job.getJobDetails().isBuildable() && job.getJobDetails().hasLastBuildRun()) {
 					// Job FOUND
 					logger.println("Job " + job.getJobName() + " found and it is buildable");
-					job.setLastBuildDetails(getLastBuildDetails(job.getJobName()));
+					job.setLastBuildDetails(getLastBuildDetails(job));
 					job.setLastBuildNumber(job.getLastBuildDetails().getNumber());
 					job.setJobStatus(JobStatus.FOUND);
 					job.setLastBuildResults(new Results(JobStatus.FOUND.name(), null));
@@ -145,12 +170,12 @@ public class Collector {
 							} else {
 								previousBuildNumber = job.getPreviousBuildNumber();
 							}
-							job.setLastBuildDetails(getBuildDetails(job.getJobName(), previousBuildNumber));
+							job.setLastBuildDetails(getBuildDetails(job, previousBuildNumber));
 							job.setBuildNumber(previousBuildNumber);
 							// Resolve the previous of the previous
 							Integer previousOfPreviousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 3);
 							job.setPreviousBuildNumber(previousOfPreviousBuildNumber);
-							job.setPreviousBuildDetails(getBuildDetails(job.getJobName(), previousOfPreviousBuildNumber));
+							job.setPreviousBuildDetails(getBuildDetails(job, previousOfPreviousBuildNumber));
 						} else {
 							job.setJobStatus(JobStatus.RUNNING);
 							job.setLastBuildResults(new Results(JobStatus.RUNNING.name(), null));
@@ -160,9 +185,9 @@ public class Collector {
 							// Resolve previous Saved data if any resolve it from builds
 							if (job.getPreviousBuildNumber() == null) {
 								Integer previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
-								job.setPreviousBuildDetails(getBuildDetails(job.getJobName(), previousBuildNumber));
+								job.setPreviousBuildDetails(getBuildDetails(job, previousBuildNumber));
 							} else {
-								job.setPreviousBuildDetails(getBuildDetails(job.getJobName(), job.getPreviousBuildNumber()));
+								job.setPreviousBuildDetails(getBuildDetails(job, job.getPreviousBuildNumber()));
 							}
 						}
 					}
@@ -188,7 +213,7 @@ public class Collector {
 			Collections.sort(allBuildNumbers);
 			return allBuildNumbers.get(allBuildNumbers.size() - depth);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			// ex.printStackTrace();
 		}
 		return null;
 	}
@@ -200,7 +225,9 @@ public class Collector {
 			// Set Building status
 			job.getLastBuildResults().setBuilding(job.getLastBuildDetails().isBuilding());
 			// Set Current Result
-			job.getLastBuildResults().setCurrentResult(job.getLastBuildDetails().getResult().name());
+			if (job.getLastBuildDetails().getResult() != null) {
+				job.getLastBuildResults().setCurrentResult(job.getLastBuildDetails().getResult().name());
+			}
 			// Set Description
 			job.getLastBuildResults().setDescription(job.getLastBuildDetails().getDescription());
 			// Set Duration
