@@ -29,6 +29,8 @@ import hudson.util.Secret;
 
 public class Collector {
 	
+	public static final String ROOT_FOLDER = "root";
+	
 	// Actions
 	public static final String CHANGES = "changes";
 	public static final String FAILCOUNT = "failCount";
@@ -61,7 +63,7 @@ public class Collector {
 	}
 	
 	public JobWithDetailsAggregator getDetails(Job job) throws IOException {
-		if (job.getFolder().equalsIgnoreCase("root")) {
+		if (job.getFolder().equalsIgnoreCase(ROOT_FOLDER)) {
 			if (jobs.get(job.getJobNameOnly()) != null) {
 				return jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getUrl() + DEPTH, JobWithDetailsAggregator.class);
 			}
@@ -75,7 +77,7 @@ public class Collector {
 	}
 	
 	public BuildWithDetails getLastBuildDetails(Job job) throws IOException {
-		if (job.getFolder().equalsIgnoreCase("root")) {
+		if (job.getFolder().equalsIgnoreCase(ROOT_FOLDER)) {
 			if (jobs.get(job.getJobNameOnly()) != null) {
 				return jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getLastBuild().details().getUrl() + DEPTH, BuildWithDetails.class);
 			}
@@ -89,7 +91,7 @@ public class Collector {
 	}
 	
 	public BuildWithDetails getBuildDetails(Job job, Integer number) throws IOException {
-		if (job.getFolder().equalsIgnoreCase("root")) {
+		if (job.getFolder().equalsIgnoreCase(ROOT_FOLDER)) {
 			if (jobs.get(job.getJobNameOnly()) != null && number != null) {
 				return jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getBuildByNumber(number).details().getUrl() + DEPTH, BuildWithDetails.class);
 			} else {
@@ -147,18 +149,18 @@ public class Collector {
 				if (job.getJobDetails() == null) {
 					job.setJobStatus(JobStatus.NOT_FOUND);
 					job.setLastBuildResults(new Results(JobStatus.NOT_FOUND.name(), null));
-					logger.println("Job " + job.getJobName() + " not found");
+					logger.println("Job '" + job.getJobName() + "' not found");
 				} else if (job.getJobDetails().isBuildable() && job.getJobDetails().hasLastBuildRun()) {
 					// Job FOUND
-					logger.println("Job " + job.getJobName() + " found and it is buildable");
 					job.setLastBuildDetails(getLastBuildDetails(job));
 					job.setLastBuildNumber(job.getLastBuildDetails().getNumber());
 					job.setJobStatus(JobStatus.FOUND);
 					job.setLastBuildResults(new Results(JobStatus.FOUND.name(), null));
 					job.setIsBuilding(job.getLastBuildDetails().isBuilding());
 					job.setBuildNumber(job.getLastBuildDetails().getNumber());
+					logger.print("Job '" + job.getJobName() + "' found #" + job.getLastBuildDetails().getNumber() + "");
 					if (job.getLastBuildDetails().isBuilding()) {
-						logger.println("Job " + job.getJobName() + " found and it is building");
+						logger.println(" : building");
 						if (ignoreRunningJobs) {
 							job.setJobStatus(JobStatus.RUNNING_REPORT_PREVIOUS);
 							job.setLastBuildResults(new Results(JobStatus.RUNNING_REPORT_PREVIOUS.name(), null));
@@ -181,6 +183,7 @@ public class Collector {
 							job.setLastBuildResults(new Results(JobStatus.RUNNING.name(), null));
 						}
 					} else {
+						logger.println(" : " + job.getLastBuildDetails().getResult().toString().toLowerCase());
 						if (compareWithPreviousRun) {
 							// Resolve previous Saved data if any resolve it from builds
 							if (job.getPreviousBuildNumber() == null) {
@@ -196,12 +199,12 @@ public class Collector {
 				} else {
 					job.setJobStatus(JobStatus.DISABLED);
 					job.setLastBuildResults(new Results(JobStatus.DISABLED.name(), null));
-					logger.println("Job " + job.getJobName() + " found and it is not buildable or has no build run");
+					logger.println("Job '" + job.getJobName() + "' found and it is not buildable or has no build run");
 				}
 			} catch (IOException e) {
 				job.setJobStatus(JobStatus.NOT_FOUND);
 				job.setLastBuildResults(new Results(JobStatus.NOT_FOUND.name(), null));
-				logger.println("Job " + job.getJobName() + " not found : " + e.getMessage());
+				logger.println("Job '" + job.getJobName() + "' not found with error : " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
