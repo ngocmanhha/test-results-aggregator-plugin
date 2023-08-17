@@ -122,7 +122,7 @@ public class Collector {
 			thread.start();
 			index++;
 			if (index % 3 == 0) {
-				Thread.sleep(500);
+				Thread.sleep(2000);
 			}
 		}
 		for (ReportThread thread : threads) {
