@@ -334,6 +334,14 @@ public class Helper {
 		}
 	}
 	
+	public static String calculateStatus(Results currentResult, Results previousResult) {
+		if (previousResult != null) {
+			return calculateStatus(currentResult.getCurrentResult(), previousResult.getCurrentResult());
+		} else {
+			return calculateStatus(currentResult.getCurrentResult(), null);
+		}
+	}
+	
 	public static String calculateStatus(String currentResult, String previousResult) {
 		if (JobStatus.SUCCESS.name().equals(currentResult) && JobStatus.SUCCESS.name().equals(previousResult)) {
 			return JobStatus.SUCCESS.name();
