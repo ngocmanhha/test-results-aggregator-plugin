@@ -39,7 +39,7 @@ public class ReportJob implements Serializable {
 	
 	public String calculateStatus(Job job) {
 		if (JobStatus.RUNNING_REPORT_PREVIOUS.equals(job.getJobStatus())) {
-			setStatus(JobStatus.RUNNING.name() + "*");
+			setStatus(Helper.calculateStatus(job.getLastBuildResults().getCurrentResult(), null) + "*");
 		} else {
 			setStatus(Helper.calculateStatus(job.getLastBuildResults().getCurrentResult(), job.getLastBuildResults().getPreviousResult()));
 		}

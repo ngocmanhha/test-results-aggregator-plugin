@@ -158,7 +158,7 @@ public class Collector {
 					job.setLastBuildResults(new Results(JobStatus.FOUND.name(), null));
 					job.setIsBuilding(job.getLastBuildDetails().isBuilding());
 					job.setBuildNumber(job.getLastBuildDetails().getNumber());
-					logger.print("Job '" + job.getJobName() + "' found #" + job.getLastBuildDetails().getNumber() + "");
+					logger.print("Job '" + job.getJobName() + "' found #" + job.getLastBuildDetails().getNumber());
 					if (job.getLastBuildDetails().isBuilding()) {
 						logger.println(" : building");
 						if (ignoreRunningJobs) {
@@ -187,13 +187,18 @@ public class Collector {
 						if (compareWithPreviousRun) {
 							// Resolve previous Saved data if any resolve it from builds
 							if (job.getPreviousBuildNumber() == null) {
-								Integer previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
-								job.setPreviousBuildDetails(getBuildDetails(job, previousBuildNumber));
-							} else {
+								job.setPreviousBuildNumber(resolvePreviousBuildNumberFromBuild(job, 2));
+							}
+							if (job.getPreviousBuildNumber() < job.getLastBuildNumber()) {
+								// Found new build get previous results
 								job.setPreviousBuildDetails(getBuildDetails(job, job.getPreviousBuildNumber()));
+								// job.setPreviousBuildResults(new Results());
+							} else {
+								// Job has already reported -> do not compare latest with previously saved by aggregator plugin, (equals)
 							}
 						}
 					}
+					
 					job.setLastBuildResults(calculateResults(job, compareWithPreviousRun));
 					logger.println(LocalMessages.COLLECT_DATA.toString() + " '" + job.getJobName() + "' " + LocalMessages.FINISHED.toString());
 				} else {
@@ -241,21 +246,67 @@ public class Collector {
 			DateFormat formatter = new SimpleDateFormat("dd/MM/YYYY HH:mm:ss:SSS");
 			String dateFormatted = formatter.format(new Date(job.getLastBuildDetails().getTimestamp()));
 			job.getLastBuildResults().setTimestamp(dateFormatted);
-			if (!job.getLastBuildResults().getCurrentResult().equalsIgnoreCase(JobStatus.RUNNING.name())) {
+			if (!JobStatus.RUNNING.equals(job.getJobStatus())) {
 				// Update for last build the actions
 				actions(job.getLastBuildDetails(), job.getLastBuildResults());
-				// Change Set
-				calculateChangeSets(job);
-				// Calculate Previous Results and change sets
+				// Calculate Previous Results
 				if (compareWithPreviousRun && job.getPreviousBuildDetails() != null) {
-					job.setPreviousBuildResults(new Results(job.getPreviousBuildDetails().getResult().name(), null));
-					// Update for previoud build the actions
+					if (job.getPreviousBuildResults() == null) {
+						job.setPreviousBuildResults(new Results(job.getPreviousBuildDetails().getResult().name(), null));
+					}
+					// Update for previous build the actions
 					actions(job.getPreviousBuildDetails(), job.getPreviousBuildResults());
 				}
+				// Calculate diffs
+				calculateDiffs(job);
 			}
 			return job.getLastBuildResults();
 		}
 		return null;
+	}
+	
+	private void calculateDiffs(Job job) {
+		// Test diffs
+		calculateTestResultsDiffs(job);
+		// Coverage diffs
+		calculateCodeCoverageDiffs(job);
+		// Calculate Change Set
+		calculateChangeSets(job);
+		
+	}
+	
+	private void calculateChangeSets(Job job) {
+		if (job.getLastBuildDetails() != null) {
+			if (job.getLastBuildDetails().getChangeSets() != null) {
+				int changes = 0;
+				for (BuildChangeSet tempI : job.getLastBuildDetails().getChangeSets()) {
+					changes += tempI.getItems().size();
+				}
+				job.getLastBuildResults().setNumberOfChanges(changes);
+			} else {
+				job.getLastBuildResults().setNumberOfChanges(0);
+			}
+			// Set Changes URL
+			job.getLastBuildResults().setChangesUrl(job.getLastBuildDetails().getUrl() + "/" + CHANGES);
+			
+		}
+		// TODO More build and possible change sets between last and saved job, resolve them
+	}
+	
+	private void calculateTestResultsDiffs(Job job) {
+		job.getLastBuildResults().setTotalDif(job.getPreviousBuildResults().getTotal());
+		job.getLastBuildResults().setPassDif(job.getPreviousBuildResults().getPass());
+		job.getLastBuildResults().setFailDif(job.getPreviousBuildResults().getFail());
+		job.getLastBuildResults().setSkipDif(job.getPreviousBuildResults().getSkip());
+	}
+	
+	private void calculateCodeCoverageDiffs(Job job) {
+		job.getLastBuildResults().setCcClasses(job.getPreviousBuildResults().getCcClassesDif());
+		job.getLastBuildResults().setCcConditions(job.getPreviousBuildResults().getCcConditionsDif());
+		job.getLastBuildResults().setCcFiles(job.getPreviousBuildResults().getCcFilesDif());
+		job.getLastBuildResults().setCcLines(job.getPreviousBuildResults().getCcLinesDif());
+		job.getLastBuildResults().setCcMethods(job.getPreviousBuildResults().getCcMethodsDif());
+		job.getLastBuildResults().setCcPackages(job.getPreviousBuildResults().getCcPackagesDif());
 	}
 	
 	private void actions(BuildWithDetails buildWithDetail, Results results) {
@@ -286,38 +337,20 @@ public class Collector {
 					Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_LINES);
 					results.setCcLines((Integer) tempMap.get("percentage"));
 				}
-				if (actions.containsKey(JACOCO_METHODS)) {
-					Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_METHODS);
-					results.setCcMethods((Integer) tempMap.get("percentage"));
-				}
-				if (actions.containsKey(SONAR_URL)) {
-					results.setSonarUrl((String) actions.get(SONAR_URL));
-				}
 			}
-			// Cobertura ?
+			if (actions.containsKey(JACOCO_METHODS)) {
+				Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_METHODS);
+				results.setCcMethods((Integer) tempMap.get("percentage"));
+			}
+			if (actions.containsKey(SONAR_URL)) {
+				results.setSonarUrl((String) actions.get(SONAR_URL));
+			}
 		}
+		// Cobertura ?
 		// Calculate Pass Results
 		results.setPass(results.getTotal() - Math.abs(results.getFail()) - Math.abs(results.getSkip()));
 		// Calculate Percentage
 		results.setPercentage(Helper.countPercentage(results));
+		
 	}
-	
-	private void calculateChangeSets(Job job) {
-		if (job.getLastBuildDetails() != null) {
-			if (job.getLastBuildDetails().getChangeSets() != null) {
-				int changes = 0;
-				for (BuildChangeSet tempI : job.getLastBuildDetails().getChangeSets()) {
-					changes += tempI.getItems().size();
-				}
-				job.getLastBuildResults().setNumberOfChanges(changes);
-			} else {
-				job.getLastBuildResults().setNumberOfChanges(0);
-			}
-			// Set Changes URL
-			job.getLastBuildResults().setChangesUrl(job.getLastBuildDetails().getUrl() + "/" + CHANGES);
-			
-		}
-		// TODO More build and possible change sets between last and saved job, resolve them
-	}
-	
 }
