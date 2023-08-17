@@ -256,9 +256,9 @@ public class Collector {
 					}
 					// Update for previous build the actions
 					actions(job.getPreviousBuildDetails(), job.getPreviousBuildResults());
+					// Calculate diffs
+					calculateDiffs(job);
 				}
-				// Calculate diffs
-				calculateDiffs(job);
 			}
 			return job.getLastBuildResults();
 		}
