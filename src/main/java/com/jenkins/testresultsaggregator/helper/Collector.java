@@ -272,7 +272,6 @@ public class Collector {
 		calculateCodeCoverageDiffs(job);
 		// Calculate Change Set
 		calculateChangeSets(job);
-		
 	}
 	
 	private void calculateChangeSets(Job job) {
