@@ -1,17 +1,14 @@
-package com.jenkins.testresultsaggregator.helper;
+package com.jenkins.testresultsaggregator.actions;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.jenkins.testresultsaggregator.TestResultsAggregatorProjectAction;
 import com.jenkins.testresultsaggregator.data.Aggregated;
@@ -19,7 +16,7 @@ import com.jenkins.testresultsaggregator.data.Data;
 import com.jenkins.testresultsaggregator.data.Job;
 import com.jenkins.testresultsaggregator.data.JobWithDetailsAggregator;
 import com.jenkins.testresultsaggregator.data.Results;
-import com.jenkins.testresultsaggregator.reporter.XMLReporter;
+import com.jenkins.testresultsaggregator.reports.XMLReporter;
 
 import hudson.FilePath;
 
@@ -64,7 +61,7 @@ public class ResultsParser {
 						// Read Jobs
 						readJobs(finalResults, jobs);
 					}
-				} catch (ParserConfigurationException | SAXException | IOException ex) {
+				} catch (Exception ex) {
 					
 				}
 			}

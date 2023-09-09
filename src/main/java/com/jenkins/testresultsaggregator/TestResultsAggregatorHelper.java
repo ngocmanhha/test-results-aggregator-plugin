@@ -14,13 +14,13 @@ import java.util.Set;
 
 import com.google.common.base.Strings;
 import com.jenkins.testresultsaggregator.TestResultsAggregator.Descriptor;
+import com.jenkins.testresultsaggregator.actions.Collector;
+import com.jenkins.testresultsaggregator.actions.TestResultHistoryUtil;
 import com.jenkins.testresultsaggregator.data.Aggregated;
 import com.jenkins.testresultsaggregator.data.Data;
 import com.jenkins.testresultsaggregator.data.Job;
-import com.jenkins.testresultsaggregator.helper.Collector;
 import com.jenkins.testresultsaggregator.helper.Helper;
 import com.jenkins.testresultsaggregator.helper.LocalMessages;
-import com.jenkins.testresultsaggregator.helper.TestResultHistoryUtil;
 
 import hudson.EnvVars;
 import hudson.model.Run;

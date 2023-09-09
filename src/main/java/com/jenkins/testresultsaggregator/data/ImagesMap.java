@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.jvnet.localizer.Localizable;
 
-import com.jenkins.testresultsaggregator.reporter.HTMLReporter;
+import com.jenkins.testresultsaggregator.reports.HTMLReporter;
 
 import hudson.model.HealthReport;
 

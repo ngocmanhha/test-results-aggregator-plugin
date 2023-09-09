@@ -1,4 +1,4 @@
-package com.jenkins.testresultsaggregator.reporter;
+package com.jenkins.testresultsaggregator.reports;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

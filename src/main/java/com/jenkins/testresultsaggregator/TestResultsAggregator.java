@@ -18,14 +18,14 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import com.google.common.base.Strings;
+import com.jenkins.testresultsaggregator.actions.Analyzer;
+import com.jenkins.testresultsaggregator.actions.Collector;
+import com.jenkins.testresultsaggregator.actions.Reporter;
 import com.jenkins.testresultsaggregator.data.Aggregated;
 import com.jenkins.testresultsaggregator.data.Data;
 import com.jenkins.testresultsaggregator.data.DataPipeline;
 import com.jenkins.testresultsaggregator.data.Job;
-import com.jenkins.testresultsaggregator.helper.Analyzer;
-import com.jenkins.testresultsaggregator.helper.Collector;
 import com.jenkins.testresultsaggregator.helper.LocalMessages;
-import com.jenkins.testresultsaggregator.reporter.Reporter;
 import com.offbytwo.jenkins.JenkinsServer;
 
 import hudson.EnvVars;

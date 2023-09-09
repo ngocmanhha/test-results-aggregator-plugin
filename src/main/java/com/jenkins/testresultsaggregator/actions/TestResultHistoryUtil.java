@@ -1,8 +1,9 @@
-package com.jenkins.testresultsaggregator.helper;
+package com.jenkins.testresultsaggregator.actions;
 
 import com.jenkins.testresultsaggregator.TestResultsAggregatorProjectAction;
 import com.jenkins.testresultsaggregator.TestResultsAggregatorTestResultBuildAction;
 import com.jenkins.testresultsaggregator.data.Aggregated;
+import com.jenkins.testresultsaggregator.helper.Helper;
 
 import hudson.model.Run;
 

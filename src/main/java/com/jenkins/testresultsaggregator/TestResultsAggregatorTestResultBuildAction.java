@@ -10,9 +10,9 @@ import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jenkins.testresultsaggregator.actions.ResultsParser;
 import com.jenkins.testresultsaggregator.data.Aggregated;
-import com.jenkins.testresultsaggregator.helper.ResultsParser;
-import com.jenkins.testresultsaggregator.reporter.XMLReporter;
+import com.jenkins.testresultsaggregator.reports.XMLReporter;
 
 import hudson.FilePath;
 import hudson.model.Action;

@@ -1,4 +1,4 @@
-package com.jenkins.testresultsaggregator.helper;
+package com.jenkins.testresultsaggregator.actions;
 
 import java.io.PrintStream;
 import java.util.Collections;
@@ -15,6 +15,8 @@ import com.jenkins.testresultsaggregator.data.Job;
 import com.jenkins.testresultsaggregator.data.JobStatus;
 import com.jenkins.testresultsaggregator.data.ReportGroup;
 import com.jenkins.testresultsaggregator.data.Results;
+import com.jenkins.testresultsaggregator.helper.Helper;
+import com.jenkins.testresultsaggregator.helper.LocalMessages;
 
 public class Analyzer {
 	

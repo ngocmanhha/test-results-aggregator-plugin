@@ -1,11 +1,10 @@
-package com.jenkins.testresultsaggregator.helper;
+package com.jenkins.testresultsaggregator.data;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.jenkins.testresultsaggregator.data.JobResults;
-import com.jenkins.testresultsaggregator.data.JobStatus;
+import com.jenkins.testresultsaggregator.helper.Helper;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 
 public class Actions {

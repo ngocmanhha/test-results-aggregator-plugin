@@ -1,4 +1,4 @@
-package com.jenkins.testresultsaggregator.helper;
+package com.jenkins.testresultsaggregator.actions;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -18,6 +18,8 @@ import com.jenkins.testresultsaggregator.data.JobResults;
 import com.jenkins.testresultsaggregator.data.JobStatus;
 import com.jenkins.testresultsaggregator.data.JobWithDetailsAggregator;
 import com.jenkins.testresultsaggregator.data.Results;
+import com.jenkins.testresultsaggregator.helper.Helper;
+import com.jenkins.testresultsaggregator.helper.LocalMessages;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.client.JenkinsHttpConnection;
 import com.offbytwo.jenkins.model.Build;

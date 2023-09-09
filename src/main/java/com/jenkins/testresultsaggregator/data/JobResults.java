@@ -2,7 +2,6 @@ package com.jenkins.testresultsaggregator.data;
 
 import java.io.Serializable;
 
-import com.jenkins.testresultsaggregator.helper.Actions;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 
 public class JobResults implements Serializable {

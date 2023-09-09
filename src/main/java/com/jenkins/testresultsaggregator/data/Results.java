@@ -530,7 +530,7 @@ public class Results implements Serializable {
 	}
 	
 	public String calculateCCPackages(Job job) {
-		if (job.getResults() != null) {
+		if (job.getResults() != null && job.getResults().getCcPackages() > 0) {
 			setCcPackagesReport(Helper.diff(job.getResults().getCcPackagesDif(), job.getResults().getCcPackages(), false) + "%");
 		} else {
 			setCcPackagesReport("0");
@@ -539,7 +539,7 @@ public class Results implements Serializable {
 	}
 	
 	public String calculateCCFiles(Job job) {
-		if (job.getResults() != null) {
+		if (job.getResults() != null && job.getResults().getCcFiles() > 0) {
 			setCcFilesReport(Helper.diff(job.getResults().getCcFilesDif(), job.getResults().getCcFiles(), false) + "%");
 		} else {
 			setCcFilesReport("0");
@@ -548,7 +548,7 @@ public class Results implements Serializable {
 	}
 	
 	public String calculateCCClasses(Job job) {
-		if (job.getResults() != null) {
+		if (job.getResults() != null && job.getResults().getCcClasses() > 0) {
 			setCcClassesReport(Helper.diff(job.getResults().getCcClassesDif(), job.getResults().getCcClasses(), false) + "%");
 		} else {
 			setCcClassesReport("0");
@@ -557,7 +557,7 @@ public class Results implements Serializable {
 	}
 	
 	public String calculateCCMethods(Job job) {
-		if (job.getResults() != null) {
+		if (job.getResults() != null && job.getResults().getCcMethods() > 0) {
 			setCcMethodsReport(Helper.diff(job.getResults().getCcMethodsDif(), job.getResults().getCcMethods(), false) + "%");
 		} else {
 			setCcMethodsReport("0");
@@ -566,7 +566,7 @@ public class Results implements Serializable {
 	}
 	
 	public String calculateCCLines(Job job) {
-		if (job.getResults() != null) {
+		if (job.getResults() != null && job.getResults().getCcLines() > 0) {
 			setCcLinesReport(Helper.diff(job.getResults().getCcLinesDif(), job.getResults().getCcLines(), false) + "%");
 		} else {
 			setCcLinesReport("0");
@@ -575,7 +575,7 @@ public class Results implements Serializable {
 	}
 	
 	public String calculateCCConditions(Job job) {
-		if (job.getResults() != null) {
+		if (job.getResults() != null && job.getResults().getCcConditions() > 0) {
 			setCcConditionsReport(Helper.diff(job.getResults().getCcConditionsDif(), job.getResults().getCcConditions(), false) + "%");
 		} else {
 			setCcConditionsReport("0");
