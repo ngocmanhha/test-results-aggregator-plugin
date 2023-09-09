@@ -17,6 +17,7 @@ public class Aggregated extends BaseResult {
 	
 	private List<Data> data;
 	private Results results;
+	private Results previousResults;
 	private int runningJobs = 0;
 	private int successJobs = 0;
 	private int fixedJobs = 0;
@@ -235,6 +236,7 @@ public class Aggregated extends BaseResult {
 		// aggregatedCopy.setParent(aggregatedCopy);
 		// aggregatedCopy.setParentAction(aggregatedCopy);
 		aggregatedCopy.setResults(results);
+		aggregatedCopy.setPreviousResults(previousResults);
 		// aggregatedCopy.setRun(owner);
 		aggregatedCopy.setRunningJobs(runningJobs);
 		aggregatedCopy.setSuccessJobs(successJobs);
@@ -244,4 +246,35 @@ public class Aggregated extends BaseResult {
 		aggregatedCopy.setUnstableJobs(unstableJobs);
 		return aggregatedCopy;
 	}
+	
+	public Results getPreviousResults() {
+		return previousResults;
+	}
+	
+	public void setPreviousResults(Results previousResults) {
+		this.previousResults = previousResults;
+	}
+	
+	////////////////////
+	// Calculate for Total/Summary report
+	public String getCalculatedTotal() {
+		long dif = results.getTotal() - previousResults.getTotal();
+		return Helper.reportTestDiffs(null, results.getTotal(), dif);
+	}
+	
+	public String getCalculatedPass() {
+		long dif = results.getPass() - previousResults.getPass();
+		return Helper.reportTestDiffs(null, results.getPass(), dif);
+	}
+	
+	public String getCalculatedSkip() {
+		long dif = results.getSkip() - previousResults.getSkip();
+		return Helper.reportTestDiffs(null, results.getSkip(), dif);
+	}
+	
+	public String getCalculatedFail() {
+		long dif = results.getFail() - previousResults.getFail();
+		return Helper.reportTestDiffs(Colors.FAILED, results.getFail(), dif);
+	}
+	
 }

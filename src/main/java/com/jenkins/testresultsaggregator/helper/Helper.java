@@ -8,11 +8,15 @@ import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.TimeZone;
 
 import com.google.common.base.Strings;
+import com.jenkins.testresultsaggregator.data.Job;
+import com.jenkins.testresultsaggregator.data.JobResults;
 import com.jenkins.testresultsaggregator.data.JobStatus;
 import com.jenkins.testresultsaggregator.data.Results;
 
@@ -25,24 +29,23 @@ public class Helper {
 		return java.net.URLEncoder.encode(value, "UTF-8").replace("+", "%20").trim();
 	}
 	
-	public static String getTimeStamp(String timeStamp) {
-		if (Strings.isNullOrEmpty(timeStamp)) {
+	public static String getTimeStamp(Long timeStamp) {
+		if (timeStamp == null) {
 			return "";
 		} else {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss:SSS");
-			LocalDateTime date = LocalDateTime.parse(timeStamp, formatter);
+			LocalDateTime date = LocalDateTime.parse(timeStamp.toString(), formatter);
 			return date.toString();
 		}
 	}
 	
-	public static String getTimeStamp(String outOfDateResults, String timeStamp) {
-		if (Strings.isNullOrEmpty(timeStamp)) {
+	public static String getTimeStamp(String outOfDateResults, Long timeStamp) {
+		if (timeStamp == null) {
 			return "";
 		} else {
 			int outOfDate = Integer.parseInt(outOfDateResults) * 3600;
 			LocalDateTime today = LocalDateTime.now();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss:SSS");
-			LocalDateTime date = LocalDateTime.parse(timeStamp, formatter);
+			LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeStamp), TimeZone.getDefault().toZoneId());
 			Duration d = Duration.between(date, today);
 			long currentHours = d.getSeconds() / 3600;
 			long currentMin = d.getSeconds() / 60;
@@ -84,7 +87,7 @@ public class Helper {
 	
 	public static String urlNumberofChanges(String url, String number) {
 		if (!number.isEmpty()) {
-			return "<a href = '" + url + "' ><font color='" + Colors.htmlJOB_NAME_URL() + "'>" + number + "</font></a>";
+			return "<a href = '" + url + "'>" + number + "</a>";
 		}
 		return "";
 	}
@@ -114,6 +117,24 @@ public class Helper {
 	}
 	
 	public static Double countPercentage(Results results) {
+		String percentage;
+		if (results != null && results.getTotal() > 0) {
+			try {
+				percentage = singDoubleSingle((double) (results.getPass() + results.getSkip()) * 100 / results.getTotal());
+				if (percentage.equals("100")) {
+					return 100D;
+				} else if (!Strings.isNullOrEmpty(percentage)) {
+					percentage = percentage.replace(",", ".");
+				}
+				return Double.valueOf(percentage);
+			} catch (Exception ex) {
+				
+			}
+		}
+		return -1D;
+	}
+	
+	public static Double countPercentage(JobResults results) {
 		String percentage;
 		if (results != null && results.getTotal() != 0) {
 			try {
@@ -168,7 +189,7 @@ public class Helper {
 		return colorize(percentageString + "%", color, fontSize);
 	}
 	
-	private static String singDoubleSingle(double value) {
+	public static String singDoubleSingle(double value) {
 		if (value == 0) {
 			return "0";
 		} else {
@@ -213,6 +234,31 @@ public class Helper {
 			fp = new FilePath(new File(filePath.getRemote() + "/" + filename));
 		}
 		return fp;
+	}
+	
+	public static String reportTestDiffs(Color color, long curr, long diff) {
+		if (diff == 0 && curr == 0) {
+			return "";
+		} else if (diff == 0 && curr > 0) {
+			return curr + "";
+		} else {
+			if (curr == 0) {
+				if (diff > 0) {
+					return "+" + colorize2(diff, color);
+				} else {
+					return "" + diff;
+				}
+			} else {
+				if (diff > 0 && diff == curr) {
+					return "" + curr;
+				} else if (diff > 0 && diff != curr) {
+					return curr + "(+" + colorize2(diff, color) + ")";
+				} else {
+					return curr + "(" + diff + ")";
+				}
+				
+			}
+		}
 	}
 	
 	public static String diff(long prev, long curr, boolean list) {
@@ -281,11 +327,11 @@ public class Helper {
 		}
 	}
 	
-	private static String colorize(String text, Color color) {
+	public static String colorize(String text, Color color) {
 		return colorize(text, color, null);
 	}
 	
-	private static String colorize(String text, Color color, Integer font) {
+	public static String colorize(String text, Color color, Integer font) {
 		if (color == null) {
 			color = Colors.BLACK;
 		}
@@ -301,9 +347,16 @@ public class Helper {
 		return text;
 	}
 	
-	private static String colorize(Long text, Color color) {
+	public static String colorize(Long text, Color color) {
 		if (color == null || text == 0) {
 			color = Colors.BLACK;
+		}
+		return "<font color='" + Colors.html(color) + "'>" + text + "</font>";
+	}
+	
+	public static String colorize2(Long text, Color color) {
+		if (color == null || text == 0) {
+			return Long.toString(text);
 		}
 		return "<font color='" + Colors.html(color) + "'>" + text + "</font>";
 	}
@@ -334,39 +387,37 @@ public class Helper {
 		}
 	}
 	
-	public static String calculateStatus(Results currentResult, Results previousResult) {
-		if (previousResult != null) {
-			return calculateStatus(currentResult.getCurrentResult(), previousResult.getCurrentResult());
-		} else {
-			return calculateStatus(currentResult.getCurrentResult(), null);
+	public static String calculateStatusJob(Job job) {
+		boolean reportPrevious = false;
+		if (job.getResults() != null && JobStatus.RUNNING_REPORT_PREVIOUS.name().equalsIgnoreCase(job.getResults().getStatus())) {
+			reportPrevious = true;
+		} else if (job.getPrevious() == null || (job.getPrevious() != null && job.getPrevious().getResults() == null)) {
+			return calculateStatus(reportPrevious, job.getLast().getResults().getStatus(), null);
 		}
+		return calculateStatus(reportPrevious, job.getLast().getResults().getStatus(), job.getPrevious().getResults().getStatus());
 	}
 	
-	public static String calculateStatus(String currentResult, String previousResult) {
-		if (JobStatus.SUCCESS.name().equals(currentResult) && JobStatus.SUCCESS.name().equals(previousResult)) {
-			return JobStatus.SUCCESS.name();
-		} else if (JobStatus.SUCCESS.name().equals(currentResult) && JobStatus.FAILURE.name().equals(previousResult)) {
-			return JobStatus.FIXED.name();
-		} else if (JobStatus.SUCCESS.name().equals(currentResult) && JobStatus.UNSTABLE.name().equals(previousResult)) {
-			return JobStatus.FIXED.name();
-		} else if (JobStatus.SUCCESS.name().equals(currentResult) && previousResult == null) {
-			return JobStatus.SUCCESS.name();
-		} else if (JobStatus.UNSTABLE.name().equals(currentResult) && JobStatus.UNSTABLE.name().equals(previousResult)) {
-			return JobStatus.STILL_UNSTABLE.name();
-		} else if (JobStatus.FAILURE.name().equals(currentResult) && JobStatus.FAILURE.name().equals(previousResult)) {
-			return JobStatus.STILL_FAILING.name();
-		} else if (JobStatus.FAILURE.name().equals(currentResult)) {
-			return JobStatus.FAILURE.name();
-		} else if (JobStatus.UNSTABLE.name().equals(currentResult)) {
-			return JobStatus.UNSTABLE.name();
-		} else if (JobStatus.RUNNING.name().equals(currentResult)) {
-			return JobStatus.RUNNING.name();
-		} else if (JobStatus.ABORTED.name().equals(currentResult)) {
-			return JobStatus.ABORTED.name();
-		} else if (JobStatus.SUCCESS.name().equals(currentResult)) {
-			return JobStatus.SUCCESS.name();
-		} else {
+	public static String calculateStatus(boolean reportPrevious, String currentResult, String previousResult) {
+		if (previousResult == null) {
 			return currentResult;
+		} else {
+			if (reportPrevious) {
+				return currentResult + "*";
+			} else if (JobStatus.SUCCESS.name().equals(currentResult) && JobStatus.SUCCESS.name().equals(previousResult)) {
+				return JobStatus.SUCCESS.name();
+			} else if (JobStatus.SUCCESS.name().equals(currentResult) && JobStatus.FAILURE.name().equals(previousResult)) {
+				return JobStatus.FIXED.name();
+			} else if (JobStatus.SUCCESS.name().equals(currentResult) && JobStatus.UNSTABLE.name().equals(previousResult)) {
+				return JobStatus.FIXED.name();
+			} else if (JobStatus.UNSTABLE.name().equals(currentResult) && JobStatus.UNSTABLE.name().equals(previousResult)) {
+				return JobStatus.STILL_UNSTABLE.name();
+			} else if (JobStatus.FAILURE.name().equals(currentResult) && JobStatus.FAILURE.name().equals(previousResult)) {
+				return JobStatus.STILL_FAILING.name();
+			} else if (currentResult != null && currentResult.contains("*")) {
+				return currentResult.replace("*", "");
+			} else {
+				return currentResult;
+			}
 		}
 	}
 	
@@ -385,4 +436,86 @@ public class Helper {
 		}
 		return -1D;
 	}
+	
+	/*	public Results calculateResults(Job job, boolean compareWithPreviousRun) {
+	if (job != null && job.getLastBuildDetails() != null) {
+		// Set Url
+		job.getLastBuildResults().setUrl(job.getJob().getUrl().toString());
+		// Set Building status
+		job.getLastBuildResults().setBuilding(job.getLastBuildDetails().isBuilding());
+		// Set Current Result
+		if (job.getLastBuildDetails().getResult() != null) {
+			job.getLastBuildResults().setCurrentResult(job.getLastBuildResults().getStatusPlain());
+		}
+		// Set Description
+		job.getLastBuildResults().setDescription(job.getLastBuildDetails().getDescription());
+		// Set Duration
+		job.getLastBuildResults().setDuration(job.getLastBuildDetails().getDuration());
+		// Set Number
+		job.getLastBuildResults().setNumber(job.getLastBuildDetails().getNumber());
+		// Set TimeStamp
+		DateFormat formatter = new SimpleDateFormat("dd/MM/YYYY HH:mm:ss:SSS");
+		String dateFormatted = formatter.format(new Date(job.getLastBuildDetails().getTimestamp()));
+		job.getLastBuildResults().setTimestamp(dateFormatted);
+		if (!JobStatus.RUNNING.name().equals(job.getLastBuildResults().getStatus())) {
+			// Update for last build the actions
+			actions(job.getLastBuildDetails(), job.getLastBuildResults());
+			// Calculate Previous Results
+			if (compareWithPreviousRun && job.getPreviousBuildDetails() != null) {
+				if (job.getPreviousBuildResults() == null) {
+					job.setPreviousBuildResults(new Results(job.getPreviousBuildDetails().getResult().name(), null, job.getJob().getUrl()));
+				}
+				// Update for previous build the actions
+				actions(job.getPreviousBuildDetails(), job.getPreviousBuildResults());
+				// Calculate diffs
+				calculateDiffs(job);
+			}
+		}
+		return job.getLastBuildResults();
+	}
+	return null;
+	}*/
+	
+	/*private void calculateDiffs(Job job) {
+	// Test diffs
+	calculateTestResultsDiffs(job);
+	// Coverage diffs
+	calculateCodeCoverageDiffs(job);
+	// Calculate Change Set
+	calculateChangeSets(job);
+	}*/
+	
+	/*private void calculateChangeSets(Job job) {
+	if (job.getLastBuildDetails() != null) {
+		if (job.getLastBuildDetails().getChangeSets() != null) {
+			int changes = 0;
+			for (BuildChangeSet tempI : job.getLastBuildDetails().getChangeSets()) {
+				changes += tempI.getItems().size();
+			}
+			job.getLastBuildResults().setNumberOfChanges(changes);
+		} else {
+			job.getLastBuildResults().setNumberOfChanges(0);
+		}
+		// Set Changes URL
+		job.getLastBuildResults().setChangesUrl(job.getLastBuildDetails().getUrl() + "/" + CHANGES);
+		
+	}
+	// TODO More build and possible change sets between last and saved job, resolve them
+	}
+	
+	private void calculateTestResultsDiffs(Job job) {
+	job.getLastBuildResults().setTotalDif(job.getPreviousBuildResults().getTotal());
+	job.getLastBuildResults().setPassDif(job.getPreviousBuildResults().getPass());
+	job.getLastBuildResults().setFailDif(job.getPreviousBuildResults().getFail());
+	job.getLastBuildResults().setSkipDif(job.getPreviousBuildResults().getSkip());
+	}
+	
+	private void calculateCodeCoverageDiffs(Job job) {
+	job.getLastBuildResults().setCcClasses(job.getPreviousBuildResults().getCcClassesDif());
+	job.getLastBuildResults().setCcConditions(job.getPreviousBuildResults().getCcConditionsDif());
+	job.getLastBuildResults().setCcFiles(job.getPreviousBuildResults().getCcFilesDif());
+	job.getLastBuildResults().setCcLines(job.getPreviousBuildResults().getCcLinesDif());
+	job.getLastBuildResults().setCcMethods(job.getPreviousBuildResults().getCcMethodsDif());
+	job.getLastBuildResults().setCcPackages(job.getPreviousBuildResults().getCcPackagesDif());
+	}*/
 }

@@ -17,9 +17,9 @@ import com.jenkins.testresultsaggregator.TestResultsAggregatorProjectAction;
 import com.jenkins.testresultsaggregator.data.Aggregated;
 import com.jenkins.testresultsaggregator.data.Data;
 import com.jenkins.testresultsaggregator.data.Job;
+import com.jenkins.testresultsaggregator.data.JobWithDetailsAggregator;
 import com.jenkins.testresultsaggregator.data.Results;
 import com.jenkins.testresultsaggregator.reporter.XMLReporter;
-import com.offbytwo.jenkins.model.JobWithDetails;
 
 import hudson.FilePath;
 
@@ -138,47 +138,48 @@ public class ResultsParser {
 				if (XMLReporter.JOB.equalsIgnoreCase(currentNodeResults.getNodeName())) {
 					Job dataJob = new Job("", "");
 					dataJobs.add(dataJob);
-					dataJob.setLastBuildResults(new Results(null, null));
-					dataJob.setJobDetails(new JobWithDetails());
+					dataJob.setJob(new JobWithDetailsAggregator());
+					dataJob.setResults(new Results());
 					for (int j = 0; j < currentNodeResults.getChildNodes().getLength(); j++) {
 						Node nodeItem = currentNodeResults.getChildNodes().item(j);
 						if (!nodeItem.getNodeName().startsWith("#")) {
 							if (nodeItem.getNodeName().equalsIgnoreCase(XMLReporter.NAME)) {
 								dataJob.setJobName(getString(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(XMLReporter.STATUS)) {
-								dataJob.getLastBuildResults().setCurrentResult(getString(nodeItem));
+								dataJob.getResults().setStatus(getString(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(XMLReporter.BUILD)) {
 								try {
-									dataJob.setLastBuildNumber(Integer.parseInt(getString(nodeItem)));
+									dataJob.getResults().setNumber(Integer.parseInt(getString(nodeItem)));
 								} catch (Exception ex) {
 									
 								}
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(XMLReporter.URL)) {
 								try {
 									dataJob.setUrl(getString(nodeItem));
+									dataJob.getResults().setUrl(getString(nodeItem));
 								} catch (Exception ex) {
 									
 								}
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_SUCCESS)) {
-								dataJob.getLastBuildResults().setPass(getInteger(nodeItem));
+								dataJob.getResults().setPass(getInteger(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_SKIPPED)) {
-								dataJob.getLastBuildResults().setSkip(getInteger(nodeItem));
+								dataJob.getResults().setSkip(getInteger(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_FAILED)) {
-								dataJob.getLastBuildResults().setFail(getInteger(nodeItem));
+								dataJob.getResults().setFail(getInteger(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.TEST_TOTAL)) {
-								dataJob.getLastBuildResults().setTotal(getInteger(nodeItem));
+								dataJob.getResults().setTotal(getInteger(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_PACKAGES)) {
-								dataJob.getLastBuildResults().setCcPackages(getInteger(nodeItem));
+								dataJob.getResults().setCcPackages(getInteger(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_FILES)) {
-								dataJob.getLastBuildResults().setCcFiles(getInteger(nodeItem));
+								dataJob.getResults().setCcFiles(getInteger(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_CLASSES)) {
-								dataJob.getLastBuildResults().setCcClasses(getInteger(nodeItem));
+								dataJob.getResults().setCcClasses(getInteger(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_METHODS)) {
-								dataJob.getLastBuildResults().setCcMethods(getInteger(nodeItem));
+								dataJob.getResults().setCcMethods(getInteger(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_LINES)) {
-								dataJob.getLastBuildResults().setCcLines(getInteger(nodeItem));
+								dataJob.getResults().setCcLines(getInteger(nodeItem));
 							} else if (nodeItem.getNodeName().equalsIgnoreCase(TestResultsAggregatorProjectAction.CC_CONDTITIONALS)) {
-								dataJob.getLastBuildResults().setCcConditions(getInteger(nodeItem));
+								dataJob.getResults().setCcConditions(getInteger(nodeItem));
 							}
 						}
 					}

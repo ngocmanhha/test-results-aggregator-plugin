@@ -4,25 +4,23 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.jenkins.testresultsaggregator.data.BuildWithDetailsAggregator;
 import com.jenkins.testresultsaggregator.data.Data;
 import com.jenkins.testresultsaggregator.data.Job;
+import com.jenkins.testresultsaggregator.data.JobResults;
 import com.jenkins.testresultsaggregator.data.JobStatus;
 import com.jenkins.testresultsaggregator.data.JobWithDetailsAggregator;
 import com.jenkins.testresultsaggregator.data.Results;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.client.JenkinsHttpConnection;
 import com.offbytwo.jenkins.model.Build;
-import com.offbytwo.jenkins.model.BuildChangeSet;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 
 import hudson.util.Secret;
@@ -121,8 +119,8 @@ public class Collector {
 		for (ReportThread thread : threads) {
 			thread.start();
 			index++;
-			if (index % 3 == 0) {
-				Thread.sleep(2000);
+			if (index % 6 == 0) {
+				Thread.sleep(4000);
 			}
 		}
 		for (ReportThread thread : threads) {
@@ -145,71 +143,84 @@ public class Collector {
 		@Override
 		public void run() {
 			try {
-				job.setJobDetails(getDetails(job));
-				if (job.getJobDetails() == null) {
-					job.setJobStatus(JobStatus.NOT_FOUND);
-					job.setLastBuildResults(new Results(JobStatus.NOT_FOUND.name(), null));
-					logger.println("Job '" + job.getJobName() + "' not found");
-				} else if (job.getJobDetails().isBuildable() && job.getJobDetails().hasLastBuildRun()) {
+				job.setJob(getDetails(job));
+				if (job.getJob() == null) {
+					logger.println("Job '" + job.getJobName() + "' found " + JobStatus.NOT_FOUND.name());
+					job.setResults(new Results(JobStatus.NOT_FOUND.name(), job.getUrl()));
+				} else if (!job.getJob().isBuildable()) {
+					logger.println("Job '" + job.getJobName() + "' found " + JobStatus.DISABLED.name());
+					job.setResults(new Results(JobStatus.DISABLED.name(), job.getUrl()));
+				} else if (job.getJob().isBuildable() && !job.getJob().hasLastBuildRun()) {
+					logger.println("Job '" + job.getJobName() + "' found " + JobStatus.NO_LAST_BUILD_DATA.name());
+					job.setResults(new Results(JobStatus.NO_LAST_BUILD_DATA.name(), job.getUrl()));
+				} else {
 					// Job FOUND
-					job.setLastBuildDetails(getLastBuildDetails(job));
-					job.setLastBuildNumber(job.getLastBuildDetails().getNumber());
-					job.setJobStatus(JobStatus.FOUND);
-					job.setLastBuildResults(new Results(JobStatus.FOUND.name(), null));
-					job.setIsBuilding(job.getLastBuildDetails().isBuilding());
-					job.setBuildNumber(job.getLastBuildDetails().getNumber());
-					logger.print("Job '" + job.getJobName() + "' found #" + job.getLastBuildDetails().getNumber());
-					if (job.getLastBuildDetails().isBuilding()) {
-						logger.println(" : building");
+					job.setLast(new BuildWithDetailsAggregator());
+					job.getLast().setBuildDetails(getLastBuildDetails(job));
+					job.getLast().setResults(new JobResults().calculatedFrom(job.getLast().getBuildDetails()));
+					job.setIsBuilding(job.getLast().getBuildDetails().isBuilding());
+					logger.print("Job '" + job.getJobName() + "' found build number " + job.getLast().getBuildDetails().getNumber() + " with status");
+					if (job.getLast().getBuildDetails().isBuilding()) {
+						logger.println(" building");
 						if (ignoreRunningJobs) {
-							job.setJobStatus(JobStatus.RUNNING_REPORT_PREVIOUS);
-							job.setLastBuildResults(new Results(JobStatus.RUNNING_REPORT_PREVIOUS.name(), null));
-							// Resolve previous Saved data if any resolve it from builds
 							Integer previousBuildNumber = null;
-							if (job.getPreviousBuildNumber() == null) {
+							if (job.getResults() == null) {
+								job.setResults(new Results(JobStatus.RUNNING_REPORT_PREVIOUS.name(), job.getUrl()));
 								previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
-								job.setLastBuildNumber(previousBuildNumber);
 							} else {
-								previousBuildNumber = job.getPreviousBuildNumber();
+								job.getResults().setStatus(JobStatus.RUNNING_REPORT_PREVIOUS.name());
+								job.getResults().setUrl(job.getUrl());
+								previousBuildNumber = job.getResults().getNumber();
 							}
-							job.setLastBuildDetails(getBuildDetails(job, previousBuildNumber));
-							job.setBuildNumber(previousBuildNumber);
-							// Resolve the previous of the previous
-							Integer previousOfPreviousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 3);
-							job.setPreviousBuildNumber(previousOfPreviousBuildNumber);
-							job.setPreviousBuildDetails(getBuildDetails(job, previousOfPreviousBuildNumber));
+							job.setLast(new BuildWithDetailsAggregator());
+							job.getLast().setBuildNumber(previousBuildNumber);
+							job.getLast().setBuildDetails(getBuildDetails(job, previousBuildNumber));
+							job.getLast().setResults(new JobResults().calculatedFrom(job.getLast().getBuildDetails()));
+							//
+							job.setPrevious(new BuildWithDetailsAggregator());
+							job.getPrevious().setBuildNumber(previousBuildNumber);
+							job.getPrevious().setBuildDetails(job.getLast().getBuildDetails());
+							job.getPrevious().setResults(job.getLast().getResults());
 						} else {
-							job.setJobStatus(JobStatus.RUNNING);
-							job.setLastBuildResults(new Results(JobStatus.RUNNING.name(), null));
+							job.setResults(new Results(JobStatus.RUNNING.name(), job.getUrl()));
 						}
 					} else {
-						logger.println(" : " + job.getLastBuildDetails().getResult().toString().toLowerCase());
+						logger.println(" " + job.getLast().getBuildDetails().getResult().toString().toLowerCase());
 						if (compareWithPreviousRun) {
-							// Resolve previous Saved data if any resolve it from builds
-							if (job.getPreviousBuildNumber() == null) {
-								job.setPreviousBuildNumber(resolvePreviousBuildNumberFromBuild(job, 2));
-							}
-							if (job.getPreviousBuildNumber() < job.getLastBuildNumber()) {
-								// Found new build get previous results
-								job.setPreviousBuildDetails(getBuildDetails(job, job.getPreviousBuildNumber()));
-								// job.setPreviousBuildResults(new Results());
+							Integer previousBuildNumber = null;
+							if (job.getResults() == null) {
+								// Not Found previously saved , resolve from jenkins
+								job.setResults(new Results(JobStatus.FOUND.name(), job.getUrl()));
+								previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
 							} else {
-								// Job has already reported -> do not compare latest with previously saved by aggregator plugin, (equals)
+								// Found previously saved use them
+								previousBuildNumber = job.getResults().getNumber();
+							}
+							if (previousBuildNumber == job.getLast().getBuildDetails().getNumber()) {
+								// There is no new run since the previous aggregator run
+								job.setLast(new BuildWithDetailsAggregator());
+								job.getLast().setBuildNumber(previousBuildNumber);
+								job.getLast().setBuildDetails(getBuildDetails(job, previousBuildNumber));
+								job.getLast().setResults(new JobResults().calculatedFrom(job.getLast().getBuildDetails()));
+								//
+								Integer previousOfPreviousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
+								job.setPrevious(new BuildWithDetailsAggregator());
+								job.getPrevious().setBuildNumber(previousOfPreviousBuildNumber);
+								job.getPrevious().setBuildDetails(getBuildDetails(job, previousOfPreviousBuildNumber));
+								job.getPrevious().setResults(new JobResults().calculatedFrom(job.getPrevious().getBuildDetails()));
+							} else {
+								job.setPrevious(new BuildWithDetailsAggregator());
+								job.getPrevious().setBuildNumber(previousBuildNumber);
+								job.getPrevious().setBuildDetails(getBuildDetails(job, previousBuildNumber));
+								job.getPrevious().setResults(new JobResults().calculatedFrom(job.getPrevious().getBuildDetails()));
 							}
 						}
 					}
-					
-					job.setLastBuildResults(calculateResults(job, compareWithPreviousRun));
 					logger.println(LocalMessages.COLLECT_DATA.toString() + " '" + job.getJobName() + "' " + LocalMessages.FINISHED.toString());
-				} else {
-					job.setJobStatus(JobStatus.DISABLED);
-					job.setLastBuildResults(new Results(JobStatus.DISABLED.name(), null));
-					logger.println("Job '" + job.getJobName() + "' found and it is not buildable or has no build run");
 				}
 			} catch (IOException e) {
-				job.setJobStatus(JobStatus.NOT_FOUND);
-				job.setLastBuildResults(new Results(JobStatus.NOT_FOUND.name(), null));
-				logger.println("Job '" + job.getJobName() + "' not found with error : " + e.getMessage());
+				logger.println("Job '" + job.getJobName() + "' found " + JobStatus.NOT_FOUND.name() + "with error : " + e.getMessage());
+				job.setResults(new Results(JobStatus.NOT_FOUND.name(), job.getUrl()));
 				e.printStackTrace();
 			}
 		}
@@ -217,95 +228,13 @@ public class Collector {
 	
 	private Integer resolvePreviousBuildNumberFromBuild(Job job, int depth) {
 		try {
-			List<Integer> allBuildNumbers = job.getJobDetails().getAllBuilds().stream().map(Build::getNumber).collect(Collectors.toList());
+			List<Integer> allBuildNumbers = job.getJob().getAllBuilds().stream().map(Build::getNumber).collect(Collectors.toList());
 			Collections.sort(allBuildNumbers);
 			return allBuildNumbers.get(allBuildNumbers.size() - depth);
 		} catch (Exception ex) {
 			// ex.printStackTrace();
 		}
 		return null;
-	}
-	
-	public Results calculateResults(Job job, boolean compareWithPreviousRun) {
-		if (job != null && job.getLastBuildDetails() != null) {
-			// Set Url
-			job.getLastBuildResults().setUrl(job.getJobDetails().getUrl().toString());
-			// Set Building status
-			job.getLastBuildResults().setBuilding(job.getLastBuildDetails().isBuilding());
-			// Set Current Result
-			if (job.getLastBuildDetails().getResult() != null) {
-				job.getLastBuildResults().setCurrentResult(job.getLastBuildDetails().getResult().name());
-			}
-			// Set Description
-			job.getLastBuildResults().setDescription(job.getLastBuildDetails().getDescription());
-			// Set Duration
-			job.getLastBuildResults().setDuration(job.getLastBuildDetails().getDuration());
-			// Set Number
-			job.getLastBuildResults().setNumber(job.getLastBuildDetails().getNumber());
-			// Set TimeStamp
-			DateFormat formatter = new SimpleDateFormat("dd/MM/YYYY HH:mm:ss:SSS");
-			String dateFormatted = formatter.format(new Date(job.getLastBuildDetails().getTimestamp()));
-			job.getLastBuildResults().setTimestamp(dateFormatted);
-			if (!JobStatus.RUNNING.equals(job.getJobStatus())) {
-				// Update for last build the actions
-				actions(job.getLastBuildDetails(), job.getLastBuildResults());
-				// Calculate Previous Results
-				if (compareWithPreviousRun && job.getPreviousBuildDetails() != null) {
-					if (job.getPreviousBuildResults() == null) {
-						job.setPreviousBuildResults(new Results(job.getPreviousBuildDetails().getResult().name(), null));
-					}
-					// Update for previous build the actions
-					actions(job.getPreviousBuildDetails(), job.getPreviousBuildResults());
-					// Calculate diffs
-					calculateDiffs(job);
-				}
-			}
-			return job.getLastBuildResults();
-		}
-		return null;
-	}
-	
-	private void calculateDiffs(Job job) {
-		// Test diffs
-		calculateTestResultsDiffs(job);
-		// Coverage diffs
-		calculateCodeCoverageDiffs(job);
-		// Calculate Change Set
-		calculateChangeSets(job);
-	}
-	
-	private void calculateChangeSets(Job job) {
-		if (job.getLastBuildDetails() != null) {
-			if (job.getLastBuildDetails().getChangeSets() != null) {
-				int changes = 0;
-				for (BuildChangeSet tempI : job.getLastBuildDetails().getChangeSets()) {
-					changes += tempI.getItems().size();
-				}
-				job.getLastBuildResults().setNumberOfChanges(changes);
-			} else {
-				job.getLastBuildResults().setNumberOfChanges(0);
-			}
-			// Set Changes URL
-			job.getLastBuildResults().setChangesUrl(job.getLastBuildDetails().getUrl() + "/" + CHANGES);
-			
-		}
-		// TODO More build and possible change sets between last and saved job, resolve them
-	}
-	
-	private void calculateTestResultsDiffs(Job job) {
-		job.getLastBuildResults().setTotalDif(job.getPreviousBuildResults().getTotal());
-		job.getLastBuildResults().setPassDif(job.getPreviousBuildResults().getPass());
-		job.getLastBuildResults().setFailDif(job.getPreviousBuildResults().getFail());
-		job.getLastBuildResults().setSkipDif(job.getPreviousBuildResults().getSkip());
-	}
-	
-	private void calculateCodeCoverageDiffs(Job job) {
-		job.getLastBuildResults().setCcClasses(job.getPreviousBuildResults().getCcClassesDif());
-		job.getLastBuildResults().setCcConditions(job.getPreviousBuildResults().getCcConditionsDif());
-		job.getLastBuildResults().setCcFiles(job.getPreviousBuildResults().getCcFilesDif());
-		job.getLastBuildResults().setCcLines(job.getPreviousBuildResults().getCcLinesDif());
-		job.getLastBuildResults().setCcMethods(job.getPreviousBuildResults().getCcMethodsDif());
-		job.getLastBuildResults().setCcPackages(job.getPreviousBuildResults().getCcPackagesDif());
 	}
 	
 	private void actions(BuildWithDetails buildWithDetail, Results results) {
@@ -349,7 +278,6 @@ public class Collector {
 		// Calculate Pass Results
 		results.setPass(results.getTotal() - Math.abs(results.getFail()) - Math.abs(results.getSkip()));
 		// Calculate Percentage
-		results.setPercentage(Helper.countPercentage(results));
-		
+		results.setPercentageReport(Helper.singDoubleSingle((double) (results.getPass() + results.getSkip()) * 100 / results.getTotal()));
 	}
 }

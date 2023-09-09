@@ -114,9 +114,11 @@ public class Reporter {
 		for (Data tempData : list) {
 			List<Job> tempList = new ArrayList<>();
 			for (Job temp : tempData.getJobs()) {
-				if (temp.getLastBuildDetails() != null && temp.getLastBuildDetails().isBuilding()) {
+				if (temp.getResults() != null && !status.name().equalsIgnoreCase(temp.getResults().getStatus())) {
 					tempList.add(temp);
-				} else if (temp.getLastBuildResults() != null && !status.name().equalsIgnoreCase(temp.getLastBuildResults().getStatus())) {
+				} else if (temp.getLast() != null && temp.getLast().getBuildDetails() != null && temp.getLast().getBuildDetails().isBuilding()) {
+					tempList.add(temp);
+				} else if (temp.getLast() != null && temp.getLast().getBuildDetails() != null && !status.name().equalsIgnoreCase(temp.getLast().getResults().getStatus())) {
 					tempList.add(temp);
 				} else {
 					ignoredDataJobs.add(temp);

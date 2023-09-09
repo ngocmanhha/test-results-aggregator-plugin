@@ -10,8 +10,6 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 import com.google.common.base.Strings;
 import com.jenkins.testresultsaggregator.helper.Colors;
-import com.offbytwo.jenkins.model.BuildWithDetails;
-import com.offbytwo.jenkins.model.JobWithDetails;
 
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
@@ -27,20 +25,14 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	private String url;
 	private String folder;
 	private boolean isBuilding;
-	private int buildNumber;
-	private JobStatus jobStatus;
 	// Job
-	private JobWithDetails jobDetails;
+	private JobWithDetailsAggregator job;
 	// Last Build
-	private Integer lastBuildNumber;
-	private BuildWithDetails lastBuildDetails;
-	private Results lastBuildResults;
-	// Previous
-	private Integer previousBuildNumber;
-	private BuildWithDetails previousBuildDetails;
-	private Results previousBuildResults;
-	// Report
-	private ReportJob report;
+	private BuildWithDetailsAggregator last;
+	// Previous Build
+	private BuildWithDetailsAggregator previous;
+	// Results
+	private Results results;
 	
 	@Extension
 	public static class JobDescriptor extends Descriptor<Job> {
@@ -85,14 +77,6 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 		this.jobFriendlyName = jonFriendlyName;
 	}
 	
-	public BuildWithDetails getLastBuildDetails() {
-		return lastBuildDetails;
-	}
-	
-	public void setLastBuildDetails(BuildWithDetails lastBuildDetails) {
-		this.lastBuildDetails = lastBuildDetails;
-	}
-	
 	public String getUrl() {
 		return url;
 	}
@@ -109,36 +93,20 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 		this.folder = folder;
 	}
 	
-	public BuildWithDetails getPreviousBuildDetails() {
-		return previousBuildDetails;
+	public JobWithDetailsAggregator getJob() {
+		return job;
 	}
 	
-	public void setPreviousBuildDetails(BuildWithDetails previousBuildDetails) {
-		this.previousBuildDetails = previousBuildDetails;
+	public void setJob(JobWithDetailsAggregator jobWithDetailsAggregator) {
+		this.job = jobWithDetailsAggregator;
 	}
 	
-	public Results getLastBuildResults() {
-		return lastBuildResults;
+	public Results getResults() {
+		return results;
 	}
 	
-	public void setLastBuildResults(Results lastBuildResults) {
-		this.lastBuildResults = lastBuildResults;
-	}
-	
-	public JobWithDetails getJobDetails() {
-		return jobDetails;
-	}
-	
-	public void setJobDetails(JobWithDetails jobDetails) {
-		this.jobDetails = jobDetails;
-	}
-	
-	public ReportJob getReport() {
-		return report;
-	}
-	
-	public void setReport(ReportJob report) {
-		this.report = report;
+	public void setResults(Results results) {
+		this.results = results;
 	}
 	
 	public String getJobNameFromFriendlyName() {
@@ -151,13 +119,13 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	public String getJobNameFromFriendlyName(boolean withLinktoResults) {
 		if (withLinktoResults) {
 			String reportUrl = null;
-			if (lastBuildResults == null) {
+			if (last == null) {
 				reportUrl = null;
 				// Get job and execution id
-			} else if (Strings.isNullOrEmpty(lastBuildResults.getUrl())) {
+			} else if (Strings.isNullOrEmpty(last.getUrl())) {
 				reportUrl = null;
 			} else {
-				reportUrl = lastBuildResults.getUrl();
+				reportUrl = last.getBuildDetails().getUrl();
 			}
 			// iF this is still null Use Job url
 			if (Strings.isNullOrEmpty(reportUrl)) {
@@ -168,56 +136,12 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 		return getJobNameFromFriendlyName();
 	}
 	
-	public Integer getPreviousBuildNumber() {
-		return previousBuildNumber;
-	}
-	
-	public void setPreviousBuildNumber(Integer previousBuildNumber) {
-		this.previousBuildNumber = previousBuildNumber;
-	}
-	
-	public Integer getLastBuildNumber() {
-		return lastBuildNumber;
-	}
-	
-	public void setLastBuildNumber(Integer lastBuildNumber) {
-		this.lastBuildNumber = lastBuildNumber;
-	}
-	
-	public Results getPreviousBuildResults() {
-		return previousBuildResults;
-	}
-	
-	public void setPreviousBuildResults(Results previousBuildResults) {
-		this.previousBuildResults = previousBuildResults;
-	}
-	
 	public boolean getIsBuilding() {
 		return isBuilding;
 	}
 	
 	public void setIsBuilding(boolean isBuilding) {
 		this.isBuilding = isBuilding;
-	}
-	
-	public int getBuildNumber() {
-		return buildNumber;
-	}
-	
-	public void setBuildNumber(int buildNumber) {
-		this.buildNumber = buildNumber;
-	}
-	
-	public String getBuildNumberUrl() {
-		return "<a href='" + url + "/" + buildNumber + "'>" + buildNumber + "</a>";
-	}
-	
-	public JobStatus getJobStatus() {
-		return jobStatus;
-	}
-	
-	public void setJobStatus(JobStatus jobStatus) {
-		this.jobStatus = jobStatus;
 	}
 	
 	private void writeObject(ObjectOutputStream stream) throws IOException {
@@ -234,6 +158,22 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	
 	public void setJobNameOnly(String jobNameOnly) {
 		this.jobNameOnly = jobNameOnly;
+	}
+	
+	public BuildWithDetailsAggregator getLast() {
+		return last;
+	}
+	
+	public void setLast(BuildWithDetailsAggregator last) {
+		this.last = last;
+	}
+	
+	public BuildWithDetailsAggregator getPrevious() {
+		return previous;
+	}
+	
+	public void setPrevious(BuildWithDetailsAggregator previous) {
+		this.previous = previous;
 	}
 	
 }

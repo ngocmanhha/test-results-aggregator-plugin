@@ -175,17 +175,18 @@ public class TestResultsAggregator extends TestResultsAggregatorHelper implement
 			//
 			String jenkinsUrl = resolveJenkinsUrl(env, logger);
 			// Validate Input Data
+			Aggregated aggregatedSavedData = null;
 			List<Data> validatedData = validateInputData(getDataFromDataPipeline(), jenkinsUrl);
 			validatedData = checkUserInputForInjection(validatedData);
 			if (compareWithPrevious()) {
-				getPreviousData(run.getPreviousSuccessfulBuild(), validatedData);
+				aggregatedSavedData = getPreviousData(run.getPreviousSuccessfulBuild(), validatedData);
 			}
 			// Collect Data
 			Collector collector = new Collector(jenkinsUrl, desc.getUsername(), desc.getPassword(), listener.getLogger());
 			collector.collectResults(validatedData, compareWithPrevious(), ignoreRunningJobs());
 			collector.closeJenkinsConnection();
 			// Analyze Results
-			Aggregated aggregated = new Analyzer(logger).analyze(validatedData, properties);
+			Aggregated aggregated = new Analyzer(logger).analyze(aggregatedSavedData, validatedData, properties);
 			// Reporter for HTML and mail
 			Reporter reporter = new Reporter(logger, workspace, run.getRootDir(), desc.getMailNotificationFrom(), ignoreDisabledJobs, ignoreNotFoundJobs, ignoreAbortedJobs);
 			reporter.publishResuts(aggregated, properties, localizedColumns, run.getRootDir());
@@ -216,15 +217,16 @@ public class TestResultsAggregator extends TestResultsAggregatorHelper implement
 			// Validate Input Data
 			List<Data> validatedData = validateInputData(getData(), jenkinsUrl);
 			validatedData = checkUserInputForInjection(validatedData);
+			Aggregated aggregatedSavedData = null;
 			if (compareWithPrevious()) {
-				getPreviousData(build, validatedData);
+				aggregatedSavedData = getPreviousData(build, validatedData);
 			}
 			// Collect Data
 			Collector collector = new Collector(jenkinsUrl, desc.getUsername(), desc.getPassword(), listener.getLogger());
 			collector.collectResults(validatedData, compareWithPrevious(), ignoreRunningJobs());
 			collector.closeJenkinsConnection();
 			// Analyze Results
-			Aggregated aggregated = new Analyzer(logger).analyze(validatedData, properties);
+			Aggregated aggregated = new Analyzer(logger).analyze(aggregatedSavedData, validatedData, properties);
 			// Reporter for HTML and mail
 			Reporter reporter = new Reporter(logger, build.getProject().getSomeWorkspace(), build.getRootDir(), desc.getMailNotificationFrom(), ignoreDisabledJobs, ignoreNotFoundJobs, ignoreAbortedJobs);
 			reporter.publishResuts(aggregated, properties, localizedColumns, build.getRootDir());

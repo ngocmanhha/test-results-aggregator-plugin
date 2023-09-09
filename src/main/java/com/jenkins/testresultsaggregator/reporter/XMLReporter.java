@@ -62,20 +62,20 @@ public class XMLReporter {
 			writer.println(TAB + S + JOBS + E);
 			for (Data data : aggregated.getData()) {
 				for (Job dataJob : data.getJobs()) {
-					if (dataJob.getJobDetails() != null) {
+					if (dataJob.getJob() != null) {
 						writer.println(TAB + TAB + S + JOB + E);
 						writer.println(TAB + TAB + TAB + xmlTag(NAME, dataJob.getJobName()));
-						if (dataJob.getLastBuildResults() != null) {
-							writer.println(TAB + TAB + TAB + xmlTag(STATUS, dataJob.getLastBuildResults().getStatus()));
-							if (JobStatus.DISABLED.name().equalsIgnoreCase(dataJob.getLastBuildResults().getCurrentResult())) {
-								jobStatus(writer, dataJob, dataJob.getUrl(), null, true);
-							} else if (JobStatus.NOT_FOUND.name().equalsIgnoreCase(dataJob.getLastBuildResults().getCurrentResult())) {
-								jobStatus(writer, dataJob, null, null, true);
+						if (dataJob.getResults() != null) {
+							writer.println(TAB + TAB + TAB + xmlTag(STATUS, dataJob.getResults().getStatus()));
+							if (JobStatus.DISABLED.name().equalsIgnoreCase(dataJob.getResults().getStatus())) {
+								jobStatus(writer, dataJob, dataJob.getUrl(), null, false);
+							} else if (JobStatus.NOT_FOUND.name().equalsIgnoreCase(dataJob.getLast().getResults().getStatus())) {
+								jobStatus(writer, dataJob, null, null, false);
 							} else {
-								jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLastBuildDetails().getNumber(), true);
+								jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLast().getBuildDetails().getNumber(), true);
 							}
 						} else {
-							jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLastBuildDetails().getNumber(), true);
+							jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLast().getBuildDetails().getNumber(), true);
 						}
 						writer.println(TAB + TAB + SE + JOB + E);
 					}
@@ -102,17 +102,17 @@ public class XMLReporter {
 	private void jobStatus(PrintWriter writer, Job dataJob, String url, Integer build, boolean found) {
 		writer.println(TAB + TAB + TAB + xmlTag(URL, url));
 		writer.println(TAB + TAB + TAB + xmlTag(BUILD, build));
-		if (found && dataJob.getLastBuildResults() != null) {
-			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_TOTAL, dataJob.getLastBuildResults().getTotal()));
-			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_SUCCESS, dataJob.getLastBuildResults().getPass()));
-			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_SKIPPED, dataJob.getLastBuildResults().getSkip()));
-			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_FAILED, dataJob.getLastBuildResults().getFail()));
-			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_PACKAGES, dataJob.getLastBuildResults().getCcPackages()));
-			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_FILES, dataJob.getLastBuildResults().getCcFiles()));
-			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_CLASSES, dataJob.getLastBuildResults().getCcClasses()));
-			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_METHODS, dataJob.getLastBuildResults().getCcMethods()));
-			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_LINES, dataJob.getLastBuildResults().getCcLines()));
-			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_CONDTITIONALS, dataJob.getLastBuildResults().getCcConditions()));
+		if (found && dataJob.getResults() != null) {
+			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_TOTAL, dataJob.getResults().getTotal()));
+			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_SUCCESS, dataJob.getResults().getPass()));
+			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_SKIPPED, dataJob.getResults().getSkip()));
+			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_FAILED, dataJob.getResults().getFail()));
+			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_PACKAGES, dataJob.getResults().getCcPackages()));
+			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_FILES, dataJob.getResults().getCcFiles()));
+			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_CLASSES, dataJob.getResults().getCcClasses()));
+			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_METHODS, dataJob.getResults().getCcMethods()));
+			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_LINES, dataJob.getResults().getCcLines()));
+			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.CC_CONDTITIONALS, dataJob.getResults().getCcConditions()));
 		} else {
 			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_TOTAL, 0));
 			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_SUCCESS, 0));

@@ -64,9 +64,15 @@ public class TestResultsAggregatorTestResultBuildAction extends AbstractTestResu
 		this.keepunstable = aggregated.getKeepUnstableJobs();
 		this.running = aggregated.getRunningJobs();
 		// Tests stats
-		this.successTTests = aggregated.getResults().getPass();
-		this.failedTTests = aggregated.getResults().getFail();
-		this.skippedTTests = aggregated.getResults().getSkip();
+		if (aggregated.getResults() != null) {
+			this.successTTests = aggregated.getResults().getPass();
+			this.failedTTests = aggregated.getResults().getFail();
+			this.skippedTTests = aggregated.getResults().getSkip();
+		} else {
+			this.successTTests = 0;
+			this.failedTTests = 0;
+			this.skippedTTests = 0;
+		}
 	}
 	
 	private void countAndSave(Aggregated aggregatedDTO) {

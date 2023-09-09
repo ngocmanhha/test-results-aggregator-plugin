@@ -42,22 +42,22 @@ if (my.result.abortedJobs > 0) {
 		tbody() {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
-					if(job.getLastBuildResults()!=null && "${JobStatus.ABORTED.name()}".equalsIgnoreCase(job.getLastBuildResults().getStatus())) {
+					if(job.getResults()!=null && "${JobStatus.ABORTED.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
 						tr() {
 							td(align: "left") {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
 								a(href:"${job.getUrl()}") {
@@ -104,22 +104,22 @@ if (my.result.failedJobs > 0) {
 		tbody() {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
-					if(job.getLastBuildResults()!=null && "${JobStatus.FAILURE.name()}".equalsIgnoreCase(job.getLastBuildResults().getStatus())) {
+					if(job.getResults()!=null && "${JobStatus.FAILURE.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
 						tr() {
 							td(align: "left") {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
 								a(href:"${job.getUrl()}") {
@@ -166,22 +166,22 @@ if (my.result.keepFailJobs > 0) {
 		tbody() {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
-					if("${JobStatus.STILL_FAILING.name()}".equalsIgnoreCase(job.getLastBuildResults().getStatus())) {
+					if("${JobStatus.STILL_FAILING.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
 						tr() {
 							td(align: "left") {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
 								a(href:"${job.getUrl()}") {
@@ -228,22 +228,22 @@ if (my.result.unstableJobs > 0) {
 		tbody() {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
-					if(job.getLastBuildResults()!=null && "${JobStatus.UNSTABLE.name()}".equalsIgnoreCase(job.getLastBuildResults().getStatus())) {
+					if(job.getResults()!=null && "${JobStatus.UNSTABLE.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
 						tr() {
 							td(align: "left") {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
 								a(href:"${job.getUrl()}") {
@@ -290,22 +290,22 @@ if (my.result.keepUnstableJobs > 0) {
 		tbody() {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
-					if(job.getLastBuildResults()!=null && "${JobStatus.STILL_UNSTABLE.name()}".equalsIgnoreCase(job.getLastBuildResults().getStatus())) {
+					if(job.getResults()!=null && "${JobStatus.STILL_UNSTABLE.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
 						tr() {
 							td(align: "left") {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
 								a(href:"${job.getUrl()}") {
@@ -352,22 +352,22 @@ if (my.result.fixedJobs > 0) {
 		tbody() {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
-					if(job.getLastBuildResults()!=null && "${JobStatus.FIXED.name()}".equalsIgnoreCase(job.getLastBuildResults().getStatus())) {
+					if(job.getResults()!=null && "${JobStatus.FIXED.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
 						tr() {
 							td(align: "left") {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
 								a(href:"${job.getUrl()}") {
@@ -414,22 +414,22 @@ if (my.result.successJobs > 0) {
 		tbody() {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
-					if(job.getLastBuildResults()!=null && "${JobStatus.SUCCESS.name()}".equalsIgnoreCase(job.getLastBuildResults().getStatus())) {
+					if(job.getResults()!=null && "${JobStatus.SUCCESS.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
 						tr() {
 							td(align: "left") {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
 								a(href:"${job.getUrl()}") {
@@ -476,22 +476,22 @@ if (my.result.runningJobs > 0) {
 		tbody() {
 			for (data in my.result.getData()) {
 				for (job in data.getJobs()) {
-					if(job.getLastBuildResults()!=null && "${JobStatus.RUNNING.name()}".equalsIgnoreCase(job.getLastBuildResults().getStatus())) {
+					if(job.getResults()!=null && "${JobStatus.RUNNING.name()}".equalsIgnoreCase(job.getResults().getStatus())) {
 						tr() {
 							td(align: "left") {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getLastBuildResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
 								a(href:"${job.getUrl()}") {

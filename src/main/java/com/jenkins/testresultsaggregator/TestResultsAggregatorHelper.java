@@ -104,9 +104,8 @@ public class TestResultsAggregatorHelper extends Notifier implements SimpleBuild
 					for (Data pdata : previousAggregated.getData()) {
 						for (Job pjob : pdata.getJobs()) {
 							if (job.getJobName().equals(pjob.getJobName())) {
-								// The last saved in aggregator its the previous now
-								job.setPreviousBuildNumber(pjob.getLastBuildNumber());
-								job.setPreviousBuildResults(pjob.getLastBuildResults());
+								// The last saved in aggregator its the report now
+								job.setResults(pjob.getResults());
 								break;
 							}
 						}
@@ -220,13 +219,16 @@ public class TestResultsAggregatorHelper extends Notifier implements SimpleBuild
 		return data;
 	}
 	
-	public void getPreviousData(Run build, List<Data> validatedData) {
+	public Aggregated getPreviousData(Run build, List<Data> validatedData) {
 		if (build != null) {// Get Previous Saved Results
 			Aggregated previousSavedAggregatedResults = TestResultHistoryUtil.getTestResults(build);
 			if (previousSavedAggregatedResults != null) {
 				// Check previous Data
 				previousSavedResults(validatedData, previousSavedAggregatedResults);
 			}
+			return previousSavedAggregatedResults;
 		}
+		return null;
 	}
+	
 }
