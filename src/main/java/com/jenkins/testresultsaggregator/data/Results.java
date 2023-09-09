@@ -533,7 +533,7 @@ public class Results implements Serializable {
 		if (job.getResults() != null && job.getResults().getCcPackages() > 0) {
 			setCcPackagesReport(Helper.diff(job.getResults().getCcPackagesDif(), job.getResults().getCcPackages(), false) + "%");
 		} else {
-			setCcPackagesReport("0");
+			setCcPackagesReport("");
 		}
 		return getCcPackagesReport();
 	}
@@ -542,7 +542,7 @@ public class Results implements Serializable {
 		if (job.getResults() != null && job.getResults().getCcFiles() > 0) {
 			setCcFilesReport(Helper.diff(job.getResults().getCcFilesDif(), job.getResults().getCcFiles(), false) + "%");
 		} else {
-			setCcFilesReport("0");
+			setCcFilesReport("");
 		}
 		return getCcFilesReport();
 	}
@@ -551,7 +551,7 @@ public class Results implements Serializable {
 		if (job.getResults() != null && job.getResults().getCcClasses() > 0) {
 			setCcClassesReport(Helper.diff(job.getResults().getCcClassesDif(), job.getResults().getCcClasses(), false) + "%");
 		} else {
-			setCcClassesReport("0");
+			setCcClassesReport("");
 		}
 		return getCcClassesReport();
 	}
@@ -560,7 +560,7 @@ public class Results implements Serializable {
 		if (job.getResults() != null && job.getResults().getCcMethods() > 0) {
 			setCcMethodsReport(Helper.diff(job.getResults().getCcMethodsDif(), job.getResults().getCcMethods(), false) + "%");
 		} else {
-			setCcMethodsReport("0");
+			setCcMethodsReport("");
 		}
 		return getCcMethodsReport();
 	}
@@ -569,7 +569,7 @@ public class Results implements Serializable {
 		if (job.getResults() != null && job.getResults().getCcLines() > 0) {
 			setCcLinesReport(Helper.diff(job.getResults().getCcLinesDif(), job.getResults().getCcLines(), false) + "%");
 		} else {
-			setCcLinesReport("0");
+			setCcLinesReport("");
 		}
 		return getCcLinesReport();
 	}
@@ -578,7 +578,7 @@ public class Results implements Serializable {
 		if (job.getResults() != null && job.getResults().getCcConditions() > 0) {
 			setCcConditionsReport(Helper.diff(job.getResults().getCcConditionsDif(), job.getResults().getCcConditions(), false) + "%");
 		} else {
-			setCcConditionsReport("0");
+			setCcConditionsReport("");
 		}
 		return getCcConditionsReport();
 	}
