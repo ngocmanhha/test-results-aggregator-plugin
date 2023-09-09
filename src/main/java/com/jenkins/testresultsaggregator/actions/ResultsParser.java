@@ -61,8 +61,8 @@ public class ResultsParser {
 						// Read Jobs
 						readJobs(finalResults, jobs);
 					}
-				} catch (Exception ex) {
-					
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}
