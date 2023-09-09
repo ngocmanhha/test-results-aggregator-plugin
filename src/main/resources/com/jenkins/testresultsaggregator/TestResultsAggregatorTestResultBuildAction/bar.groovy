@@ -2,7 +2,7 @@ package com.jenkins.testresultsaggregator.TestResultsAggregatorTestResultBuildAc
 
 import hudson.Functions
 import com.jenkins.testresultsaggregator.helper.Colors
-import com.jenkins.testresultsaggregator.helper.TestResultHistoryUtil
+import com.jenkins.testresultsaggregator.actions.TestResultHistoryUtil
 
 f = namespace(lib.FormTagLib)
 l = namespace(lib.LayoutTagLib)
