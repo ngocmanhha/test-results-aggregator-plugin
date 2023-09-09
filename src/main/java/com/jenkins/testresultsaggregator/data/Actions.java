@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jenkins.testresultsaggregator.helper.Helper;
+import com.offbytwo.jenkins.model.BuildChangeSet;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 
 public class Actions {
@@ -41,7 +42,16 @@ public class Actions {
 		jobResults.setDuration(buildDetails.getDuration());
 		jobResults.setDescription(buildDetails.getDescription());
 		jobResults.setTimestamp(buildDetails.getTimestamp());
-		jobResults.setNumberOfChanges(buildDetails.getChangeSets().size());
+		if (buildDetails.getChangeSets().size() > 0) {
+			int allChanges = 0;
+			List<BuildChangeSet> allSets = buildDetails.getChangeSets();
+			for (BuildChangeSet tempSet : allSets) {
+				allChanges += tempSet.getItems().size();
+			}
+			jobResults.setNumberOfChanges(allChanges);
+		} else {
+			jobResults.setNumberOfChanges(0);
+		}
 		jobResults.setChangesUrl(buildDetails.getUrl() + "/changes");
 		for (Object temp : actionList) {
 			HashMap<Object, Object> actions = (HashMap<Object, Object>) temp;
