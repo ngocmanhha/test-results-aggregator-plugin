@@ -176,6 +176,10 @@ public class Aggregated extends BaseResult {
 		return Helper.countPercentage(results).toString();
 	}
 	
+	public String calculatePercentage() {
+		return Helper.countPercentage(results).toString();
+	}
+	
 	public String calculatePercentageOfJobs(boolean withColor, int fontSize, String status) {
 		if (withColor) {
 			return Helper.colorizePercentage(Helper.countPercentageD(successJobs + fixedJobs + unstableJobs + keepUnstableJobs, getTotalJobs()), fontSize, status);
@@ -258,22 +262,34 @@ public class Aggregated extends BaseResult {
 	////////////////////
 	// Calculate for Total/Summary report
 	public String getCalculatedTotal() {
-		long dif = results.getTotal() - previousResults.getTotal();
+		long dif = results.getTotal();
+		if (previousResults != null) {
+			dif = dif - previousResults.getTotal();
+		}
 		return Helper.reportTestDiffs(null, results.getTotal(), dif);
 	}
 	
 	public String getCalculatedPass() {
-		long dif = results.getPass() - previousResults.getPass();
+		long dif = results.getPass();
+		if (previousResults != null) {
+			dif = dif - previousResults.getPass();
+		}
 		return Helper.reportTestDiffs(null, results.getPass(), dif);
 	}
 	
 	public String getCalculatedSkip() {
-		long dif = results.getSkip() - previousResults.getSkip();
+		long dif = results.getSkip();
+		if (previousResults != null) {
+			dif = dif - previousResults.getSkip();
+		}
 		return Helper.reportTestDiffs(null, results.getSkip(), dif);
 	}
 	
 	public String getCalculatedFail() {
-		long dif = results.getFail() - previousResults.getFail();
+		long dif = results.getFail();
+		if (previousResults != null) {
+			dif = dif - previousResults.getFail();
+		}
 		return Helper.reportTestDiffs(Colors.FAILED, results.getFail(), dif);
 	}
 	

@@ -44,7 +44,6 @@ public class Collector {
 	public static final String SONAR_URL = "sonarqubeDashboardUrl";
 	// Urls
 	public static final String DEPTH = "?depth=1";
-	public static final String COBERTURA = "cobertura/" + "api/json" + "?depth=2";
 	
 	private PrintStream logger;
 	JenkinsServer jenkins;
@@ -62,46 +61,112 @@ public class Collector {
 		}
 	}
 	
-	public JobWithDetailsAggregator getDetails(Job job) throws IOException {
+	public JobWithDetailsAggregator getDetails(Job job) throws Exception {
+		JobWithDetailsAggregator response = null;
 		if (job.getFolder().equalsIgnoreCase(ROOT_FOLDER)) {
 			if (jobs.get(job.getJobNameOnly()) != null) {
-				return jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getUrl() + DEPTH, JobWithDetailsAggregator.class);
+				int retries = 1;
+				while (retries < 4 && response == null) {
+					try {
+						response = jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getUrl() + DEPTH, JobWithDetailsAggregator.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					retries++;
+				}
 			}
 		} else {
-			JenkinsHttpConnection client = jenkins.getQueue().getClient();
+			JenkinsHttpConnection client = null;
+			try {
+				client = jenkins.getQueue().getClient();
+			} catch (IOException ex) {
+				throw new Exception(ex);
+			}
 			if (client != null) {
-				return client.get(job.getUrl() + DEPTH, JobWithDetailsAggregator.class);
-			}
-		}
-		return null;
-	}
-	
-	public BuildWithDetails getLastBuildDetails(Job job) throws IOException {
-		if (job.getFolder().equalsIgnoreCase(ROOT_FOLDER)) {
-			if (jobs.get(job.getJobNameOnly()) != null) {
-				return jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getLastBuild().details().getUrl() + DEPTH, BuildWithDetails.class);
-			}
-		} else {
-			JenkinsHttpConnection client = jenkins.getQueue().getClient();
-			if (client != null) {
-				return client.get(job.getUrl() + DEPTH, BuildWithDetails.class);
-			}
-		}
-		return null;
-	}
-	
-	public BuildWithDetails getBuildDetails(Job job, Integer number) throws IOException {
-		if (job.getFolder().equalsIgnoreCase(ROOT_FOLDER)) {
-			if (jobs.get(job.getJobNameOnly()) != null && number != null) {
-				return jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getBuildByNumber(number).details().getUrl() + DEPTH, BuildWithDetails.class);
-			} else {
-				JenkinsHttpConnection client = jenkins.getQueue().getClient();
-				if (client != null) {
-					return client.get(job.getUrl() + DEPTH, BuildWithDetails.class);
+				int retries = 1;
+				while (retries < 4 && response == null) {
+					try {
+						response = client.get(job.getUrl() + DEPTH, JobWithDetailsAggregator.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					retries++;
 				}
 			}
 		}
-		return null;
+		return response;
+	}
+	
+	public BuildWithDetails getLastBuildDetails(Job job) throws Exception {
+		BuildWithDetails response = null;
+		if (job.getFolder().equalsIgnoreCase(ROOT_FOLDER)) {
+			if (jobs.get(job.getJobNameOnly()) != null) {
+				int retries = 1;
+				while (retries < 4 && response == null) {
+					try {
+						response = jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getLastBuild().details().getUrl() + DEPTH, BuildWithDetails.class);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					retries++;
+				}
+			}
+		} else {
+			JenkinsHttpConnection client = null;
+			try {
+				client = jenkins.getQueue().getClient();
+			} catch (IOException ex) {
+				throw new Exception(ex);
+			}
+			if (client != null) {
+				int retries = 1;
+				while (retries < 4 && response == null) {
+					try {
+						response = client.get(job.getUrl() + DEPTH, BuildWithDetails.class);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					retries++;
+				}
+			}
+		}
+		return response;
+	}
+	
+	public BuildWithDetails getBuildDetails(Job job, Integer number) throws Exception {
+		BuildWithDetails response = null;
+		if (job.getFolder().equalsIgnoreCase(ROOT_FOLDER)) {
+			if (jobs.get(job.getJobNameOnly()) != null && number != null && number > 0) {
+				int retries = 1;
+				while (retries < 4 && response == null) {
+					try {
+						response = jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getBuildByNumber(number).details().getUrl() + DEPTH, BuildWithDetails.class);
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+					retries++;
+				}
+			} else {
+				JenkinsHttpConnection client = null;
+				try {
+					client = jenkins.getQueue().getClient();
+				} catch (IOException ex) {
+					throw new Exception(ex);
+				}
+				if (client != null) {
+					int retries = 1;
+					while (retries < 4 && response == null) {
+						try {
+							response = client.get(job.getUrl() + DEPTH, BuildWithDetails.class);
+						} catch (IOException ex) {
+							ex.printStackTrace();
+						}
+						retries++;
+					}
+				}
+			}
+		}
+		return response;
 	}
 	
 	public void collectResults(List<Data> dataJob, boolean compareWithPreviousRun, Boolean ignoreRunningJobs) throws InterruptedException {
@@ -126,7 +191,7 @@ public class Collector {
 			}
 		}
 		for (ReportThread thread : threads) {
-			thread.join(60000);
+			thread.join(120000);
 		}
 	}
 	
@@ -159,31 +224,38 @@ public class Collector {
 					// Job FOUND
 					job.setLast(new BuildWithDetailsAggregator());
 					job.getLast().setBuildDetails(getLastBuildDetails(job));
-					job.getLast().setResults(new JobResults().calculatedFrom(job.getLast().getBuildDetails()));
+					job.getLast().setResults(calculateResults(job.getLast().getBuildDetails()));
 					job.setIsBuilding(job.getLast().getBuildDetails().isBuilding());
 					logger.print("Job '" + job.getJobName() + "' found build number " + job.getLast().getBuildDetails().getNumber() + " with status");
 					if (job.getLast().getBuildDetails().isBuilding()) {
-						logger.println(" building");
-						if (ignoreRunningJobs) {
-							Integer previousBuildNumber = null;
+						if (ignoreRunningJobs && compareWithPreviousRun) {
+							int previousBuildNumber = 0;
+							int previousBuildNumber2 = 0;
 							if (job.getResults() == null) {
 								job.setResults(new Results(JobStatus.RUNNING_REPORT_PREVIOUS.name(), job.getUrl()));
-								previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
 							} else {
 								job.getResults().setStatus(JobStatus.RUNNING_REPORT_PREVIOUS.name());
 								job.getResults().setUrl(job.getUrl());
-								previousBuildNumber = job.getResults().getNumber();
+								previousBuildNumber2 = job.getResults().getNumber();
+							}
+							previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
+							if (previousBuildNumber2 < previousBuildNumber) {
+								previousBuildNumber = previousBuildNumber2;
+								logger.println(" building2, previous build " + previousBuildNumber);
+							} else {
+								logger.println(" building, previous build " + previousBuildNumber);
 							}
 							job.setLast(new BuildWithDetailsAggregator());
 							job.getLast().setBuildNumber(previousBuildNumber);
 							job.getLast().setBuildDetails(getBuildDetails(job, previousBuildNumber));
-							job.getLast().setResults(new JobResults().calculatedFrom(job.getLast().getBuildDetails()));
+							job.getLast().setResults(calculateResults(job.getLast().getBuildDetails()));
 							//
 							job.setPrevious(new BuildWithDetailsAggregator());
 							job.getPrevious().setBuildNumber(previousBuildNumber);
 							job.getPrevious().setBuildDetails(job.getLast().getBuildDetails());
 							job.getPrevious().setResults(job.getLast().getResults());
 						} else {
+							logger.println(" running");
 							job.setResults(new Results(JobStatus.RUNNING.name(), job.getUrl()));
 						}
 					} else {
@@ -203,24 +275,29 @@ public class Collector {
 								job.setLast(new BuildWithDetailsAggregator());
 								job.getLast().setBuildNumber(previousBuildNumber);
 								job.getLast().setBuildDetails(getBuildDetails(job, previousBuildNumber));
-								job.getLast().setResults(new JobResults().calculatedFrom(job.getLast().getBuildDetails()));
+								job.getLast().setResults(calculateResults(job.getLast().getBuildDetails()));
 								//
 								Integer previousOfPreviousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
 								job.setPrevious(new BuildWithDetailsAggregator());
 								job.getPrevious().setBuildNumber(previousOfPreviousBuildNumber);
 								job.getPrevious().setBuildDetails(getBuildDetails(job, previousOfPreviousBuildNumber));
-								job.getPrevious().setResults(new JobResults().calculatedFrom(job.getPrevious().getBuildDetails()));
+								job.getPrevious().setResults(calculateResults(job.getPrevious().getBuildDetails()));
 							} else {
 								job.setPrevious(new BuildWithDetailsAggregator());
 								job.getPrevious().setBuildNumber(previousBuildNumber);
 								job.getPrevious().setBuildDetails(getBuildDetails(job, previousBuildNumber));
-								job.getPrevious().setResults(new JobResults().calculatedFrom(job.getPrevious().getBuildDetails()));
+								job.getPrevious().setResults(calculateResults(job.getPrevious().getBuildDetails()));
 							}
+						} else {
+							job.setPrevious(new BuildWithDetailsAggregator());
+							job.getPrevious().setBuildNumber(job.getLast().getBuildDetails().getNumber());
+							job.getPrevious().setBuildDetails(job.getLast().getBuildDetails());
+							job.getPrevious().setResults(calculateResults(job.getPrevious().getBuildDetails()));
 						}
 					}
 					logger.println(LocalMessages.COLLECT_DATA.toString() + " '" + job.getJobName() + "' " + LocalMessages.FINISHED.toString());
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				logger.println("Job '" + job.getJobName() + "' found " + JobStatus.NOT_FOUND.name() + "with error : " + e.getMessage());
 				job.setResults(new Results(JobStatus.NOT_FOUND.name(), job.getUrl()));
 				e.printStackTrace();
@@ -228,58 +305,36 @@ public class Collector {
 		}
 	}
 	
-	private Integer resolvePreviousBuildNumberFromBuild(Job job, int depth) {
-		try {
-			List<Integer> allBuildNumbers = job.getJob().getAllBuilds().stream().map(Build::getNumber).collect(Collectors.toList());
-			Collections.sort(allBuildNumbers);
-			return allBuildNumbers.get(allBuildNumbers.size() - depth);
-		} catch (Exception ex) {
-			// ex.printStackTrace();
+	////
+	private JobResults calculateResults(BuildWithDetails buildWithDetails) {
+		JobResults jobResults = new JobResults();
+		if (buildWithDetails != null) {
+			return new CollectorHelper(jobResults, buildWithDetails).calculate();
 		}
-		return null;
+		return jobResults;
 	}
 	
-	private void actions(BuildWithDetails buildWithDetail, Results results) {
-		List<?> actionList = buildWithDetail.getActions();
-		for (Object temp : actionList) {
-			HashMap<Object, Object> actions = (HashMap<Object, Object>) temp;
-			if (actions.containsKey("_class") && !actions.get("_class").equals("com.jenkins.testresultsaggregator.TestResultsAggregatorTestResultBuildAction")) {
-				// Calculate FAIL,SKIP and TOTAL Test Results
-				if (actions.containsKey(FAILCOUNT)) {
-					results.setFail((Integer) actions.get(FAILCOUNT));
-				}
-				if (actions.containsKey(SKIPCOUNT)) {
-					results.setSkip((Integer) actions.get(SKIPCOUNT));
-				}
-				if (actions.containsKey(TOTALCOUNT)) {
-					results.setTotal((Integer) actions.get(TOTALCOUNT));
-				}
-				// Jacoco
-				if (actions.containsKey(JACOCO_BRANCH)) {
-					Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_BRANCH);
-					results.setCcConditions((Integer) tempMap.get("percentage"));
-				}
-				if (actions.containsKey(JACOCO_CLASS)) {
-					Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_CLASS);
-					results.setCcClasses((Integer) tempMap.get("percentage"));
-				}
-				if (actions.containsKey(JACOCO_LINES)) {
-					Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_LINES);
-					results.setCcLines((Integer) tempMap.get("percentage"));
-				}
+	private int resolvePreviousBuildNumberFromBuild(Job job, int depth) {
+		try {
+			// TODO : Retries here
+			List<Integer> allBuildNumbers = job.getJob().getAllBuilds().stream().map(Build::getNumber).collect(Collectors.toList());
+			int retries = 1;
+			while ((allBuildNumbers == null || allBuildNumbers.isEmpty()) && retries < 4) {
+				allBuildNumbers = job.getJob().getAllBuilds().stream().map(Build::getNumber).collect(Collectors.toList());
+				retries++;
 			}
-			if (actions.containsKey(JACOCO_METHODS)) {
-				Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_METHODS);
-				results.setCcMethods((Integer) tempMap.get("percentage"));
+			if (allBuildNumbers != null) {
+				Collections.sort(allBuildNumbers);
+				Integer found = allBuildNumbers.get(allBuildNumbers.size() - depth);
+				if (found == null) {
+					return 0;
+				}
+				return found.intValue();
 			}
-			if (actions.containsKey(SONAR_URL)) {
-				results.setSonarUrl((String) actions.get(SONAR_URL));
-			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
-		// Cobertura ?
-		// Calculate Pass Results
-		results.setPass(results.getTotal() - Math.abs(results.getFail()) - Math.abs(results.getSkip()));
-		// Calculate Percentage
-		results.setPercentageReport(Helper.singDoubleSingle((double) (results.getPass() + results.getSkip()) * 100 / results.getTotal()));
+		return 0;
 	}
+	
 }

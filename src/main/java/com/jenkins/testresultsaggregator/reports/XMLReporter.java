@@ -69,7 +69,7 @@ public class XMLReporter {
 							writer.println(TAB + TAB + TAB + xmlTag(STATUS, dataJob.getResults().getStatus()));
 							if (JobStatus.DISABLED.name().equalsIgnoreCase(dataJob.getResults().getStatus())) {
 								jobStatus(writer, dataJob, dataJob.getUrl(), null, false);
-							} else if (JobStatus.NOT_FOUND.name().equalsIgnoreCase(dataJob.getLast().getResults().getStatus())) {
+							} else if (JobStatus.NOT_FOUND.name().equalsIgnoreCase(dataJob.getResults().getStatus())) {
 								jobStatus(writer, dataJob, null, null, false);
 							} else {
 								jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLast().getBuildDetails().getNumber(), true);

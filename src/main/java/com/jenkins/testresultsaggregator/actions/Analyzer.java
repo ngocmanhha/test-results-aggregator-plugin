@@ -26,7 +26,7 @@ public class Analyzer {
 		this.logger = logger;
 	}
 	
-	public Aggregated analyze(Aggregated aggregatedSavedData, List<Data> listData, Properties properties) throws Exception {
+	public Aggregated analyze(Aggregated aggregatedSavedData, List<Data> listData, Properties properties, boolean compareWithPrevious) throws Exception {
 		// Resolve
 		String outOfDateResults = properties.getProperty(TestResultsAggregator.AggregatorProperties.OUT_OF_DATE_RESULTS_ARG.name());
 		// Check if Groups/Names are used
@@ -67,17 +67,17 @@ public class Analyzer {
 			data.setReportGroup(new ReportGroup());
 			
 			for (Job job : data.getJobs()) {
+				if (job.getResults() == null) {
+					job.setResults(new Results().calculate(job));
+				}
 				if (JobStatus.DISABLED.name().equalsIgnoreCase(job.getResults().getStatus()) ||
 						JobStatus.ABORTED.name().equalsIgnoreCase(job.getResults().getStatus()) ||
 						JobStatus.NOT_FOUND.name().equalsIgnoreCase(job.getResults().getStatus()) ||
 						JobStatus.NO_LAST_BUILD_DATA.name().equalsIgnoreCase(job.getResults().getStatus())) {
 				} else {
-					if (job.getResults() == null) {
-						job.setResults(new Results().calculate(job));
-					} else {
-						job.getResults().calculate(job);
-					}
 					if (job.getLast().getResults() != null && !JobStatus.NOT_FOUND.name().equals(job.getResults().getStatus())) {
+						//
+						job.getResults().calculate(job);
 						// Description
 						job.getResults().setDescription(job.getLast().getBuildDetails().getDescription());
 						// Calculate Total
@@ -123,7 +123,7 @@ public class Analyzer {
 								data.getReportGroup().setJobSuccess(data.getReportGroup().getJobSuccess() + 1);
 								aggregated.setFixedJobs(aggregated.getFixedJobs() + 1);
 								jobSuccess++;
-							} else if (jobStatus.startsWith(JobStatus.RUNNING.name()) && "false".equalsIgnoreCase((String) properties.get(AggregatorProperties.IGNORE_RUNNING_JOBS.name()))) {
+							} else if (jobStatus.startsWith(JobStatus.RUNNING.name()) && ("false".equalsIgnoreCase((String) properties.get(AggregatorProperties.IGNORE_RUNNING_JOBS.name())) || !compareWithPrevious)) {
 								foundRunning = true;
 								data.getReportGroup().setJobRunning(data.getReportGroup().getJobRunning() + 1);
 								aggregated.setRunningJobs(aggregated.getRunningJobs() + 1);

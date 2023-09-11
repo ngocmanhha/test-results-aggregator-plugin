@@ -2,8 +2,6 @@ package com.jenkins.testresultsaggregator.data;
 
 import java.io.Serializable;
 
-import com.offbytwo.jenkins.model.BuildWithDetails;
-
 public class JobResults implements Serializable {
 	
 	private static final long serialVersionUID = 3491974223667L;
@@ -197,13 +195,6 @@ public class JobResults implements Serializable {
 	
 	public void setPercentage(Double percentage) {
 		this.percentage = percentage;
-	}
-	
-	public JobResults calculatedFrom(BuildWithDetails buildDetails) {
-		if (buildDetails != null) {
-			return new Actions(this, buildDetails).calculate();
-		}
-		return this;
 	}
 	
 }

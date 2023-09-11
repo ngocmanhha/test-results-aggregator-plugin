@@ -667,78 +667,11 @@ public class Results implements Serializable {
 		return jobStatus;
 	}
 	
-	/*
-	public String getPercentage(boolean withColor, boolean withLink) {
-		if (withColor && percentage != null) {
-			String temp = Helper.colorizePercentage(Double.valueOf(percentage), null, null);
-			if (withLink) {
-				return "<a href='" + getUrl() + "' style='text-decoration:none;'>" + temp + "</a>";
-			}
-			return temp;
-		}
-		return Double.toString(percentage);
-	}
-	
-	public String getTotal(boolean withLinktoResults) {
-		if (withLinktoResults) {
-			if (getTotal() > 0) {
-				return "<a href='" + getUrl() + "' style='text-decoration:none;'>" + getTotal() + "</a>";
-			} else {
-				return "";
-			}
-		}
-		return Integer.toString(total);
-	}
-	
-	public String getPass(boolean withLinktoResults) {
-		if (withLinktoResults) {
-			if (getPass() > 0) {
-				return "<a href='" + getUrl() + "' style='text-decoration:none;'>" + getPass() + "</a>";
-			} else {
-				return "";
-			}
-		}
-		return Integer.toString(pass);
-	}
-	
-	public String getFailed(boolean withLinktoResults) {
-		if (withLinktoResults) {
-			if (getFail() > 0) {
-				return "<a href='" + getUrl() + "' style='text-decoration:none;'>" + getFail() + "</a>";
-			} else {
-				return "";
-			}
-		}
-		return Integer.toString(fail);
-	}
-	
-	public String getFailedColor(boolean withLinktoResults) {
-		if (withLinktoResults) {
-			if (getFail() > 0) {
-				return "<a href='" + getUrl() + "' style='text-decoration:none;'>" + Helper.colorize(Integer.toString(getFail()), Color.RED) + "</a>";
-			} else {
-				return "";
-			}
-		}
-		return Integer.toString(fail);
-	}
-	
-	public String getSkipped(boolean withLinktoResults) {
-		if (withLinktoResults) {
-			if (getSkip() > 0) {
-				return "<a href='" + getUrl() + "' style='text-decoration:none;'>" + getSkip() + "</a>";
-			} else {
-				return "";
-			}
-		}
-		return Integer.toString(skip);
-	}
-	*/
 	public void calculatePercentage(Job job) {
-		if (job.getResults().getStatus().equalsIgnoreCase(JobStatus.ABORTED.name()) ||
-				job.getResults().getStatus().equalsIgnoreCase(JobStatus.DISABLED.name()) ||
-				job.getResults().getStatus().equalsIgnoreCase(JobStatus.NOT_FOUND.name()) ||
-				job.getResults().getStatus().equalsIgnoreCase(JobStatus.RUNNING.name())) {
+		if (JobStatus.ABORTED.name().equalsIgnoreCase(job.getResults().getStatus()) ||
+				JobStatus.DISABLED.name().equalsIgnoreCase(job.getResults().getStatus()) ||
+				JobStatus.NOT_FOUND.name().equalsIgnoreCase(job.getResults().getStatus()) ||
+				JobStatus.RUNNING.name().equalsIgnoreCase(job.getResults().getStatus())) {
 			setPercentage(null);
 		} else {
 			Double calculatedPercentage = Helper.countPercentage(job.getResults());

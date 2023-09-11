@@ -186,7 +186,7 @@ public class TestResultsAggregator extends TestResultsAggregatorHelper implement
 			collector.collectResults(validatedData, compareWithPrevious(), ignoreRunningJobs());
 			collector.closeJenkinsConnection();
 			// Analyze Results
-			Aggregated aggregated = new Analyzer(logger).analyze(aggregatedSavedData, validatedData, properties);
+			Aggregated aggregated = new Analyzer(logger).analyze(aggregatedSavedData, validatedData, properties, compareWithPrevious());
 			// Reporter for HTML and mail
 			Reporter reporter = new Reporter(logger, workspace, run.getRootDir(), desc.getMailNotificationFrom(), ignoreDisabledJobs, ignoreNotFoundJobs, ignoreAbortedJobs);
 			reporter.publishResuts(aggregated, properties, localizedColumns, run.getRootDir());
@@ -226,7 +226,7 @@ public class TestResultsAggregator extends TestResultsAggregatorHelper implement
 			collector.collectResults(validatedData, compareWithPrevious(), ignoreRunningJobs());
 			collector.closeJenkinsConnection();
 			// Analyze Results
-			Aggregated aggregated = new Analyzer(logger).analyze(aggregatedSavedData, validatedData, properties);
+			Aggregated aggregated = new Analyzer(logger).analyze(aggregatedSavedData, validatedData, properties, compareWithPrevious());
 			// Reporter for HTML and mail
 			Reporter reporter = new Reporter(logger, build.getProject().getSomeWorkspace(), build.getRootDir(), desc.getMailNotificationFrom(), ignoreDisabledJobs, ignoreNotFoundJobs, ignoreAbortedJobs);
 			reporter.publishResuts(aggregated, properties, localizedColumns, build.getRootDir());

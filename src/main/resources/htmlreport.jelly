@@ -55,7 +55,7 @@
 								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getJob().getHealthReport(true)}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_PERCENTAGE'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getPercentage(true,false)}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getPercentageReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_TESTS'}">
 								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getTotalReport()}</td>
@@ -124,7 +124,7 @@
 								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center"></td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_PERCENTAGE'}">
-								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.calculatePercentage(true)}</td>
+								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.calculatePercentage()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_TESTS'}">
 								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.getCalculatedTotal()}</td>
