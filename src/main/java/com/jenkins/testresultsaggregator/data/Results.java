@@ -477,7 +477,7 @@ public class Results implements Serializable {
 	
 	public void calculateTotal(Job job) {
 		if (job.getResults() != null) {
-			setTotalReport(Helper.reportTestDiffs(null, job.getResults().getTotal(), job.getResults().getTotalDif()));
+			setTotalReport(Helper.reportTestDiffs(status, null, job.getResults().getTotal(), job.getResults().getTotalDif()));
 		} else {
 			setTotalReport("0");
 		}
@@ -485,7 +485,7 @@ public class Results implements Serializable {
 	
 	public void calculatePass(Job job) {
 		if (job != null) {
-			setPassReport(Helper.reportTestDiffs(null, job.getResults().getPass(), job.getResults().getPassDif()));
+			setPassReport(Helper.reportTestDiffs(status, null, job.getResults().getPass(), job.getResults().getPassDif()));
 		} else {
 			setPassReport("0");
 		}
@@ -493,7 +493,7 @@ public class Results implements Serializable {
 	
 	public void calculateFailed(Job job) {
 		if (job != null) {
-			setFailReport(Helper.reportTestDiffs(Color.RED, job.getResults().getFail(), job.getResults().getFailDif()));
+			setFailReport(Helper.reportTestDiffs(status, Color.RED, job.getResults().getFail(), job.getResults().getFailDif()));
 		} else {
 			setFailReport("0");
 		}
@@ -501,7 +501,7 @@ public class Results implements Serializable {
 	
 	public void calculateSkipped(Job job) {
 		if (job != null) {
-			setSkipReport(Helper.reportTestDiffs(null, job.getResults().getSkip(), job.getResults().getSkipDif()));
+			setSkipReport(Helper.reportTestDiffs(status, null, job.getResults().getSkip(), job.getResults().getSkipDif()));
 		} else {
 			setSkipReport("0");
 		}

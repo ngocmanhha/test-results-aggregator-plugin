@@ -236,11 +236,18 @@ public class Helper {
 		return fp;
 	}
 	
-	public static String reportTestDiffs(Color color, long curr, long diff) {
+	public static String reportTestDiffs(String status, Color color, long curr, long diff) {
+		boolean still = false;
+		if (status != null && status.startsWith("STILL")) {
+			still = true;
+		}
 		if (diff == 0 && curr == 0) {
 			return "";
 		} else if (diff == 0 && curr > 0) {
-			return curr + "";
+			if (still) {
+				color = null;
+			}
+			return colorize2(curr, color);
 		} else {
 			if (curr == 0) {
 				if (diff > 0) {
@@ -250,7 +257,10 @@ public class Helper {
 				}
 			} else {
 				if (diff > 0 && diff == curr) {
-					return "" + curr;
+					if (still) {
+						color = null;
+					}
+					return colorize2(curr, color);
 				} else if (diff > 0 && diff != curr) {
 					return curr + "(+" + colorize2(diff, color) + ")";
 				} else {

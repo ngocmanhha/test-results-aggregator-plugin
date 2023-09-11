@@ -266,7 +266,7 @@ public class Aggregated extends BaseResult {
 		if (previousResults != null) {
 			dif = dif - previousResults.getTotal();
 		}
-		return Helper.reportTestDiffs(null, results.getTotal(), dif);
+		return Helper.reportTestDiffs(null, null, results.getTotal(), dif);
 	}
 	
 	public String getCalculatedPass() {
@@ -274,7 +274,7 @@ public class Aggregated extends BaseResult {
 		if (previousResults != null) {
 			dif = dif - previousResults.getPass();
 		}
-		return Helper.reportTestDiffs(null, results.getPass(), dif);
+		return Helper.reportTestDiffs(null, null, results.getPass(), dif);
 	}
 	
 	public String getCalculatedSkip() {
@@ -282,7 +282,7 @@ public class Aggregated extends BaseResult {
 		if (previousResults != null) {
 			dif = dif - previousResults.getSkip();
 		}
-		return Helper.reportTestDiffs(null, results.getSkip(), dif);
+		return Helper.reportTestDiffs(null, null, results.getSkip(), dif);
 	}
 	
 	public String getCalculatedFail() {
@@ -290,7 +290,7 @@ public class Aggregated extends BaseResult {
 		if (previousResults != null) {
 			dif = dif - previousResults.getFail();
 		}
-		return Helper.reportTestDiffs(Colors.FAILED, results.getFail(), dif);
+		return Helper.reportTestDiffs(null, Colors.FAILED, results.getFail(), dif);
 	}
 	
 }
