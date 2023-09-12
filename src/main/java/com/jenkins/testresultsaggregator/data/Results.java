@@ -217,11 +217,14 @@ public class Results implements Serializable {
 	}
 	
 	public String getNumberReport(boolean withLinktoResults) {
-		if (withLinktoResults) {
-			String reportUrl = url + number;
-			return "<a href='" + reportUrl + "'>" + number + "</a>";
+		if (number > 0) {
+			if (withLinktoResults) {
+				String reportUrl = url + number;
+				return "<a href='" + reportUrl + "'>" + number + "</a>";
+			}
+			return "" + number;
 		}
-		return "" + number;
+		return "";
 	}
 	
 	public Long getDuration() {
@@ -684,6 +687,9 @@ public class Results implements Serializable {
 	}
 	
 	public String getPercentageReport() {
+		if (!Strings.isNullOrEmpty(percentageReport)) {
+			return percentageReport + "%";
+		}
 		return percentageReport;
 	}
 	
