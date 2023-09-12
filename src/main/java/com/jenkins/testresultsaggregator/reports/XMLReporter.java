@@ -1,4 +1,4 @@
-package com.jenkins.testresultsaggregator.reporter;
+package com.jenkins.testresultsaggregator.reports;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +28,7 @@ public class XMLReporter {
 	public static final String NAME = "NAME";
 	public static final String STATUS = "STATUS";
 	public static final String URL = "URL";
+	public static final String BUILD = "BUILD";
 	
 	public XMLReporter(PrintStream logger, File rootDir) {
 		this.logger = logger;
@@ -61,20 +62,20 @@ public class XMLReporter {
 			writer.println(TAB + S + JOBS + E);
 			for (Data data : aggregated.getData()) {
 				for (Job dataJob : data.getJobs()) {
-					if (dataJob.getBuildInfo() != null) {
+					if (dataJob.getJob() != null) {
 						writer.println(TAB + TAB + S + JOB + E);
 						writer.println(TAB + TAB + TAB + xmlTag(NAME, dataJob.getJobName()));
 						if (dataJob.getResults() != null) {
 							writer.println(TAB + TAB + TAB + xmlTag(STATUS, dataJob.getResults().getStatus()));
-							if (JobStatus.DISABLED.name().equalsIgnoreCase(dataJob.getResults().getCurrentResult())) {
-								jobStatus(writer, dataJob, dataJob.getJobInfo().getUrl(), true);
-							} else if (JobStatus.NOT_FOUND.name().equalsIgnoreCase(dataJob.getResults().getCurrentResult())) {
-								jobStatus(writer, dataJob, null, false);
+							if (JobStatus.DISABLED.name().equalsIgnoreCase(dataJob.getResults().getStatus())) {
+								jobStatus(writer, dataJob, dataJob.getUrl(), null, false);
+							} else if (JobStatus.NOT_FOUND.name().equalsIgnoreCase(dataJob.getResults().getStatus())) {
+								jobStatus(writer, dataJob, null, null, false);
 							} else {
-								jobStatus(writer, dataJob, dataJob.getJobInfo().getLastBuild().getUrl(), true);
+								jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLast().getBuildDetails().getNumber(), true);
 							}
 						} else {
-							jobStatus(writer, dataJob, dataJob.getJobInfo().getLastBuild().getUrl(), true);
+							jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLast().getBuildDetails().getNumber(), true);
 						}
 						writer.println(TAB + TAB + SE + JOB + E);
 					}
@@ -98,8 +99,9 @@ public class XMLReporter {
 		return "<" + tag + "></" + tag + ">";
 	}
 	
-	private void jobStatus(PrintWriter writer, Job dataJob, java.net.URL url, boolean found) {
+	private void jobStatus(PrintWriter writer, Job dataJob, String url, Integer build, boolean found) {
 		writer.println(TAB + TAB + TAB + xmlTag(URL, url));
+		writer.println(TAB + TAB + TAB + xmlTag(BUILD, build));
 		if (found && dataJob.getResults() != null) {
 			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_TOTAL, dataJob.getResults().getTotal()));
 			writer.println(TAB + TAB + TAB + xmlTag(TestResultsAggregatorProjectAction.TEST_SUCCESS, dataJob.getResults().getPass()));

@@ -48,19 +48,19 @@ if (my.result.abortedJobs > 0) {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -110,19 +110,19 @@ if (my.result.failedJobs > 0) {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -172,19 +172,19 @@ if (my.result.keepFailJobs > 0) {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -234,19 +234,19 @@ if (my.result.unstableJobs > 0) {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -296,19 +296,19 @@ if (my.result.keepUnstableJobs > 0) {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -358,19 +358,19 @@ if (my.result.fixedJobs > 0) {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -420,19 +420,19 @@ if (my.result.successJobs > 0) {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")
@@ -482,19 +482,19 @@ if (my.result.runningJobs > 0) {
 								text("${job.getJobName()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedTotal()}")
+								raw("${job.getResults().getTotal()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedPass()}")
+								raw("${job.getResults().getPass()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedFail()}")
+								raw("${job.getResults().getFail()}")
 							}
 							td(align: "center") {
-								raw("${job.getResults().getCalculatedSkip()}")
+								raw("${job.getResults().getSkip()}")
 							}
 							td(align: "center") {
-								a(href:"${job.getJobInfo().getUrl()}") {
+								a(href:"${job.getUrl()}") {
 									text(">>>")
 								}
 								text(" ")

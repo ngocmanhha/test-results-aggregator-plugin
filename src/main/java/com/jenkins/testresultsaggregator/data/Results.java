@@ -1,107 +1,144 @@
 package com.jenkins.testresultsaggregator.data;
 
+import java.awt.Color;
 import java.io.Serializable;
 
-import com.jenkins.testresultsaggregator.helper.Colors;
+import com.google.common.base.Strings;
+import com.jenkins.testresultsaggregator.helper.GetEnumFromString;
 import com.jenkins.testresultsaggregator.helper.Helper;
 
 public class Results implements Serializable {
 	
 	private static final long serialVersionUID = 3491974223667L;
 	
-	private String name;
-	
-	private int pass;
-	private int passDif;
-	
-	private int fail;
-	private int failDif;
-	
-	private int skip;
-	private int skipDif;
-	
-	private int total;
-	private int totalDif;
-	
-	private int ccPackages;
-	private int ccPackagesDif;
-	
-	private int ccFiles;
-	private int ccFilesDif;
-	
-	private int ccClasses;
-	private int ccClassesDif;
-	
-	private int ccMethods;
-	private int ccMethodsDif;
-	
-	private int ccLines;
-	private int ccLinesDif;
-	
-	private int ccConditions;
-	private int ccConditionsDif;
-	
-	private String currentResult;
-	private String previousResult;
 	private String status;
-	
 	private int number;
+	private String durationReport;
 	private Long duration;
 	private String description;
 	private boolean building;
-	
 	private String url;
 	private String sonarUrl;
-	
-	private int calculatedNumberOfChanges;
-	private int numberOfChanges;
-	
-	private String changesUrl;
 	private String timestamp;
 	
+	private String percentageReport;
 	private Double percentage;
+	// Changes
+	private String numberOfChangesReport;
+	private int numberOfChanges;
+	private String changesUrl;
+	// Tests
+	private String passReport;
+	private int pass;
+	private int passDif;
+	private String failReport;
+	private int fail;
+	private int failDif;
+	private String skipReport;
+	private int skip;
+	private int skipDif;
+	private String totalReport;
+	private int total;
+	private int totalDif;
+	// Code Coverage
+	private String ccPackagesReport;
+	private Integer ccPackages;
+	private Integer ccPackagesDif;
+	private String ccFilesReport;
+	private Integer ccFiles;
+	private Integer ccFilesDif;
+	private String ccClassesReport;
+	private Integer ccClasses;
+	private Integer ccClassesDif;
+	private String ccMethodsReport;
+	private Integer ccMethods;
+	private Integer ccMethodsDif;
+	private String ccLinesReport;
+	private Integer ccLines;
+	private Integer ccLinesDif;
+	private String ccConditionsReport;
+	private Integer ccConditions;
+	private Integer ccConditionsDif;
 	
 	public Results() {
-		setPass(0);
-		setPassDif(0);
-		
-		setFail(0);
-		setFailDif(0);
-		
-		setSkip(0);
-		setSkipDif(0);
-		
-		setTotal(0);
-		setTotalDif(0);
 	}
 	
-	public Results(String currentResult, String previousResult) {
-		setCurrentResult(currentResult);
-		setPreviousResult(previousResult);
-		
-		setPass(0);
-		setPassDif(0);
-		
-		setFail(0);
-		setFailDif(0);
-		
-		setSkip(0);
-		setSkipDif(0);
-		
-		setTotal(0);
-		setTotalDif(0);
+	public Results(String status, String url) {
+		setStatus(status);
+		setUrl(url);
+	}
+	
+	public Results calculate(Job job) {
+		// Calculate Job Status
+		this.status = Helper.calculateStatusJob(job);
+		// Number
+		this.number = job.getLast().getResults().getNumber();
+		// Duration
+		this.duration = job.getLast().getResults().getDuration();
+		// Description
+		this.description = job.getLast().getResults().getDescription();
+		// IsBuilding
+		this.building = job.getLast().getResults().isBuilding();
+		// Url
+		this.url = job.getLast().getResults().getUrl();
+		// Sonar Url
+		this.sonarUrl = job.getLast().getResults().getSonarUrl();
+		// TimeStamp
+		this.timestamp = job.getLast().getResults().getTimestamp().toString();
+		// Code changes
+		this.numberOfChanges = job.getLast().getResults().getNumberOfChanges();
+		this.changesUrl = job.getLast().getResults().getChangesUrl();
+		// Tests
+		this.pass = job.getLast().getResults().getPass();
+		this.fail = job.getLast().getResults().getFail();
+		this.skip = job.getLast().getResults().getSkip();
+		this.total = job.getLast().getResults().getTotal();
+		// Percentage
+		// this.percentage = Helper.singDoubleSingle((double) (this.pass + this.skip) * 100 / this.total);
+		this.percentageReport = Helper.singDoubleSingle((double) (this.pass + this.skip) * 100 / this.total);
+		if (job.getPrevious() != null) {
+			this.passDif = job.getLast().getResults().getPass() - job.getPrevious().getResults().getPass();
+			this.failDif = job.getLast().getResults().getFail() - job.getPrevious().getResults().getFail();
+			this.skipDif = job.getLast().getResults().getSkip() - job.getPrevious().getResults().getSkip();
+			this.totalDif = job.getLast().getResults().getTotal() - job.getPrevious().getResults().getTotal();
+		} else {
+			this.passDif = 0;
+			this.failDif = 0;
+			this.skipDif = 0;
+			this.totalDif = 0;
+		}
+		// Code Coverage
+		this.ccPackages = job.getLast().getResults().getCcPackages();
+		this.ccFiles = job.getLast().getResults().getCcFiles();
+		this.ccClasses = job.getLast().getResults().getCcClasses();
+		this.ccMethods = job.getLast().getResults().getCcMethods();
+		this.ccLines = job.getLast().getResults().getCcLines();
+		this.ccConditions = job.getLast().getResults().getCcConditions();
+		if (job.getPrevious() != null) {
+			this.ccPackagesDif = job.getLast().getResults().getCcPackages() - job.getPrevious().getResults().getCcPackages();
+			this.ccFilesDif = job.getLast().getResults().getCcFiles() - job.getPrevious().getResults().getCcFiles();
+			this.ccClassesDif = job.getLast().getResults().getCcClasses() - job.getPrevious().getResults().getCcClasses();
+			this.ccMethodsDif = job.getLast().getResults().getCcMethods() - job.getPrevious().getResults().getCcMethods();
+			this.ccLinesDif = job.getLast().getResults().getCcLines() - job.getPrevious().getResults().getCcLines();
+			this.ccConditionsDif = job.getLast().getResults().getCcConditions() - job.getPrevious().getResults().getCcConditions();
+		} else {
+			this.ccPackagesDif = 0;
+			this.ccFilesDif = 0;
+			this.ccClassesDif = 0;
+			this.ccMethodsDif = 0;
+			this.ccLinesDif = 0;
+			this.ccConditionsDif = 0;
+		}
+		return this;
 	}
 	
 	public Results addResults(Results resultsDTO) {
 		this.setTotal(this.getTotal() + resultsDTO.getTotal());
 		this.setTotalDif(this.getTotalDif() + resultsDTO.getTotalDif());
-		
 		this.setFail(this.getFail() + resultsDTO.getFail());
 		this.setFailDif(this.getFailDif() + resultsDTO.getFailDif());
-		
 		this.setPass(this.getPass() + resultsDTO.getPass());
 		this.setPassDif(this.getPassDif() + resultsDTO.getPassDif());
-		
 		this.setSkip(this.getSkip() + resultsDTO.getSkip());
 		this.setSkipDif(this.getSkipDif() + resultsDTO.getSkipDif());
 		return this;
@@ -171,28 +208,23 @@ public class Results implements Serializable {
 		this.totalDif = totalDif;
 	}
 	
-	public String getCurrentResult() {
-		return currentResult;
-	}
-	
-	public void setCurrentResult(String currentResult) {
-		this.currentResult = currentResult;
-	}
-	
-	public String getPreviousResult() {
-		return previousResult;
-	}
-	
-	public void setPreviousResult(String previousResult) {
-		this.previousResult = previousResult;
-	}
-	
 	public int getNumber() {
 		return number;
 	}
 	
 	public void setNumber(int number) {
 		this.number = number;
+	}
+	
+	public String getNumberReport(boolean withLinktoResults) {
+		if (number > 0) {
+			if (withLinktoResults) {
+				String reportUrl = url + number;
+				return "<a href='" + reportUrl + "'>" + number + "</a>";
+			}
+			return "" + number;
+		}
+		return "";
 	}
 	
 	public Long getDuration() {
@@ -243,34 +275,6 @@ public class Results implements Serializable {
 		this.timestamp = timestamp;
 	}
 	
-	public String getName() {
-		return name;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public String getCalculatedPass() {
-		return Helper.diff(getPassDif(), getPass(), false);
-	}
-	
-	public String getCalculatedTotal() {
-		return Helper.diff(getTotalDif(), getTotal(), false);
-	}
-	
-	public String getCalculatedSkip() {
-		return Helper.diff(getSkipDif(), getSkip(), false);
-	}
-	
-	public String getCalculatedFail() {
-		return Helper.diff(getFailDif(), getFail(), false);
-	}
-	
-	public String getCalculatedFailColor() {
-		return Helper.diff(getFailDif(), getFail(), null, Colors.FAILED, false, false);
-	}
-	
 	public String getUrl() {
 		return url;
 	}
@@ -288,16 +292,27 @@ public class Results implements Serializable {
 	}
 	
 	public String getStatus() {
-		status = Helper.calculateStatus(currentResult, previousResult);
 		return status;
 	}
 	
-	public int getCalculatedNumberOfChanges() {
-		return calculatedNumberOfChanges;
+	public String getStatusColor() {
+		return fixStatusName(Helper.colorizeResultStatus(status));
 	}
 	
-	public void setCalculatedNumberOfChanges(int calculatedNumberOfChanges) {
-		this.calculatedNumberOfChanges = calculatedNumberOfChanges;
+	public String getStatusColor(boolean withLinktoResults) {
+		if (withLinktoResults) {
+			if (getUrl() != null) {
+				return "<a href='" + getUrl() + "' style='text-decoration:none;'>" + fixStatusName(Helper.colorizeResultStatus(status)) + "</a>";
+			}
+		}
+		return getStatusColor();
+	}
+	
+	public String getStatusPlain() {
+		if (getStatus() != null && getStatus().contains("*")) {
+			return getStatus().replace("*", "");
+		}
+		return getStatus();
 	}
 	
 	public String getCalculatedCcPackage() {
@@ -324,19 +339,19 @@ public class Results implements Serializable {
 		return Helper.diff(getCcFilesDif(), getCcFiles(), false);
 	}
 	
-	public int getCcFiles() {
+	public Integer getCcFiles() {
 		return ccFiles;
 	}
 	
-	public void setCcFiles(int ccFiles) {
+	public void setCcFiles(Integer ccFiles) {
 		this.ccFiles = ccFiles;
 	}
 	
-	public int getCcFilesDif() {
+	public Integer getCcFilesDif() {
 		return ccFilesDif;
 	}
 	
-	public void setCcFilesDif(int ccFilesDif) {
+	public void setCcFilesDif(Integer ccFilesDif) {
 		this.ccFilesDif = ccFilesDif;
 	}
 	
@@ -344,19 +359,19 @@ public class Results implements Serializable {
 		return Helper.diff(getCcClassesDif(), getCcClasses(), false);
 	}
 	
-	public int getCcClasses() {
+	public Integer getCcClasses() {
 		return ccClasses;
 	}
 	
-	public void setCcClasses(int ccClasses) {
+	public void setCcClasses(Integer ccClasses) {
 		this.ccClasses = ccClasses;
 	}
 	
-	public int getCcClassesDif() {
+	public Integer getCcClassesDif() {
 		return ccClassesDif;
 	}
 	
-	public void setCcClassesDif(int ccClassesDif) {
+	public void setCcClassesDif(Integer ccClassesDif) {
 		this.ccClassesDif = ccClassesDif;
 	}
 	
@@ -364,19 +379,19 @@ public class Results implements Serializable {
 		return Helper.diff(getCcMethodsDif(), getCcMethods(), false);
 	}
 	
-	public int getCcMethods() {
+	public Integer getCcMethods() {
 		return ccMethods;
 	}
 	
-	public void setCcMethods(int ccMethods) {
+	public void setCcMethods(Integer ccMethods) {
 		this.ccMethods = ccMethods;
 	}
 	
-	public int getCcMethodsDif() {
+	public Integer getCcMethodsDif() {
 		return ccMethodsDif;
 	}
 	
-	public void setCcMethodsDif(int ccMethodsDif) {
+	public void setCcMethodsDif(Integer ccMethodsDif) {
 		this.ccMethodsDif = ccMethodsDif;
 	}
 	
@@ -384,19 +399,15 @@ public class Results implements Serializable {
 		return Helper.diff(getCcLinesDif(), getCcLines(), false);
 	}
 	
-	public int getCcLines() {
-		return ccLines;
-	}
-	
 	public void setCcLines(int ccLines) {
 		this.ccLines = ccLines;
 	}
 	
-	public int getCcLinesDif() {
+	public Integer getCcLinesDif() {
 		return ccLinesDif;
 	}
 	
-	public void setCcLinesDif(int ccLinesDif) {
+	public void setCcLinesDif(Integer ccLinesDif) {
 		this.ccLinesDif = ccLinesDif;
 	}
 	
@@ -404,19 +415,19 @@ public class Results implements Serializable {
 		return Helper.diff(getCcConditionsDif(), getCcConditions(), false);
 	}
 	
-	public int getCcConditions() {
+	public Integer getCcConditions() {
 		return ccConditions;
 	}
 	
-	public void setCcConditions(int ccConditions) {
+	public void setCcConditions(Integer ccConditions) {
 		this.ccConditions = ccConditions;
 	}
 	
-	public int getCcConditionsDif() {
+	public Integer getCcConditionsDif() {
 		return ccConditionsDif;
 	}
 	
-	public void setCcConditionsDif(int ccConditionsDif) {
+	public void setCcConditionsDif(Integer ccConditionsDif) {
 		this.ccConditionsDif = ccConditionsDif;
 	}
 	
@@ -426,6 +437,268 @@ public class Results implements Serializable {
 	
 	public void setSonarUrl(String sonarUrl) {
 		this.sonarUrl = sonarUrl;
+	}
+	
+	public String getPassReport() {
+		return passReport;
+	}
+	
+	public void setPassReport(String passReport) {
+		this.passReport = passReport;
+	}
+	
+	public String getFailReport() {
+		return failReport;
+	}
+	
+	public void setFailReport(String failReport) {
+		this.failReport = failReport;
+	}
+	
+	public String getSkipReport() {
+		return skipReport;
+	}
+	
+	public void setSkipReport(String skipReport) {
+		this.skipReport = skipReport;
+	}
+	
+	public String getTotalReport() {
+		return totalReport;
+	}
+	
+	public void setTotalReport(String totalReport) {
+		this.totalReport = totalReport;
+	}
+	
+	////////////////////
+	// Calculate for Job
+	public String calculateDuration(Long millis) {
+		setDurationReport(Helper.duration(millis));
+		return getDurationReport();
+	}
+	
+	public void calculateTotal(Job job) {
+		if (job.getResults() != null) {
+			setTotalReport(Helper.reportTestDiffs(status, null, job.getResults().getTotal(), job.getResults().getTotalDif()));
+		} else {
+			setTotalReport("0");
+		}
+	}
+	
+	public void calculatePass(Job job) {
+		if (job != null) {
+			setPassReport(Helper.reportTestDiffs(status, null, job.getResults().getPass(), job.getResults().getPassDif()));
+		} else {
+			setPassReport("0");
+		}
+	}
+	
+	public void calculateFailed(Job job) {
+		if (job != null) {
+			setFailReport(Helper.reportTestDiffs(status, Color.RED, job.getResults().getFail(), job.getResults().getFailDif()));
+		} else {
+			setFailReport("0");
+		}
+	}
+	
+	public void calculateSkipped(Job job) {
+		if (job != null) {
+			setSkipReport(Helper.reportTestDiffs(status, null, job.getResults().getSkip(), job.getResults().getSkipDif()));
+		} else {
+			setSkipReport("0");
+		}
+	}
+	
+	public String calculateTimestamp(Job job, String outOfDateResults) {
+		if (Strings.isNullOrEmpty(outOfDateResults)) {
+			setTimestamp(Helper.getTimeStamp(job.getLast().getResults().getTimestamp()));
+		} else {
+			setTimestamp(Helper.getTimeStamp(outOfDateResults, job.getLast().getResults().getTimestamp()));
+		}
+		return getTimestamp();
+	}
+	
+	public String calculateChanges(Job job) {
+		setNumberOfChangesReport(Helper.urlNumberofChanges(job.getLast().getResults().getChangesUrl(), Helper.getNumber(job.getLast().getResults().getNumberOfChanges())));
+		return getNumberOfChangesReport();
+	}
+	
+	public String calculateSonar(Job job) {
+		if (!Strings.isNullOrEmpty(job.getLast().getResults().getSonarUrl())) {
+			setSonarUrl("<a href='" + job.getLast().getResults().getSonarUrl() + "' style='text-decoration:none;'>Sonar</a>");
+			return getSonarUrl();
+		}
+		return "";
+	}
+	
+	public String calculateCCPackages(Job job) {
+		if (job.getResults() != null && job.getResults().getCcPackages() > 0) {
+			setCcPackagesReport(Helper.diff(job.getResults().getCcPackagesDif(), job.getResults().getCcPackages(), false) + "%");
+		} else {
+			setCcPackagesReport("");
+		}
+		return getCcPackagesReport();
+	}
+	
+	public String calculateCCFiles(Job job) {
+		if (job.getResults() != null && job.getResults().getCcFiles() > 0) {
+			setCcFilesReport(Helper.diff(job.getResults().getCcFilesDif(), job.getResults().getCcFiles(), false) + "%");
+		} else {
+			setCcFilesReport("");
+		}
+		return getCcFilesReport();
+	}
+	
+	public String calculateCCClasses(Job job) {
+		if (job.getResults() != null && job.getResults().getCcClasses() > 0) {
+			setCcClassesReport(Helper.diff(job.getResults().getCcClassesDif(), job.getResults().getCcClasses(), false) + "%");
+		} else {
+			setCcClassesReport("");
+		}
+		return getCcClassesReport();
+	}
+	
+	public String calculateCCMethods(Job job) {
+		if (job.getResults() != null && job.getResults().getCcMethods() > 0) {
+			setCcMethodsReport(Helper.diff(job.getResults().getCcMethodsDif(), job.getResults().getCcMethods(), false) + "%");
+		} else {
+			setCcMethodsReport("");
+		}
+		return getCcMethodsReport();
+	}
+	
+	public String calculateCCLines(Job job) {
+		if (job.getResults() != null && job.getResults().getCcLines() > 0) {
+			setCcLinesReport(Helper.diff(job.getResults().getCcLinesDif(), job.getResults().getCcLines(), false) + "%");
+		} else {
+			setCcLinesReport("");
+		}
+		return getCcLinesReport();
+	}
+	
+	public String calculateCCConditions(Job job) {
+		if (job.getResults() != null && job.getResults().getCcConditions() > 0) {
+			setCcConditionsReport(Helper.diff(job.getResults().getCcConditionsDif(), job.getResults().getCcConditions(), false) + "%");
+		} else {
+			setCcConditionsReport("");
+		}
+		return getCcConditionsReport();
+	}
+	
+	public String getCcPackagesReport() {
+		return ccPackagesReport;
+	}
+	
+	public void setCcPackagesReport(String ccPackagesReport) {
+		this.ccPackagesReport = ccPackagesReport;
+	}
+	
+	public String getCcFilesReport() {
+		return ccFilesReport;
+	}
+	
+	public void setCcFilesReport(String ccFilesReport) {
+		this.ccFilesReport = ccFilesReport;
+	}
+	
+	public String getCcClassesReport() {
+		return ccClassesReport;
+	}
+	
+	public void setCcClassesReport(String ccClassesReport) {
+		this.ccClassesReport = ccClassesReport;
+	}
+	
+	public String getCcMethodsReport() {
+		return ccMethodsReport;
+	}
+	
+	public void setCcMethodsReport(String ccMethodsReport) {
+		this.ccMethodsReport = ccMethodsReport;
+	}
+	
+	public String getCcLinesReport() {
+		return ccLinesReport;
+	}
+	
+	public void setCcLinesReport(String ccLinesReport) {
+		this.ccLinesReport = ccLinesReport;
+	}
+	
+	public String getCcConditionsReport() {
+		return ccConditionsReport;
+	}
+	
+	public void setCcConditionsReport(String ccConditionsReport) {
+		this.ccConditionsReport = ccConditionsReport;
+	}
+	
+	public Integer getCcLines() {
+		return ccLines;
+	}
+	
+	public void setCcLines(Integer ccLines) {
+		this.ccLines = ccLines;
+	}
+	
+	public String getDurationReport() {
+		return durationReport;
+	}
+	
+	public void setDurationReport(String durationReport) {
+		this.durationReport = durationReport;
+	}
+	
+	public String getNumberOfChangesReport() {
+		return numberOfChangesReport;
+	}
+	
+	public void setNumberOfChangesReport(String numberOfChangesReport) {
+		this.numberOfChangesReport = numberOfChangesReport;
+	}
+	
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	// Other
+	private String fixStatusName(String jobStatus) {
+		if (jobStatus != null) {
+			return jobStatus.replace("_", " ");
+		}
+		return jobStatus;
+	}
+	
+	public void calculatePercentage(Job job) {
+		if (JobStatus.ABORTED.name().equalsIgnoreCase(job.getResults().getStatus()) ||
+				JobStatus.DISABLED.name().equalsIgnoreCase(job.getResults().getStatus()) ||
+				JobStatus.NOT_FOUND.name().equalsIgnoreCase(job.getResults().getStatus()) ||
+				JobStatus.RUNNING.name().equalsIgnoreCase(job.getResults().getStatus())) {
+			setPercentage(null);
+		} else {
+			Double calculatedPercentage = Helper.countPercentage(job.getResults());
+			if (calculatedPercentage > 0) {
+				setPercentage(Helper.countPercentage(job.getResults()));
+			} else {
+				setPercentage(null);
+			}
+		}
+	}
+	
+	public String getPercentageReport() {
+		if (!Strings.isNullOrEmpty(percentageReport)) {
+			return percentageReport + "%";
+		}
+		return percentageReport;
+	}
+	
+	public void setPercentageReport(String percentageReport) {
+		this.percentageReport = percentageReport;
+	}
+	
+	public JobStatus getStatusFromEnum() {
+		return GetEnumFromString.get(JobStatus.class, status);
 	}
 	
 }

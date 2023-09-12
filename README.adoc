@@ -18,7 +18,6 @@ Test Results Aggregator can collect test results for :
 
 and code coverage results for : 
 
-* https://plugins.jenkins.io/cobertura[Cobertura] 
 * https://plugins.jenkins.io/jacoco[JaCoCo]
 
 image:https://img.shields.io/jenkins/plugin/v/test-results-aggregator.svg[Jenkins Plugin,link=https://plugins.jenkins.io/test-results-aggregator]
@@ -77,8 +76,8 @@ In this section you can define :
 |Jenkins Account Username
 |username of the account that will be used to access Jenkins API and fetch job results.
 
-|Jenkins Account password
-|password of the account that will be used to access Jenkins API and fetch job results.
+|Jenkins Account password/token
+|password or token of the account that will be used to access Jenkins API and fetch job results.
 
 |Mail Notification From
 |sender for the mail Notification. Default is "Jenkins".
@@ -88,7 +87,7 @@ In this section you can define :
 Extra Notes : 
 
 - Mail notification requires also the Jenkins Global Configuration setting for https://plugins.jenkins.io/mailer/[SMTP server]
-- All Jobs that running tests should publish their own test results (Junit, testNG, Nunit). The same stands for coverage results (Cobertura, Jacoco).
+- All Jobs that running tests should publish their own test results (Junit, testNG, Nunit). The same stands for coverage results (Jacoco).
 
 == Job Configuration
 
@@ -101,6 +100,7 @@ See the https://github.com/jenkinsci/test-results-aggregator-plugin/releases[Git
 
 * 1.1.x Requires Jenkins < 2.277
 * 1.2.x Requires Jenkins >= 2.277
+* 2.x Integration with jenkins client library
 
   
 == Misc

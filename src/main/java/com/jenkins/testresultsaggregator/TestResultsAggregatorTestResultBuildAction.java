@@ -10,9 +10,9 @@ import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jenkins.testresultsaggregator.actions.ResultsParser;
 import com.jenkins.testresultsaggregator.data.Aggregated;
-import com.jenkins.testresultsaggregator.helper.ResultsParser;
-import com.jenkins.testresultsaggregator.reporter.XMLReporter;
+import com.jenkins.testresultsaggregator.reports.XMLReporter;
 
 import hudson.FilePath;
 import hudson.model.Action;
@@ -64,9 +64,15 @@ public class TestResultsAggregatorTestResultBuildAction extends AbstractTestResu
 		this.keepunstable = aggregated.getKeepUnstableJobs();
 		this.running = aggregated.getRunningJobs();
 		// Tests stats
-		this.successTTests = aggregated.getResults().getPass();
-		this.failedTTests = aggregated.getResults().getFail();
-		this.skippedTTests = aggregated.getResults().getSkip();
+		if (aggregated.getResults() != null) {
+			this.successTTests = aggregated.getResults().getPass();
+			this.failedTTests = aggregated.getResults().getFail();
+			this.skippedTTests = aggregated.getResults().getSkip();
+		} else {
+			this.successTTests = 0;
+			this.failedTTests = 0;
+			this.skippedTTests = 0;
+		}
 	}
 	
 	private void countAndSave(Aggregated aggregatedDTO) {

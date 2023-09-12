@@ -1,16 +1,11 @@
 package com.jenkins.testresultsaggregator;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.CheckForNull;
@@ -23,16 +18,15 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import com.google.common.base.Strings;
+import com.jenkins.testresultsaggregator.actions.Analyzer;
+import com.jenkins.testresultsaggregator.actions.Collector;
+import com.jenkins.testresultsaggregator.actions.Reporter;
 import com.jenkins.testresultsaggregator.data.Aggregated;
 import com.jenkins.testresultsaggregator.data.Data;
 import com.jenkins.testresultsaggregator.data.DataPipeline;
 import com.jenkins.testresultsaggregator.data.Job;
-import com.jenkins.testresultsaggregator.helper.Analyzer;
-import com.jenkins.testresultsaggregator.helper.Collector;
-import com.jenkins.testresultsaggregator.helper.Helper;
 import com.jenkins.testresultsaggregator.helper.LocalMessages;
-import com.jenkins.testresultsaggregator.helper.TestResultHistoryUtil;
-import com.jenkins.testresultsaggregator.reporter.Reporter;
+import com.offbytwo.jenkins.JenkinsServer;
 
 import hudson.EnvVars;
 import hudson.Extension;
@@ -45,16 +39,17 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
+
 import hudson.util.VariableResolver;
+
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 
-public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
+public class TestResultsAggregator extends TestResultsAggregatorHelper implements SimpleBuildStep {
 	
 	private static final String displayName = "Aggregate Test Results";
 	
@@ -181,27 +176,20 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 			// Resolve Columns
 			List<LocalMessages> localizedColumns = calculateColumns(getColumns());
 			//
-			String jenkinsUrl = desc.getJenkinsUrl();
-			if (Strings.isNullOrEmpty(jenkinsUrl)) {
-				// Resolve default url
-				jenkinsUrl = env.get("JENKINS_URL");
-				// build.getEnvironment(listener).get("JENKINS_URL");
-				logger.println("Fallback Jenkins url : " + jenkinsUrl);
-			}
+			String jenkinsUrl = resolveJenkinsUrl(env, logger);
 			// Validate Input Data
+			Aggregated aggregatedSavedData = null;
 			List<Data> validatedData = validateInputData(getDataFromDataPipeline(), jenkinsUrl);
 			validatedData = checkUserInputForInjection(validatedData);
 			if (compareWithPrevious()) {
-				// Get Previous Saved Results
-				Aggregated previousSavedAggregatedResults = TestResultHistoryUtil.getTestResults(run.getPreviousSuccessfulBuild());
-				// Check previous Data
-				previousSavedResults(validatedData, previousSavedAggregatedResults);
+				aggregatedSavedData = getPreviousData(run.getPreviousSuccessfulBuild(), validatedData);
 			}
 			// Collect Data
-			Collector collector = new Collector(logger, desc.getUsername(), desc.getPassword(), jenkinsUrl);
+			Collector collector = new Collector(jenkinsUrl, desc.getUsername(), desc.getPassword(), listener.getLogger());
 			collector.collectResults(validatedData, compareWithPrevious(), ignoreRunningJobs());
+			collector.closeJenkinsConnection();
 			// Analyze Results
-			Aggregated aggregated = new Analyzer(logger).analyze(validatedData, properties);
+			Aggregated aggregated = new Analyzer(logger).analyze(aggregatedSavedData, validatedData, properties, compareWithPrevious());
 			// Reporter for HTML and mail
 			Reporter reporter = new Reporter(logger, workspace, run.getRootDir(), desc.getMailNotificationFrom(), ignoreDisabledJobs, ignoreNotFoundJobs, ignoreAbortedJobs);
 			reporter.publishResuts(aggregated, properties, localizedColumns, run.getRootDir());
@@ -212,24 +200,6 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 			e.printStackTrace(logger);
 		}
 		logger.println(LocalMessages.FINISHED_AGGREGATE.toString());
-	}
-	
-	private List<Data> checkUserInputForInjection(List<Data> validatedData) {
-		for (Data tempData : validatedData) {
-			if (!Strings.isNullOrEmpty(tempData.getGroupName())) {
-				if (tempData.getGroupName().contains("<") || tempData.getGroupName().contains(">")) {
-					tempData.setGroupName(tempData.getGroupName().replaceAll(">", "").replace("<", ""));
-				}
-			}
-			for (Job tempJob : tempData.getJobs()) {
-				if (!Strings.isNullOrEmpty(tempJob.getJobNameFromFriendlyName())) {
-					if (tempJob.getJobNameFromFriendlyName().contains("<") || tempJob.getJobNameFromFriendlyName().contains(">")) {
-						tempJob.setJobFriendlyName(tempJob.getJobNameFromFriendlyName().replaceAll("<", "").replaceAll(">", ""));
-					}
-				}
-			}
-		}
-		return validatedData;
 	}
 	
 	/* In use from Free Style Project */
@@ -246,27 +216,20 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 			// Resolve Columns
 			List<LocalMessages> localizedColumns = calculateColumns(getColumns());
 			//
-			String jenkinsUrl = desc.getJenkinsUrl();
-			if (Strings.isNullOrEmpty(jenkinsUrl)) {
-				// Resolve default url
-				jenkinsUrl = build.getEnvironment(listener).get("JENKINS_URL");
-				build.getEnvironment(listener).get("JENKINS_URL");
-				logger.println("Fallback Jenkins url : " + jenkinsUrl);
-			}
+			String jenkinsUrl = resolveJenkinsUrl(build.getEnvironment(listener), logger);
 			// Validate Input Data
 			List<Data> validatedData = validateInputData(getData(), jenkinsUrl);
 			validatedData = checkUserInputForInjection(validatedData);
+			Aggregated aggregatedSavedData = null;
 			if (compareWithPrevious()) {
-				// Get Previous Saved Results
-				Aggregated previousSavedAggregatedResults = TestResultHistoryUtil.getTestResults(build.getPreviousSuccessfulBuild());
-				// Check previous Data
-				previousSavedResults(validatedData, previousSavedAggregatedResults);
+				aggregatedSavedData = getPreviousData(build, validatedData);
 			}
 			// Collect Data
-			Collector collector = new Collector(logger, desc.getUsername(), desc.getPassword(), jenkinsUrl);
+			Collector collector = new Collector(jenkinsUrl, desc.getUsername(), desc.getPassword(), listener.getLogger());
 			collector.collectResults(validatedData, compareWithPrevious(), ignoreRunningJobs());
+			collector.closeJenkinsConnection();
 			// Analyze Results
-			Aggregated aggregated = new Analyzer(logger).analyze(validatedData, properties);
+			Aggregated aggregated = new Analyzer(logger).analyze(aggregatedSavedData, validatedData, properties, compareWithPrevious());
 			// Reporter for HTML and mail
 			Reporter reporter = new Reporter(logger, build.getProject().getSomeWorkspace(), build.getRootDir(), desc.getMailNotificationFrom(), ignoreDisabledJobs, ignoreNotFoundJobs, ignoreAbortedJobs);
 			reporter.publishResuts(aggregated, properties, localizedColumns, build.getRootDir());
@@ -302,11 +265,6 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		properties.put(AggregatorProperties.INFLUXDB_TOKEN.name(), getInfluxdbToken() != null ? getInfluxdbToken() : "");
 		properties.put(AggregatorProperties.INFLUXDB_BUCKET.name(), getInfluxdbBucket() != null ? getInfluxdbBucket() : "");
 		properties.put(AggregatorProperties.INFLUXDB_ORG.name(), getInfluxdbOrg() != null ? getInfluxdbOrg() : "");
-	}
-	
-	@Override
-	public Descriptor getDescriptor() {
-		return (Descriptor) super.getDescriptor();
 	}
 	
 	@Extension
@@ -389,170 +347,22 @@ public class TestResultsAggregator extends Notifier implements SimpleBuildStep {
 		
 		@RequirePOST
 		public FormValidation doTestApiConnection(@QueryParameter final String jenkinsUrl, @QueryParameter final String username, @QueryParameter final Secret password) {
-			// https://www.jenkins.io/doc/developer/security/form-validation/
+      // https://www.jenkins.io/doc/developer/security/form-validation/
 			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 			try {
-				new Collector(null, username, password, jenkinsUrl).getAPIConnection();
-				return FormValidation.ok(LocalMessages.SUCCESS.toString());
-			} catch (Exception e) {
-				return FormValidation.error(LocalMessages.ERROR_OCCURRED.toString() + ": " + e.getMessage());
-			}
-			
-		}
-	}
-	
-	private void resolveVariables(Properties properties, VariableResolver<?> buildVars, EnvVars envVars) throws IOException, InterruptedException {
-		// Variables
-		Set<Entry<Object, Object>> entrySet = properties.entrySet();
-		Iterator<Entry<Object, Object>> iterator = entrySet.iterator();
-		while (iterator.hasNext()) {
-			Entry<Object, Object> entry = iterator.next();
-			String originalValue = entry.getValue().toString();
-			if (!Strings.isNullOrEmpty(originalValue)) {
-				while (originalValue.contains("${")) {
-					String tempValue = null;
-					if (originalValue.contains("${")) {
-						tempValue = originalValue.substring(originalValue.indexOf("${") + 2, originalValue.indexOf('}'));
-					}
-					Object buildVariable = null;
-					// Resolve from building variables
-					if (buildVars != null) {
-						buildVariable = buildVars.resolve(tempValue);
-					}
-					// If null try resolve it from env variables
-					if (buildVariable == null) {
-						buildVariable = envVars.get(tempValue);
-					}
-					if (buildVariable != null) {
-						originalValue = originalValue.replaceAll("\\$\\{" + tempValue + "}", buildVariable.toString());
-					} else {
-						originalValue = originalValue.replaceAll("\\$\\{" + tempValue + "}", "\\$[" + tempValue + "]");
-					}
-				}
-				entry.setValue(originalValue);
+				JenkinsServer jenkins = new JenkinsServer(new URI(jenkinsUrl), username, password.getPlainText());
+				Map<String, com.offbytwo.jenkins.model.Job> jobsfound = jenkins.getJobs();
+				String message = LocalMessages.SUCCESS.toString() + " (items found " + jobsfound.size() + ")";
+				jenkins.close();
+				return FormValidation.ok(message);
+			} catch (java.net.UnknownHostException ex) {
+				return FormValidation.error(LocalMessages.UNKNOWN_HOST_NAME.toString() + ": " + ex.getMessage());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				return FormValidation.error(LocalMessages.ERROR_OCCURRED.toString() + ": " + ex.getMessage());
 			}
 		}
-	}
-	
-	private void previousSavedResults(List<Data> validatedData, Aggregated previousAggregated) {
-		if (previousAggregated != null && previousAggregated.getData() != null) {
-			for (Data data : validatedData) {
-				for (Job job : data.getJobs()) {
-					for (Data pdata : previousAggregated.getData()) {
-						for (Job pjob : pdata.getJobs()) {
-							if (job.getJobName().equals(pjob.getJobName())) {
-								if (pjob.getJobInfo().getUrl() != null) {
-									job.setSavedJobUrl(pjob.getJobInfo().getUrl().toString());
-								}
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	private List<LocalMessages> calculateColumns(String userSelectionColumns) {
-		List<LocalMessages> columns = new ArrayList<>(Arrays.asList(LocalMessages.COLUMN_GROUP));
-		if (!Strings.isNullOrEmpty(userSelectionColumns)) {
-			String[] splitter = userSelectionColumns.split(",");
-			for (String temp : splitter) {
-				if (temp != null) {
-					temp = temp.trim();
-					if (temp.equalsIgnoreCase("Status")) {
-						columns.add(LocalMessages.COLUMN_JOB_STATUS);
-					} else if (temp.equalsIgnoreCase("Job")) {
-						columns.add(LocalMessages.COLUMN_JOB);
-					} else if (temp.equalsIgnoreCase("Percentage")) {
-						columns.add(LocalMessages.COLUMN_PERCENTAGE);
-					} else if (temp.equalsIgnoreCase("Total")) {
-						columns.add(LocalMessages.COLUMN_TESTS);
-					} else if (temp.equalsIgnoreCase("Pass")) {
-						columns.add(LocalMessages.COLUMN_PASS);
-					} else if (temp.equalsIgnoreCase("Fail")) {
-						columns.add(LocalMessages.COLUMN_FAIL);
-					} else if (temp.equalsIgnoreCase("Skip")) {
-						columns.add(LocalMessages.COLUMN_SKIP);
-					} else if (temp.equalsIgnoreCase("Commits")) {
-						columns.add(LocalMessages.COLUMN_COMMITS);
-					} else if (temp.equalsIgnoreCase("LastRun")) {
-						columns.add(LocalMessages.COLUMN_LAST_RUN);
-					} else if (temp.equalsIgnoreCase("Duration")) {
-						columns.add(LocalMessages.COLUMN_DURATION);
-					} else if (temp.equalsIgnoreCase("Description")) {
-						columns.add(LocalMessages.COLUMN_DESCRIPTION);
-					} else if (temp.equalsIgnoreCase("Health")) {
-						columns.add(LocalMessages.COLUMN_HEALTH);
-					} else if (temp.equalsIgnoreCase("Packages")) {
-						columns.add(LocalMessages.COLUMN_CC_PACKAGES);
-					} else if (temp.equalsIgnoreCase("Files")) {
-						columns.add(LocalMessages.COLUMN_CC_FILES);
-					} else if (temp.equalsIgnoreCase("Classes")) {
-						columns.add(LocalMessages.COLUMN_CC_CLASSES);
-					} else if (temp.equalsIgnoreCase("Methods")) {
-						columns.add(LocalMessages.COLUMN_CC_METHODS);
-					} else if (temp.equalsIgnoreCase("Lines")) {
-						columns.add(LocalMessages.COLUMN_CC_LINES);
-					} else if (temp.equalsIgnoreCase("Conditions")) {
-						columns.add(LocalMessages.COLUMN_CC_CONDITIONS);
-					} else if (temp.equalsIgnoreCase("Sonar")) {
-						columns.add(LocalMessages.COLUMN_SONAR_URL);
-					} else if (temp.equalsIgnoreCase("Build")) {
-						columns.add(LocalMessages.COLUMN_BUILD_NUMBER);
-					}
-				}
-			}
-		}
-		return columns;
-	}
-	
-	private List<Data> validateInputData(List<Data> data, String jenkinsUrl) throws UnsupportedEncodingException, MalformedURLException {
-		List<Data> validateData = new ArrayList<>();
-		for (Data tempDataDTO : data) {
-			if (tempDataDTO.getJobs() != null && !tempDataDTO.getJobs().isEmpty()) {
-				boolean allJobsareEmpty = true;
-				List<Job> validateDataJobs = new ArrayList<>();
-				for (Job temp : tempDataDTO.getJobs()) {
-					if (!Strings.isNullOrEmpty(temp.getJobName())) {
-						allJobsareEmpty = false;
-						validateDataJobs.add(temp);
-					}
-				}
-				if (!allJobsareEmpty) {
-					tempDataDTO.setJobs(validateDataJobs);
-					validateData.add(tempDataDTO);
-				}
-			}
-		}
-		return evaluateInputData(validateData, jenkinsUrl);
-	}
-	
-	private List<Data> evaluateInputData(List<Data> data, String jenkinsUrl) throws UnsupportedEncodingException, MalformedURLException {
-		for (Data jobs : data) {
-			for (Job job : jobs.getJobs()) {
-				if (job.getJobName().contains("/")) {
-					String[] spliter = job.getJobName().split("/");
-					if (spliter[spliter.length - 1].equals("*")) {
-						// Do nothing for now
-					} else {
-						StringBuilder folders = new StringBuilder();
-						for (int i = 0; i < spliter.length - 1; i++) {
-							folders.append(spliter[i] + "/");
-						}
-						job.setFolder(folders.toString().replaceAll("/", "/" + Collector.JOB + "/"));
-						job.setUrl(jenkinsUrl + "/" + Collector.JOB + "/" + Helper.encodeValue(job.getFolder()).replace("%2F", "/")
-								+ Helper.encodeValue(spliter[spliter.length - 1]));
-					}
-				} else {
-					job.setFolder("root");
-					if (Strings.isNullOrEmpty(job.getUrl())) {
-						job.setUrl(jenkinsUrl + "/" + Collector.JOB + "/" + Helper.encodeValue(job.getJobName()));
-					}
-				}
-			}
-		}
-		return data;
+		
 	}
 	
 	public BuildStepMonitor getRequiredMonitorService() {

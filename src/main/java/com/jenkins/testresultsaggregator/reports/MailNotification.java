@@ -1,4 +1,4 @@
-package com.jenkins.testresultsaggregator.reporter;
+package com.jenkins.testresultsaggregator.reports;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -53,7 +53,7 @@ public class MailNotification {
 		boolean allJobsNotFound = true;
 		for (Data tempDataDTO : dataJob) {
 			for (Job tempDataJobDTO : tempDataDTO.getJobs()) {
-				if (tempDataJobDTO.getBuildInfo() != null && !JobStatus.NOT_FOUND.name().equals(tempDataJobDTO.getBuildInfo().getResult())) {
+				if (tempDataJobDTO.getJob() != null && !JobStatus.NOT_FOUND.name().equals(tempDataJobDTO.getResults().getStatus())) {
 					allJobsNotFound = false;
 					break;
 				}

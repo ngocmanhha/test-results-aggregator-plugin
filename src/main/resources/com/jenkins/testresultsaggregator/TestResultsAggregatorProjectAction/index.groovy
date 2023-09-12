@@ -1,6 +1,6 @@
 package com.jenkins.testresultsaggregator.TestResultsAggregatorProjectAction
 
-import com.jenkins.testresultsaggregator.helper.TestResultHistoryUtil
+import com.jenkins.testresultsaggregator.actions.TestResultHistoryUtil
 
 f = namespace(lib.FormTagLib)
 l = namespace(lib.LayoutTagLib)

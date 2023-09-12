@@ -1,4 +1,4 @@
-package com.jenkins.testresultsaggregator.reporter;
+package com.jenkins.testresultsaggregator.actions;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,6 +23,10 @@ import com.jenkins.testresultsaggregator.data.ImagesMap.ImageData;
 import com.jenkins.testresultsaggregator.data.Job;
 import com.jenkins.testresultsaggregator.data.JobStatus;
 import com.jenkins.testresultsaggregator.helper.LocalMessages;
+import com.jenkins.testresultsaggregator.reports.HTMLReporter;
+import com.jenkins.testresultsaggregator.reports.InfluxdbReporter;
+import com.jenkins.testresultsaggregator.reports.MailNotification;
+import com.jenkins.testresultsaggregator.reports.XMLReporter;
 
 import hudson.FilePath;
 
@@ -114,9 +118,11 @@ public class Reporter {
 		for (Data tempData : list) {
 			List<Job> tempList = new ArrayList<>();
 			for (Job temp : tempData.getJobs()) {
-				if (temp.getBuildInfo() != null && temp.getBuildInfo().getBuilding()) {
+				if (temp.getResults() != null && !status.name().equalsIgnoreCase(temp.getResults().getStatus())) {
 					tempList.add(temp);
-				} else if (temp.getResults() != null && !status.name().equalsIgnoreCase(temp.getResults().getStatus())) {
+				} else if (temp.getLast() != null && temp.getLast().getBuildDetails() != null && temp.getLast().getBuildDetails().isBuilding()) {
+					tempList.add(temp);
+				} else if (temp.getLast() != null && temp.getLast().getBuildDetails() != null && !status.name().equalsIgnoreCase(temp.getLast().getResults().getStatus())) {
 					tempList.add(temp);
 				} else {
 					ignoredDataJobs.add(temp);

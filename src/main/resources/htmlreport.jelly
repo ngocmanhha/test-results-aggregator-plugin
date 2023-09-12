@@ -49,61 +49,61 @@
 								<td style='border-bottom:${line} solid ${lineSeperatorcolor}'>${job.getJobNameFromFriendlyName(true)} ${job.getUpdated()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_JOB_STATUS'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getStatusColor(false)}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getStatusColor(false)}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_HEALTH'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getJobInfo().getHealthReport(true)}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getJob().getHealthReport(true)}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_PERCENTAGE'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getPercentage(true,false)}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getPercentageReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_TESTS'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getTotal(false)}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getTotalReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_PASS'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getPass(false)}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getPassReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_FAIL'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getFailedColor(false)}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getFailReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_SKIP'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getSkipped(false)}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getSkipReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_COMMITS'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getChanges()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getNumberOfChangesReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_LAST_RUN'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getTimestamp()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getTimestamp()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_DURATION'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getDuration()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getDurationReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_DESCRIPTION'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: left">${job.getReport().getDescription()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: left">${job.getResults().getDescription()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_CC_PACKAGES'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getCcPackages()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getCcPackagesReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_CC_FILES'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getCcFiles()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getCcFilesReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_CC_CLASSES'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getCcClasses()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getCcClassesReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_CC_METHODS'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getCcMethods()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getCcMethodsReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_CC_LINES'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getCcLines()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getCcLinesReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_CC_CONDITIONS'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getCcConditions()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getCcConditionsReport()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_SONAR_URL'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getReport().getSonarUrl()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getSonarUrl()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_BUILD_NUMBER'}">
-								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getBuildInfo().getBuildNumberUrl()}</td>
+								<td style="border-bottom:${line} solid ${lineSeperatorcolor};text-align: center">${job.getResults().getNumberReport(true)}</td>
 							</j:if>
 						</j:forEach>
 					</tr>
@@ -124,19 +124,19 @@
 								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center"></td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_PERCENTAGE'}">
-								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.calculatePercentage(true)}</td>
+								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.calculatePercentage()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_TESTS'}">
-								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.getResults().getCalculatedTotal()}</td>
+								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.getCalculatedTotal()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_PASS'}">
-								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.getResults().getCalculatedPass()}</td>
+								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.getCalculatedPass()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_FAIL'}">
-								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.getResults().getCalculatedFailColor()}</td>
+								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.getCalculatedFail()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_SKIP'}">
-								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.getResults().getCalculatedSkip()}</td>
+								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.getCalculatedSkip()}</td>
 							</j:if>
 							<j:if test="${column.name() == 'COLUMN_COMMITS'}">
 								<td style="border-bottom:2px solid ${lineSeperatorcolor};text-align: center">${aggregated.getResults().getTotalNumberOfChanges()}</td>

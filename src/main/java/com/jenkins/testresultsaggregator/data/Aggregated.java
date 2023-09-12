@@ -17,6 +17,7 @@ public class Aggregated extends BaseResult {
 	
 	private List<Data> data;
 	private Results results;
+	private Results previousResults;
 	private int runningJobs = 0;
 	private int successJobs = 0;
 	private int fixedJobs = 0;
@@ -175,6 +176,10 @@ public class Aggregated extends BaseResult {
 		return Helper.countPercentage(results).toString();
 	}
 	
+	public String calculatePercentage() {
+		return Helper.countPercentage(results).toString();
+	}
+	
 	public String calculatePercentageOfJobs(boolean withColor, int fontSize, String status) {
 		if (withColor) {
 			return Helper.colorizePercentage(Helper.countPercentageD(successJobs + fixedJobs + unstableJobs + keepUnstableJobs, getTotalJobs()), fontSize, status);
@@ -235,6 +240,7 @@ public class Aggregated extends BaseResult {
 		// aggregatedCopy.setParent(aggregatedCopy);
 		// aggregatedCopy.setParentAction(aggregatedCopy);
 		aggregatedCopy.setResults(results);
+		aggregatedCopy.setPreviousResults(previousResults);
 		// aggregatedCopy.setRun(owner);
 		aggregatedCopy.setRunningJobs(runningJobs);
 		aggregatedCopy.setSuccessJobs(successJobs);
@@ -244,4 +250,47 @@ public class Aggregated extends BaseResult {
 		aggregatedCopy.setUnstableJobs(unstableJobs);
 		return aggregatedCopy;
 	}
+	
+	public Results getPreviousResults() {
+		return previousResults;
+	}
+	
+	public void setPreviousResults(Results previousResults) {
+		this.previousResults = previousResults;
+	}
+	
+	////////////////////
+	// Calculate for Total/Summary report
+	public String getCalculatedTotal() {
+		long dif = results.getTotal();
+		if (previousResults != null) {
+			dif = dif - previousResults.getTotal();
+		}
+		return Helper.reportTestDiffs(null, null, results.getTotal(), dif);
+	}
+	
+	public String getCalculatedPass() {
+		long dif = results.getPass();
+		if (previousResults != null) {
+			dif = dif - previousResults.getPass();
+		}
+		return Helper.reportTestDiffs(null, null, results.getPass(), dif);
+	}
+	
+	public String getCalculatedSkip() {
+		long dif = results.getSkip();
+		if (previousResults != null) {
+			dif = dif - previousResults.getSkip();
+		}
+		return Helper.reportTestDiffs(null, null, results.getSkip(), dif);
+	}
+	
+	public String getCalculatedFail() {
+		long dif = results.getFail();
+		if (previousResults != null) {
+			dif = dif - previousResults.getFail();
+		}
+		return Helper.reportTestDiffs(null, Colors.FAILED, results.getFail(), dif);
+	}
+	
 }

@@ -1,5 +1,8 @@
 package com.jenkins.testresultsaggregator.data;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -17,18 +20,19 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	private static final long serialVersionUID = 34911974223666L;
 	
 	private String jobName;
-	
 	private String jobFriendlyName;
-	//
-	private String folder;
-	private String updated;
-	//
-	private JobInfo jobInfo;
-	private BuildInfo buildInfo;
-	private Results results;
-	private ReportJob report;
-	private String savedUrl;
+	private String jobNameOnly;
 	private String url;
+	private String folder;
+	private boolean isBuilding;
+	// Job
+	private JobWithDetailsAggregator job;
+	// Last Build
+	private BuildWithDetailsAggregator last;
+	// Previous Build
+	private BuildWithDetailsAggregator previous;
+	// Results
+	private Results results;
 	
 	@Extension
 	public static class JobDescriptor extends Descriptor<Job> {
@@ -73,20 +77,28 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 		this.jobFriendlyName = jonFriendlyName;
 	}
 	
-	public JobInfo getJobInfo() {
-		return jobInfo;
+	public String getUrl() {
+		return url;
 	}
 	
-	public void setJobInfo(JobInfo jobInfo) {
-		this.jobInfo = jobInfo;
+	public void setUrl(String url) {
+		this.url = url;
 	}
 	
-	public BuildInfo getBuildInfo() {
-		return buildInfo;
+	public String getFolder() {
+		return folder;
 	}
 	
-	public void setBuildInfo(BuildInfo buildInfo) {
-		this.buildInfo = buildInfo;
+	public void setFolder(String folder) {
+		this.folder = folder;
+	}
+	
+	public JobWithDetailsAggregator getJob() {
+		return job;
+	}
+	
+	public void setJob(JobWithDetailsAggregator jobWithDetailsAggregator) {
+		this.job = jobWithDetailsAggregator;
 	}
 	
 	public Results getResults() {
@@ -107,60 +119,61 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	public String getJobNameFromFriendlyName(boolean withLinktoResults) {
 		if (withLinktoResults) {
 			String reportUrl = null;
-			if (results == null) {
+			if (last == null) {
 				reportUrl = null;
 				// Get job and execution id
-			} else if (Strings.isNullOrEmpty(results.getUrl())) {
+			} else if (Strings.isNullOrEmpty(last.getUrl())) {
 				reportUrl = null;
 			} else {
-				reportUrl = results.getUrl();
+				reportUrl = last.getBuildDetails().getUrl();
 			}
-			if (Strings.isNullOrEmpty(reportUrl) && jobInfo.getUrl() != null) {
-				// Use the Job Url
-				reportUrl = jobInfo.getUrl().toString();
+			// iF this is still null Use Job url
+			if (Strings.isNullOrEmpty(reportUrl)) {
+				reportUrl = url;
 			}
 			return "<a href='" + reportUrl + "'><font color='" + Colors.htmlJOB_NAME_URL() + "'>" + getJobNameFromFriendlyName() + "</font></a>";
 		}
 		return getJobNameFromFriendlyName();
 	}
 	
-	public ReportJob getReport() {
-		return report;
+	public boolean getIsBuilding() {
+		return isBuilding;
 	}
 	
-	public void setReport(ReportJob report) {
-		this.report = report;
+	public void setIsBuilding(boolean isBuilding) {
+		this.isBuilding = isBuilding;
 	}
 	
-	public String getSavedJobUrl() {
-		return savedUrl;
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		stream.defaultWriteObject();
 	}
 	
-	public void setSavedJobUrl(String savedUrl) {
-		this.savedUrl = savedUrl;
+	private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
 	}
 	
-	public String getUpdated() {
-		return updated;
+	public String getJobNameOnly() {
+		return jobNameOnly;
 	}
 	
-	public void setUpdated(String updated) {
-		this.updated = updated;
+	public void setJobNameOnly(String jobNameOnly) {
+		this.jobNameOnly = jobNameOnly;
 	}
 	
-	public String getUrl() {
-		return url;
+	public BuildWithDetailsAggregator getLast() {
+		return last;
 	}
 	
-	public void setUrl(String url) {
-		this.url = url;
+	public void setLast(BuildWithDetailsAggregator last) {
+		this.last = last;
 	}
 	
-	public String getFolder() {
-		return folder;
+	public BuildWithDetailsAggregator getPrevious() {
+		return previous;
 	}
 	
-	public void setFolder(String folder) {
-		this.folder = folder;
+	public void setPrevious(BuildWithDetailsAggregator previous) {
+		this.previous = previous;
 	}
+	
 }
