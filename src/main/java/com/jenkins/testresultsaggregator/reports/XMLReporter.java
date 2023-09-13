@@ -74,10 +74,10 @@ public class XMLReporter {
 							} else if (JobStatus.NO_LAST_BUILD_DATA.name().equalsIgnoreCase(dataJob.getResults().getStatus())) {
 								jobStatus(writer, dataJob, null, null, false);
 							} else {
-								jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLast().getBuildDetails().getNumber(), true);
+								jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLast().getNumber(), true);
 							}
 						} else {
-							jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLast().getBuildDetails().getNumber(), true);
+							jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLast().getNumber(), true);
 						}
 						writer.println(TAB + TAB + SE + JOB + E);
 					}

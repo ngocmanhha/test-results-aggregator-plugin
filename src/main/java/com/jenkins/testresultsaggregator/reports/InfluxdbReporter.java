@@ -31,13 +31,13 @@ public class InfluxdbReporter {
 			for (Data data : aggregated.getData()) {
 				for (Job job : data.getJobs()) {
 					Instant timeStamp = Instant.now();
-					if (!job.getLast().getBuildDetails().isBuilding()) {
+					if (!job.getLast().isBuilding()) {
 						// Job has already been completed , is not building post the endTime
 						timeStamp = Instant.ofEpochMilli(job.getLast().getDuration());
 					}
 					Point pointJenkinsJob = Point.measurement("Aggregator")
 							.time(timeStamp, WritePrecision.S)
-							.addTag("identifier", job.getJobName() + "#" + job.getLast().getBuildDetails().getNumber())
+							.addTag("identifier", job.getJobName() + "#" + job.getLast().getNumber())
 							.addTag("jobName", job.getJobName())
 							.addTag("name", job.getJobNameFromFriendlyName())
 							.addTag("url", job.getUrl())

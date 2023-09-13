@@ -79,7 +79,7 @@ public class Analyzer {
 						//
 						job.getResults().calculate(job);
 						// Description
-						job.getResults().setDescription(job.getLast().getBuildDetails().getDescription());
+						job.getResults().setDescription(job.getLast().getDescription());
 						// Calculate Total
 						job.getResults().calculateTotal(job);
 						// Calculate Pass
@@ -103,8 +103,8 @@ public class Analyzer {
 						job.getResults().calculateCCLines(job);
 						job.getResults().calculateCCConditions(job);
 						// Calculate Duration
-						if (job.getLast().getBuildDetails() != null) {
-							job.getResults().calculateDuration(job.getLast().getBuildDetails().getDuration());
+						if (job.getLast() != null) {
+							job.getResults().calculateDuration(job.getLast().getDuration());
 							// Total Duration
 							aggregated.setTotalDuration(aggregated.getTotalDuration() + job.getResults().getDuration());
 							// Total Changes

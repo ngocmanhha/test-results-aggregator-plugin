@@ -125,7 +125,7 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 			} else if (Strings.isNullOrEmpty(last.getUrl())) {
 				reportUrl = null;
 			} else {
-				reportUrl = last.getBuildDetails().getUrl();
+				reportUrl = last.getResults().getUrl();
 			}
 			// iF this is still null Use Job url
 			if (Strings.isNullOrEmpty(reportUrl)) {

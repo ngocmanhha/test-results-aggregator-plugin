@@ -1,12 +1,29 @@
 package com.jenkins.testresultsaggregator.data;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 
 public class BuildWithDetailsAggregator extends BuildWithDetails {
 	
 	private Integer buildNumber;
-	private BuildWithDetails buildDetails;
 	private JobResults results;
+	
+	@JsonIgnore
+	private List artifacts;
+	
+	@JsonIgnore
+	private String consoleOutputText;
+	
+	@JsonIgnore
+	private String consoleOutputHtml;
+	
+	@JsonIgnore
+	private String builtOn;
+	
+	@JsonIgnore
+	private List culprits;
 	
 	public BuildWithDetailsAggregator() {
 		
@@ -18,14 +35,6 @@ public class BuildWithDetailsAggregator extends BuildWithDetails {
 	
 	public void setBuildNumber(Integer buildNumber) {
 		this.buildNumber = buildNumber;
-	}
-	
-	public BuildWithDetails getBuildDetails() {
-		return buildDetails;
-	}
-	
-	public void setBuildDetails(BuildWithDetails buildDetails) {
-		this.buildDetails = buildDetails;
 	}
 	
 	public JobResults getResults() {
@@ -40,7 +49,6 @@ public class BuildWithDetailsAggregator extends BuildWithDetails {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((buildDetails == null) ? 0 : buildDetails.hashCode());
 		result = prime * result + ((buildNumber == null) ? 0 : buildNumber.hashCode());
 		result = prime * result + ((results == null) ? 0 : results.hashCode());
 		return result;
@@ -55,11 +63,6 @@ public class BuildWithDetailsAggregator extends BuildWithDetails {
 		if (getClass() != obj.getClass())
 			return false;
 		BuildWithDetailsAggregator other = (BuildWithDetailsAggregator) obj;
-		if (buildDetails == null) {
-			if (other.buildDetails != null)
-				return false;
-		} else if (!buildDetails.equals(other.buildDetails))
-			return false;
 		if (buildNumber == null) {
 			if (other.buildNumber != null)
 				return false;

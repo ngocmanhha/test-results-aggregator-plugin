@@ -120,9 +120,9 @@ public class Reporter {
 			for (Job temp : tempData.getJobs()) {
 				if (temp.getResults() != null && !status.name().equalsIgnoreCase(temp.getResults().getStatus())) {
 					tempList.add(temp);
-				} else if (temp.getLast() != null && temp.getLast().getBuildDetails() != null && temp.getLast().getBuildDetails().isBuilding()) {
+				} else if (temp.getLast() != null && temp.getLast().isBuilding()) {
 					tempList.add(temp);
-				} else if (temp.getLast() != null && temp.getLast().getBuildDetails() != null && !status.name().equalsIgnoreCase(temp.getLast().getResults().getStatus())) {
+				} else if (temp.getLast() != null && !status.name().equalsIgnoreCase(temp.getLast().getResults().getStatus())) {
 					tempList.add(temp);
 				} else {
 					ignoredDataJobs.add(temp);
