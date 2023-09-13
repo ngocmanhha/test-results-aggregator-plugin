@@ -2,11 +2,30 @@ package com.jenkins.testresultsaggregator.data;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.JobWithDetails;
 
 public class JobWithDetailsAggregator extends JobWithDetails {
 	
 	private List<HealthReport> healthReport;
+	
+	// lastBuild,firstBuild,lastCompletedBuild,lastFailedBuild,lastStableBuild,lastSuccessfulBuild,lastUnstableBuild,lastUnsuccessfulBuild
+	
+	@JsonIgnore
+	private Build firstBuild;
+	@JsonIgnore
+	private Build lastCompletedBuild;
+	@JsonIgnore
+	private Build lastFailedBuild;
+	@JsonIgnore
+	private Build lastStableBuild;
+	@JsonIgnore
+	private Build lastSuccessfulBuild;
+	@JsonIgnore
+	private Build lastUnstableBuild;
+	@JsonIgnore
+	private Build lastUnsuccessfulBuild;
 	
 	public void setHealthReport(List<HealthReport> healthReport) {
 		this.healthReport = healthReport;
