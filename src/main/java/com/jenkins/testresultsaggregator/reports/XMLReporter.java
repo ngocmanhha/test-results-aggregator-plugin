@@ -71,6 +71,8 @@ public class XMLReporter {
 								jobStatus(writer, dataJob, dataJob.getUrl(), null, false);
 							} else if (JobStatus.NOT_FOUND.name().equalsIgnoreCase(dataJob.getResults().getStatus())) {
 								jobStatus(writer, dataJob, null, null, false);
+							} else if (JobStatus.NO_LAST_BUILD_DATA.name().equalsIgnoreCase(dataJob.getResults().getStatus())) {
+								jobStatus(writer, dataJob, null, null, false);
 							} else {
 								jobStatus(writer, dataJob, dataJob.getUrl(), dataJob.getLast().getBuildDetails().getNumber(), true);
 							}

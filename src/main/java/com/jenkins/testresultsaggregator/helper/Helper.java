@@ -33,9 +33,9 @@ public class Helper {
 		if (timeStamp == null) {
 			return "";
 		} else {
+			LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(timeStamp), TimeZone.getDefault().toZoneId());
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss:SSS");
-			LocalDateTime date = LocalDateTime.parse(timeStamp.toString(), formatter);
-			return date.toString();
+			return date.format(formatter);
 		}
 	}
 	

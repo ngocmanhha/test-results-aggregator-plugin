@@ -261,14 +261,17 @@ public class Collector {
 					} else {
 						logger.println(" " + job.getLast().getBuildDetails().getResult().toString().toLowerCase());
 						if (compareWithPreviousRun) {
-							Integer previousBuildNumber = null;
+							Integer previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
+							Integer previousBuildNumberSaved = 0;
 							if (job.getResults() == null) {
 								// Not Found previously saved , resolve from jenkins
 								job.setResults(new Results(JobStatus.FOUND.name(), job.getUrl()));
-								previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
 							} else {
 								// Found previously saved use them
-								previousBuildNumber = job.getResults().getNumber();
+								previousBuildNumberSaved = job.getResults().getNumber();
+							}
+							if (previousBuildNumberSaved > 0) {
+								previousBuildNumber = previousBuildNumberSaved;
 							}
 							if (previousBuildNumber == job.getLast().getBuildDetails().getNumber()) {
 								// There is no new run since the previous aggregator run
@@ -282,11 +285,15 @@ public class Collector {
 								job.getPrevious().setBuildNumber(previousOfPreviousBuildNumber);
 								job.getPrevious().setBuildDetails(getBuildDetails(job, previousOfPreviousBuildNumber));
 								job.getPrevious().setResults(calculateResults(job.getPrevious().getBuildDetails()));
+								// Results
+								job.setResults(new Results(JobStatus.FOUND.name(), job.getUrl()));
 							} else {
 								job.setPrevious(new BuildWithDetailsAggregator());
 								job.getPrevious().setBuildNumber(previousBuildNumber);
 								job.getPrevious().setBuildDetails(getBuildDetails(job, previousBuildNumber));
 								job.getPrevious().setResults(calculateResults(job.getPrevious().getBuildDetails()));
+								// Results
+								job.setResults(new Results(JobStatus.FOUND.name(), job.getUrl()));
 							}
 						} else {
 							job.setPrevious(new BuildWithDetailsAggregator());
