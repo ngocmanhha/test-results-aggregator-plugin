@@ -143,6 +143,10 @@ public class Collector {
 						response = jobs.get(job.getJobNameOnly()).getClient().get(jobs.get(job.getJobNameOnly()).details().getBuildByNumber(number).details().getUrl() + DEPTH, BuildWithDetails.class);
 					} catch (IOException ex) {
 						ex.printStackTrace();
+					} catch (NullPointerException ex) {
+						// In case that the build number doesn't exists the exception is NPE
+						//ex.printStackTrace();
+						retries++;
 					}
 					retries++;
 				}
@@ -160,6 +164,10 @@ public class Collector {
 							response = client.get(job.getUrl() + DEPTH, BuildWithDetails.class);
 						} catch (IOException ex) {
 							ex.printStackTrace();
+						} catch (NullPointerException ex) {
+							// In case that the build number doesn't exists the exception is NPE
+							//ex.printStackTrace();
+							retries++;
 						}
 						retries++;
 					}

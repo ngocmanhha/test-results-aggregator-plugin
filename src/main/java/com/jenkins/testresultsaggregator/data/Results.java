@@ -84,7 +84,10 @@ public class Results implements Serializable {
 		// Sonar Url
 		this.sonarUrl = job.getLast().getResults().getSonarUrl();
 		// TimeStamp
-		this.timestamp = job.getLast().getResults().getTimestamp().toString();
+		this.timestamp = "0";
+		if (job.getLast().getResults().getTimestamp() != null) {
+			this.timestamp = job.getLast().getResults().getTimestamp().toString();
+		}
 		// Code changes
 		this.numberOfChanges = job.getLast().getResults().getNumberOfChanges();
 		this.changesUrl = job.getLast().getResults().getChangesUrl();
