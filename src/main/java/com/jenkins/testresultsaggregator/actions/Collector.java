@@ -33,20 +33,9 @@ public class Collector {
 	
 	public static final String ROOT_FOLDER = "root";
 	public static final int parrallelThreads = 4;
-	public static final int delayThreads = 4000;
+	public static final int delayThreads = 6000;
 	public static final int maxThreadTime = 120000;
 	
-	// Actions
-	public static final String CHANGES = "changes";
-	public static final String FAILCOUNT = "failCount";
-	public static final String SKIPCOUNT = "skipCount";
-	public static final String TOTALCOUNT = "totalCount";
-	public static final String JACOCO_BRANCH = "branchCoverage";
-	public static final String JACOCO_CLASS = "classCoverage";
-	public static final String JACOCO_LINES = "lineCoverage";
-	public static final String JACOCO_METHODS = "methodCoverage";
-	public static final String JACOCO_INSTRUCTION = "instructionCoverage";
-	public static final String SONAR_URL = "sonarqubeDashboardUrl";
 	// Urls
 	public static final String DEPTH = "?depth=1";
 	
@@ -346,14 +335,13 @@ public class Collector {
 	
 	private int resolvePreviousBuildNumberFromBuild(Job job, int depth) {
 		try {
-			// TODO : Retries here
 			List<Integer> allBuildNumbers = job.getJob().getAllBuilds().stream().map(Build::getNumber).collect(Collectors.toList());
 			int retries = 1;
 			while ((allBuildNumbers == null || allBuildNumbers.isEmpty()) && retries < 4) {
 				allBuildNumbers = job.getJob().getAllBuilds().stream().map(Build::getNumber).collect(Collectors.toList());
 				retries++;
 			}
-			if (allBuildNumbers != null) {
+			if (allBuildNumbers != null && !allBuildNumbers.isEmpty()) {
 				Collections.sort(allBuildNumbers);
 				Integer found = allBuildNumbers.get(allBuildNumbers.size() - depth);
 				if (found == null) {
