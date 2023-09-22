@@ -26,7 +26,7 @@ and code coverage results for :
 
 ### Samples:
 
-| Argument | Description | 
+|  |  | 
 | --- | ----------- |
 | <img src="screenshots/Untitled2.png" alt="Job results per build" style="float: center; margin-right: 10px; width: 400" /> | <img src="screenshots/MainView.png" alt="Job results history" style="float: center; margin-right: 10px; width: 400" /> |
 | <img src="screenshots/Untitled1.png" alt="Job results history main view" style="float: center; margin-right: 10px; width: 400" /> | <img src="screenshots/htmlView2.png" alt="Email report" style="float: center; margin-right: 10px; width: 400" /> |
