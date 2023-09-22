@@ -36,9 +36,9 @@ and code coverage results for :
 
 It is advisable to be used as the last step in a CI/CD pipeline.
 
-Supports '[free style project](docs/README_FreeStyle.adoc)' and '[pipeline](docs/README_Pipeline.adoc)'
+Supports '[free style project](docs/README_FreeStyle.md)' and '[pipeline](docs/README_Pipeline.md)'
 
-Requires both ** global ** and ** job configuration ** .
+Requires both **global** and **job configuration** .
  
 **Global Configuration**
 
