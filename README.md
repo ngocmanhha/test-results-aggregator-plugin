@@ -28,8 +28,8 @@ and code coverage results for :
 
 |  |  | 
 | --- | ----------- |
-| <img src="screenshots/Untitled2.png" alt="Job results per build" style="float: center; margin-right: 10px; width: 400" /> | <img src="screenshots/MainView.png" alt="Job results history" style="float: center; margin-right: 10px; width: 400" /> |
-| <img src="screenshots/Untitled1.png" alt="Job results history main view" style="float: center; margin-right: 10px; width: 400" /> | <img src="screenshots/htmlView2.png" alt="Email report" style="float: center; margin-right: 10px; width: 400" /> |
+| <img src="docs/screenshots/Untitled2.png" alt="Job results per build" style="float: center; margin-right: 10px; width: 400" /> | <img src="docs/screenshots/MainView.png" alt="Job results history" style="float: center; margin-right: 10px; width: 400" /> |
+| <img src="docs/screenshots/Untitled1.png" alt="Job results history main view" style="float: center; margin-right: 10px; width: 400" /> | <img src="docs/screenshots/htmlView2.png" alt="Email report" style="float: center; margin-right: 10px; width: 400" /> |
 
 
 **Important** 
@@ -44,9 +44,7 @@ Requires both **global** and **job configuration** .
 
 After installing this plugin, navigate to Global Configuration. Scroll down for Test Result Aggregator :
 
-<img src="screenshots/Global_Configuration.png"
-     alt="Global Configuration"
-     style="float: center; margin-right: 10px; width: 600" />
+<img src="docs/screenshots/Global_Configuration.png" alt="Global Configuration" style="float: center; margin-right: 10px; width: 600" />
      
 
 In this section you can define : 

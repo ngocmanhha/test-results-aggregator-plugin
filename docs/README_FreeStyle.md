@@ -1,20 +1,14 @@
 # Test Results Aggregator Free Style Job Configuration
 
 1. Test Result Aggregator Plugin can be used as a "Free Style Project".
-<img src="../screenshots/FreeStyleProject.png"
-     alt="Free Style Project"
-     style="float: right; margin-right: 10px; width: 600" />
+<img src="screenshots/FreeStyleProject.png" alt="Free Style Project" style="float:right;margin-right:10px;width:600"/>
 
      
 2. Select "Add Post Build" action and scroll to "Aggregate Test Results" action. 
-<img src="../screenshots/PostBuildAction.png"
-     alt="Post Build Action"
-     style="float: right; margin-right: 10px; width: 600" />
+<img src="screenshots/PostBuildAction.png" alt="Post Build Action" style="float:right;margin-right:10px;width:600"/>
      
 3. Add Groups/Teams and Jenkins Jobs 
-<img src="../screenshots/FreeStyleProject_Jobs.png"
-     alt="Jobs Configuration"
-     style="float: right; margin-right: 10px; width: 600" />
+<img src="screenshots/FreeStyleProject_Jobs.png" alt="Jobs Configuration" style="float:right;margin-right:10px;width:600"/>
 
 | Argument | Optional | Description | 
 | --- | ----------- | ----------- |
@@ -23,9 +17,7 @@
 | Job Friendly Name | true |if null or empty then "Job Name" will be used in reports. | 
    
 4. Add Recipients List, Before, After Body text, theme, and Sort by option 
-<img src="../screenshots/ReceipientsList.png"
-     alt="Recipients"
-     style="float: right; margin-right: 10px; width: 600" />
+<img src="screenshots/ReceipientsList.png" alt="Recipients" style="float:right;margin-right:10px;width: 600"/>
 
 | Argument | Description | 
 | --- | ----------- |
@@ -41,22 +33,16 @@
 |Sort Results By | The report will be sorted accordingly. If there are Groups then sorting refers to jobs inside a group. |
   
 5. Outdated results 
-<img src="../screenshots/OutofDate.png"
-     alt="OutofDate"
-     style="float: right; margin-right: 10px; width: 600" />
+<img src="screenshots/OutofDate.png" alt="OutofDate" style="float:right;margin-right:10px;width: 600"/>
      
 Jobs with results more than X hours ago will be marked with 'red' color under 'Last Run' column report. Otherwise (if blank) column 'Last Run' will just have the timestamp of job completion.
  
 6. Compare with the previous run 
-<img src="../screenshots/CompareWithPrevious.png"
-     alt="CompareWithPrevious"
-     style="float: center; margin-right: 10px; width: 600" />
+<img src="screenshots/CompareWithPrevious.png" alt="CompareWithPrevious" style="float:center;margin-right:10px;width:600"/>
 
 Compare the next run with the previous regarding job statuses, tests results, and code coverage metrics. If false then no differences are displayed in report, no signs + -
  
 7. Ignore Jobs from report by status 
-<img src="../screenshots/IgnoreJobs.png"
-     alt="IgnoreJobs"
-     style="float: center; margin-right: 10px; width: 600" />    
+<img src="screenshots/IgnoreJobs.png" alt="IgnoreJobs" style="float:center;margin-right:10px;width:600"/>    
 
 Ignore from report jobs with status: NOT_FOUND, DISABLED, ABORTED or RUNNING.
