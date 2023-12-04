@@ -75,6 +75,7 @@ See the [Github releases page](https://github.com/jenkinsci/test-results-aggrega
 * 1.1.x Requires Jenkins < 2.277
 * 1.2.x Requires Jenkins >= 2.277
 * 2.x Integration with jenkins client library
+* 2.1 Java 11
 
   
 **Misc**
