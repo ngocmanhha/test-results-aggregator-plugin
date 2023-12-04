@@ -261,7 +261,9 @@ public class Collector {
 							job.setResults(new Results(JobStatus.RUNNING.name(), job.getUrl()));
 						}
 					} else {
-						text.append(" " + job.getLast().getResult().toString().toLowerCase());
+						if (job.getLast().getResult() != null) {
+							text.append(" " + job.getLast().getResult().toString().toLowerCase());
+						}
 						if (compareWithPreviousRun) {
 							Integer previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
 							Integer previousBuildNumberSaved = 0;
@@ -277,14 +279,22 @@ public class Collector {
 							}
 							if (previousBuildNumber == job.getLast().getNumber()) {
 								// There is no new run since the previous aggregator run
-								job.setLast(getBuildDetails(job, previousBuildNumber));
-								job.getLast().setBuildNumber(previousBuildNumber);
-								job.getLast().setResults(calculateResults(job.getLast()));
+								BuildWithDetailsAggregator previousResult = getBuildDetails(job, previousBuildNumber);
+								if (previousResult != null) {
+									job.setLast(previousResult);
+									job.getLast().setBuildNumber(previousBuildNumber);
+									job.getLast().setResults(calculateResults(job.getLast()));
+								}
 								//
 								Integer previousOfPreviousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
-								job.setPrevious(getBuildDetails(job, previousOfPreviousBuildNumber));
-								job.getPrevious().setBuildNumber(previousOfPreviousBuildNumber);
-								job.getPrevious().setResults(calculateResults(job.getPrevious()));
+								if (previousOfPreviousBuildNumber > 0) {
+									BuildWithDetailsAggregator previousOfPreviousResult = getBuildDetails(job, previousOfPreviousBuildNumber);
+									if (previousOfPreviousResult != null) {
+										job.setPrevious(previousOfPreviousResult);
+										job.getPrevious().setBuildNumber(previousOfPreviousBuildNumber);
+										job.getPrevious().setResults(calculateResults(job.getPrevious()));
+									}
+								}
 								// Results
 								job.setResults(new Results(JobStatus.FOUND.name(), job.getUrl()));
 							} else {
