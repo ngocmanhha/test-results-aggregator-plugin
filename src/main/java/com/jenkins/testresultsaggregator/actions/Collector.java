@@ -64,10 +64,8 @@ public class Collector {
 				while (retries < 4 && response == null) {
 					try {
 						response = modelJob.getClient().get(modelJob.details().getUrl() + DEPTH, JobWithDetailsAggregator.class);
-					} catch (IOException e) {
-						e.printStackTrace();
-					} catch (NullPointerException e) {
-						retries++;
+					} catch (Exception e) {
+						logger.println("Error get details for job " + job.getJobName() + " " + e.getMessage());
 					}
 					retries++;
 				}
@@ -299,9 +297,13 @@ public class Collector {
 								// Results
 								job.setResults(new Results(JobStatus.FOUND.name(), job.getUrl()));
 							} else {
-								job.setPrevious(getBuildDetails(job, previousBuildNumber));
-								job.getPrevious().setBuildNumber(previousBuildNumber);
-								job.getPrevious().setResults(calculateResults(job.getPrevious()));
+								// Resolve previous from Jenkins
+								BuildWithDetailsAggregator previousResult = getBuildDetails(job, previousBuildNumber);
+								if (previousResult != null) {
+									job.setPrevious(previousResult);
+									job.getPrevious().setBuildNumber(previousBuildNumber);
+									job.getPrevious().setResults(calculateResults(job.getPrevious()));
+								}
 								// Results
 								job.setResults(new Results(JobStatus.FOUND.name(), job.getUrl()));
 							}
@@ -314,7 +316,7 @@ public class Collector {
 					text.append(LocalMessages.FINISHED.toString());
 				}
 			} catch (Exception e) {
-				text.append("Job '" + job.getJobName() + "' found " + JobStatus.NOT_FOUND.name() + "with error : " + e.getMessage());
+				text.append("Job '" + job.getJobName() + "' found " + JobStatus.NOT_FOUND.name() + " with error : " + e.getMessage());
 				job.setResults(new Results(JobStatus.NOT_FOUND.name(), job.getUrl()));
 				e.printStackTrace();
 			}
