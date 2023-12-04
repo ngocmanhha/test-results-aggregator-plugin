@@ -137,7 +137,10 @@ public class Collector {
 				int retries = 1;
 				while (retries < 4 && response == null) {
 					try {
-						response = modelJob.getClient().get(modelJob.details().getBuildByNumber(number).details().getUrl() + DEPTH, BuildWithDetailsAggregator.class);
+						Build build = modelJob.details().getBuildByNumber(number);
+						if (build != null) {
+							response = modelJob.getClient().get(build.details().getUrl() + DEPTH, BuildWithDetailsAggregator.class);
+						}
 					} catch (Exception ex) {
 						// In case that the build number doesn't exists the exception is NPE
 						ex.printStackTrace();
@@ -241,21 +244,24 @@ public class Collector {
 								previousBuildNumber2 = job.getResults().getNumber();
 							}
 							previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
-							if (previousBuildNumber2 < previousBuildNumber) {
+							if (previousBuildNumber2 < previousBuildNumber && previousBuildNumber2 > 0) {
 								previousBuildNumber = previousBuildNumber2;
 								text.append(" building(Results), previous build " + previousBuildNumber);
 							} else {
 								text.append(" building, previous build " + previousBuildNumber);
 							}
 							job.setLast(new BuildWithDetailsAggregator());
-							job.setLast(getBuildDetails(job, previousBuildNumber));
-							job.getLast().setBuildNumber(previousBuildNumber);
-							job.getLast().setResults(calculateResults(job.getLast()));
-							//
-							job.setPrevious(new BuildWithDetailsAggregator());
-							job.setPrevious(job.getLast());
-							job.getPrevious().setBuildNumber(previousBuildNumber);
-							job.getPrevious().setResults(job.getLast().getResults());
+							BuildWithDetailsAggregator previousResult = getBuildDetails(job, previousBuildNumber);
+							if (previousResult != null && previousBuildNumber > 0) {
+								job.setLast(previousResult);
+								job.getLast().setBuildNumber(previousBuildNumber);
+								job.getLast().setResults(calculateResults(job.getLast()));
+								//
+								job.setPrevious(new BuildWithDetailsAggregator());
+								job.setPrevious(job.getLast());
+								job.getPrevious().setBuildNumber(previousBuildNumber);
+								job.getPrevious().setResults(job.getLast().getResults());
+							}
 						} else {
 							text.append(" running");
 							job.setResults(new Results(JobStatus.RUNNING.name(), job.getUrl()));
@@ -280,7 +286,7 @@ public class Collector {
 							if (previousBuildNumber == job.getLast().getNumber()) {
 								// There is no new run since the previous aggregator run
 								BuildWithDetailsAggregator previousResult = getBuildDetails(job, previousBuildNumber);
-								if (previousResult != null) {
+								if (previousResult != null && previousBuildNumber > 0) {
 									job.setLast(previousResult);
 									job.getLast().setBuildNumber(previousBuildNumber);
 									job.getLast().setResults(calculateResults(job.getLast()));
@@ -289,7 +295,7 @@ public class Collector {
 								Integer previousOfPreviousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
 								if (previousOfPreviousBuildNumber > 0) {
 									BuildWithDetailsAggregator previousOfPreviousResult = getBuildDetails(job, previousOfPreviousBuildNumber);
-									if (previousOfPreviousResult != null) {
+									if (previousOfPreviousResult != null && previousOfPreviousBuildNumber > 0) {
 										job.setPrevious(previousOfPreviousResult);
 										job.getPrevious().setBuildNumber(previousOfPreviousBuildNumber);
 										job.getPrevious().setResults(calculateResults(job.getPrevious()));
@@ -300,7 +306,7 @@ public class Collector {
 							} else {
 								// Resolve previous from Jenkins
 								BuildWithDetailsAggregator previousResult = getBuildDetails(job, previousBuildNumber);
-								if (previousResult != null) {
+								if (previousResult != null && previousBuildNumber > 0) {
 									job.setPrevious(previousResult);
 									job.getPrevious().setBuildNumber(previousBuildNumber);
 									job.getPrevious().setResults(calculateResults(job.getPrevious()));
@@ -353,7 +359,7 @@ public class Collector {
 				return found.intValue();
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			// ex.printStackTrace();
 		}
 		return 0;
 	}
