@@ -234,33 +234,50 @@ public class Collector {
 					text.append("Job '" + job.getJobName() + "' found build number " + job.getLast().getNumber() + " with status");
 					if (job.getLast().isBuilding()) {
 						if (ignoreRunningJobs && compareWithPreviousRun) {
-							int previousBuildNumber = 0;
-							int previousBuildNumber2 = 0;
+							int previousBuildNumberFromJenkins = 0;
+							int previousBuildNumberFromResults = 0;
 							if (job.getResults() == null) {
 								job.setResults(new Results(JobStatus.RUNNING_REPORT_PREVIOUS.name(), job.getUrl()));
 							} else {
 								job.getResults().setStatus(JobStatus.RUNNING_REPORT_PREVIOUS.name());
 								job.getResults().setUrl(job.getUrl());
-								previousBuildNumber2 = job.getResults().getNumber();
+								previousBuildNumberFromResults = job.getResults().getNumber();
 							}
-							previousBuildNumber = resolvePreviousBuildNumberFromBuild(job, 2);
-							if (previousBuildNumber2 < previousBuildNumber && previousBuildNumber2 > 0) {
-								previousBuildNumber = previousBuildNumber2;
-								text.append(" building(Results), previous build " + previousBuildNumber);
-							} else {
-								text.append(" building, previous build " + previousBuildNumber);
+							boolean foundResults = false;
+							if (previousBuildNumberFromResults > 0) {
+								// Found previousBuildNumberFromResults
+								BuildWithDetailsAggregator previousResult = getBuildDetails(job, previousBuildNumberFromResults);
+								if (previousResult != null) {
+									text.append(" building(Results), previous build " + previousBuildNumberFromResults);
+									job.setLast(previousResult);
+									job.getLast().setBuildNumber(previousBuildNumberFromResults);
+									job.getLast().setResults(calculateResults(job.getLast()));
+									//
+									job.setPrevious(new BuildWithDetailsAggregator());
+									job.setPrevious(job.getLast());
+									job.getPrevious().setBuildNumber(previousBuildNumberFromResults);
+									job.getPrevious().setResults(job.getLast().getResults());
+									foundResults = true;
+								}
 							}
-							job.setLast(new BuildWithDetailsAggregator());
-							BuildWithDetailsAggregator previousResult = getBuildDetails(job, previousBuildNumber);
-							if (previousResult != null && previousBuildNumber > 0) {
-								job.setLast(previousResult);
-								job.getLast().setBuildNumber(previousBuildNumber);
-								job.getLast().setResults(calculateResults(job.getLast()));
-								//
-								job.setPrevious(new BuildWithDetailsAggregator());
-								job.setPrevious(job.getLast());
-								job.getPrevious().setBuildNumber(previousBuildNumber);
-								job.getPrevious().setResults(job.getLast().getResults());
+							if (!foundResults) {
+								previousBuildNumberFromJenkins = resolvePreviousBuildNumberFromBuild(job, 2);
+								if (previousBuildNumberFromJenkins > 0) {
+									BuildWithDetailsAggregator previousResult = getBuildDetails(job, previousBuildNumberFromJenkins);
+									if (previousResult != null && previousBuildNumberFromJenkins > 0) {
+										text.append(" building, previous build " + previousBuildNumberFromJenkins);
+										job.setLast(previousResult);
+										job.getLast().setBuildNumber(previousBuildNumberFromJenkins);
+										job.getLast().setResults(calculateResults(job.getLast()));
+										//
+										job.setPrevious(new BuildWithDetailsAggregator());
+										job.setPrevious(job.getLast());
+										job.getPrevious().setBuildNumber(previousBuildNumberFromJenkins);
+										job.getPrevious().setResults(job.getLast().getResults());
+									}
+								} else {
+									job.setResults(new Results(JobStatus.RUNNING.name(), job.getUrl()));
+								}
 							}
 						} else {
 							text.append(" running");
