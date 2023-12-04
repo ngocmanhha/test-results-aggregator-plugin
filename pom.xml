@@ -14,7 +14,7 @@
 	<description>Aggregate Test and Job Results in a single HTML/email report.</description>
 	<url>https://github.com/jenkinsci/test-results-aggregator-plugin</url>
 	<properties>
-		<jenkins.version>2.361</jenkins.version>
+		<jenkins.version>2.400</jenkins.version>
 	</properties>
 	<licenses>
 		<license>
