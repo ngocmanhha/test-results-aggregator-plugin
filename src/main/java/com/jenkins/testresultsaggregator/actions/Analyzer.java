@@ -232,7 +232,7 @@ public class Analyzer {
 							// Default
 							return dataJobDTO1.getJobNameFromFriendlyName().compareTo(dataJobDTO2.getJobNameFromFriendlyName());
 						}
-					} catch (NullPointerException ex) {
+					} catch (Exception ex) {
 						return -1;
 					}
 				}

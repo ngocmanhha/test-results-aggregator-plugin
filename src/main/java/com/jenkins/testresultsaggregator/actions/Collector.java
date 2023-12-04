@@ -82,10 +82,8 @@ public class Collector {
 				while (retries < 4 && response == null) {
 					try {
 						response = client.get(job.getUrl() + DEPTH, JobWithDetailsAggregator.class);
-					} catch (IOException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
-					} catch (NullPointerException e) {
-						retries++;
 					}
 					retries++;
 				}
@@ -121,10 +119,8 @@ public class Collector {
 				while (retries < 4 && response == null) {
 					try {
 						response = client.get(job.getUrl() + DEPTH, BuildWithDetailsAggregator.class);
-					} catch (IOException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
-					} catch (NullPointerException e) {
-						retries++;
 					}
 					retries++;
 				}
@@ -142,12 +138,9 @@ public class Collector {
 				while (retries < 4 && response == null) {
 					try {
 						response = modelJob.getClient().get(modelJob.details().getBuildByNumber(number).details().getUrl() + DEPTH, BuildWithDetailsAggregator.class);
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					} catch (NullPointerException ex) {
+					} catch (Exception ex) {
 						// In case that the build number doesn't exists the exception is NPE
-						// ex.printStackTrace();
-						retries++;
+						ex.printStackTrace();
 					}
 					retries++;
 				}
@@ -163,12 +156,10 @@ public class Collector {
 					while (retries < 4 && response == null) {
 						try {
 							response = client.get(job.getUrl() + DEPTH, BuildWithDetailsAggregator.class);
-						} catch (IOException ex) {
+						} catch (Exception ex) {
 							ex.printStackTrace();
-						} catch (NullPointerException ex) {
 							// In case that the build number doesn't exists the exception is NPE
 							// ex.printStackTrace();
-							retries++;
 						}
 						retries++;
 					}
