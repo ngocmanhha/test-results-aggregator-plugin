@@ -14,7 +14,7 @@
 	<description>Aggregate Test and Job Results in a single HTML/email report.</description>
 	<url>https://github.com/jenkinsci/test-results-aggregator-plugin</url>
 	<properties>
-		<jenkins.version>2.332.1</jenkins.version>
+		<jenkins.version>2.361</jenkins.version>
 	</properties>
 	<licenses>
 		<license>
@@ -101,6 +101,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>animal-sniffer-maven-plugin</artifactId>
+				<version>1.23</version>
 				<configuration>
 					<signature>
 						<groupId>org.codehaus.mojo.signature</groupId>
