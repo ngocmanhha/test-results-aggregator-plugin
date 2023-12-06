@@ -42,9 +42,6 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
-
-import hudson.util.VariableResolver;
-
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
@@ -185,7 +182,7 @@ public class TestResultsAggregator extends TestResultsAggregatorHelper implement
 				aggregatedSavedData = getPreviousData(run.getPreviousSuccessfulBuild(), validatedData);
 			}
 			// Collect Data
-			Collector collector = new Collector(jenkinsUrl, desc.getUsername(), desc.getPassword(), listener.getLogger());
+			Collector collector = new Collector(jenkinsUrl, desc.getUsername(), desc.getPassword(), listener.getLogger(), validatedData);
 			collector.collectResults(validatedData, compareWithPrevious(), ignoreRunningJobs());
 			collector.closeJenkinsConnection();
 			// Analyze Results
@@ -225,7 +222,7 @@ public class TestResultsAggregator extends TestResultsAggregatorHelper implement
 				aggregatedSavedData = getPreviousData(build, validatedData);
 			}
 			// Collect Data
-			Collector collector = new Collector(jenkinsUrl, desc.getUsername(), desc.getPassword(), listener.getLogger());
+			Collector collector = new Collector(jenkinsUrl, desc.getUsername(), desc.getPassword(), listener.getLogger(), validatedData);
 			collector.collectResults(validatedData, compareWithPrevious(), ignoreRunningJobs());
 			collector.closeJenkinsConnection();
 			// Analyze Results
@@ -347,7 +344,7 @@ public class TestResultsAggregator extends TestResultsAggregatorHelper implement
 		
 		@RequirePOST
 		public FormValidation doTestApiConnection(@QueryParameter final String jenkinsUrl, @QueryParameter final String username, @QueryParameter final Secret password) {
-      // https://www.jenkins.io/doc/developer/security/form-validation/
+			// https://www.jenkins.io/doc/developer/security/form-validation/
 			Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 			try {
 				JenkinsServer jenkins = new JenkinsServer(new URI(jenkinsUrl), username, password.getPlainText());
