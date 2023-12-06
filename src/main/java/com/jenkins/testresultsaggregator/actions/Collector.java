@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Stopwatch;
@@ -36,7 +35,6 @@ public class Collector {
 	public static final int parrallelThreads = 6;
 	public static final int delayThreads = 6000;
 	public static final int maxThreadTime = 120000;
-	public AtomicInteger threadCounter = new AtomicInteger(0);
 	// Urls
 	public static final String DEPTH = "?depth=1";
 	
@@ -205,7 +203,7 @@ public class Collector {
 		ReportThread[] threads = new ReportThread[allDataJobDTO.size()];
 		int index = 0;
 		for (Job tempDataJobDTO : allDataJobDTO) {
-			threads[index] = new ReportThread(tempDataJobDTO, compareWithPreviousRun, ignoreRunningJobs, allDataJobDTO.size());
+			threads[index] = new ReportThread(tempDataJobDTO, compareWithPreviousRun, ignoreRunningJobs);
 			index++;
 		}
 		index = 0;
@@ -227,20 +225,17 @@ public class Collector {
 		Job job;
 		boolean compareWithPreviousRun;
 		boolean ignoreRunningJobs;
-		int total;
 		
-		public ReportThread(Job job, boolean compareWithPreviousRun, boolean ignoreRunningJobs, int total) {
+		public ReportThread(Job job, boolean compareWithPreviousRun, boolean ignoreRunningJobs) {
 			this.job = job;
 			this.compareWithPreviousRun = compareWithPreviousRun;
 			this.ignoreRunningJobs = ignoreRunningJobs;
-			this.total = total;
 		}
 		
 		@Override
 		public void run() {
 			Stopwatch stopwatch = Stopwatch.createStarted();
 			StringBuilder text = new StringBuilder();
-			// text.append(threadCounter.incrementAndGet() + "/" + total + " ");
 			if (job.getModelJob() != null) {
 				try {
 					job.setJob(getDetails(job));
