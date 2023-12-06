@@ -11,7 +11,7 @@ public class BuildWithDetailsAggregator extends BuildWithDetails {
 	private JobResults results;
 	
 	@JsonIgnore
-	private List artifacts;
+	private List<Object> artifacts;
 	
 	@JsonIgnore
 	private String consoleOutputText;
@@ -23,7 +23,7 @@ public class BuildWithDetailsAggregator extends BuildWithDetails {
 	private String builtOn;
 	
 	@JsonIgnore
-	private List culprits;
+	private List<Object> culprits;
 	
 	public BuildWithDetailsAggregator() {
 		

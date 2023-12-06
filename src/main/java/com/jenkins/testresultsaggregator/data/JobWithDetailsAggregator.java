@@ -26,6 +26,10 @@ public class JobWithDetailsAggregator extends JobWithDetails {
 	private Build lastUnstableBuild;
 	@JsonIgnore
 	private Build lastUnsuccessfulBuild;
+	@JsonIgnore
+	private Object property;
+	@JsonIgnore
+	private Object actions;
 	
 	public void setHealthReport(List<HealthReport> healthReport) {
 		this.healthReport = healthReport;
