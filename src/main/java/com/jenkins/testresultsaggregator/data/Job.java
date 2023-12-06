@@ -26,7 +26,7 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	private String jobNameOnly;
 	private String url;
 	private String folder;
-	private boolean isBuilding;
+	private Boolean isBuilding;
 	private com.offbytwo.jenkins.model.Job modelJob;
 	// Job
 	private JobWithDetailsAggregator job;
@@ -139,11 +139,11 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 		return getJobNameFromFriendlyName();
 	}
 	
-	public boolean getIsBuilding() {
+	public Boolean getIsBuilding() {
 		return isBuilding;
 	}
 	
-	public void setIsBuilding(boolean isBuilding) {
+	public void setIsBuilding(Boolean isBuilding) {
 		this.isBuilding = isBuilding;
 	}
 	
