@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -25,6 +27,7 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	private String url;
 	private String folder;
 	private boolean isBuilding;
+	private com.offbytwo.jenkins.model.Job modelJob;
 	// Job
 	private JobWithDetailsAggregator job;
 	// Last Build
@@ -174,6 +177,27 @@ public class Job extends AbstractDescribableImpl<Job> implements Serializable {
 	
 	public void setPrevious(BuildWithDetailsAggregator previous) {
 		this.previous = previous;
+	}
+	
+	public List<String> getFolders() {
+		List<String> folders = new ArrayList<>();
+		if (folder != null) {
+			String[] elements = folder.split("/");
+			for (int i = 0; i < elements.length; i++) {
+				if (elements[i] != null && !elements[i].equalsIgnoreCase("job")) {
+					folders.add(elements[i]);
+				}
+			}
+		}
+		return folders;
+	}
+	
+	public com.offbytwo.jenkins.model.Job getModelJob() {
+		return modelJob;
+	}
+	
+	public void setModelJob(com.offbytwo.jenkins.model.Job modelJob) {
+		this.modelJob = modelJob;
 	}
 	
 }
