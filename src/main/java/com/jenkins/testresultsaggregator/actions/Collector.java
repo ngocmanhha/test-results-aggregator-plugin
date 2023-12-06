@@ -55,17 +55,18 @@ public class Collector {
 		for (Data temp : data) {
 			list.addAll(temp.getJobs());
 		}
-		text.append(" and total Aggregator Jenkins jobs found " + list.size());
 		int successResolvedModel = 0;
 		for (Job temp : list) {
 			try {
 				resolveModel(temp, null);
-				successResolvedModel++;
+				if (temp.getModelJob() != null) {
+					successResolvedModel++;
+				}
 			} catch (Exception ex) {
 				logger.println("Error resolve model for job " + temp.getJobName() + " " + ex.getMessage());
 			}
 		}
-		text.append(" resolved success " + successResolvedModel);
+		text.append(" and Aggregator has resolved successfully " + successResolvedModel + "/" + list.size());
 		logger.println(text.toString());
 	}
 	
@@ -193,6 +194,7 @@ public class Collector {
 	}
 	
 	public void collectResults(List<Data> dataJob, boolean compareWithPreviousRun, Boolean ignoreRunningJobs) throws InterruptedException {
+		logger.println("Collect data");
 		List<Job> allDataJobDTO = new ArrayList<>();
 		for (Data temp : dataJob) {
 			if (temp.getJobs() != null && !temp.getJobs().isEmpty()) {
@@ -216,6 +218,7 @@ public class Collector {
 		for (ReportThread thread : threads) {
 			thread.join(maxThreadTime);
 		}
+		logger.println("Collect data ...Finished");
 	}
 	
 	public class ReportThread extends Thread {
