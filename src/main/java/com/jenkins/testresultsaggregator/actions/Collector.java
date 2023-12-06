@@ -128,10 +128,12 @@ public class Collector {
 				} else {
 					response = client.get(job.getUrl(), JobWithDetailsAggregator.class);
 				}
-			} catch (NullPointerException ex) {
-				throw ex;
 			} catch (Exception ex) {
-				logger.println("Error get details for job " + job.getJobName() + " " + ex.getMessage());
+				if (ex.getMessage().endsWith("is null")) {
+					throw ex;
+				} else {
+					logger.println("Error get details for job " + job.getJobName() + " " + ex.getMessage());
+				}
 			}
 			retries++;
 		}
@@ -148,10 +150,12 @@ public class Collector {
 				} else {
 					response = client.get(job.getModelJob().details().getLastBuild().details().getUrl() + DEPTH, BuildWithDetailsAggregator.class);
 				}
-			} catch (NullPointerException ex) {
-				throw ex;
 			} catch (Exception ex) {
-				logger.println("No last build details for job " + job.getJobName() + " " + ex.getMessage());
+				if (ex.getMessage().endsWith("is null")) {
+					throw ex;
+				} else {
+					logger.println("No last build details for job " + job.getJobName() + " " + ex.getMessage());
+				}
 			}
 			retries++;
 		}
@@ -175,10 +179,12 @@ public class Collector {
 							response = client.get(build.details().getUrl() + DEPTH, BuildWithDetailsAggregator.class);
 						}
 					}
-				} catch (NullPointerException ex) {
-					throw ex;
 				} catch (Exception ex) {
-					logger.println("No build details for job " + job.getJobName() + " with number " + number + " " + ex.getMessage());
+					if (ex.getMessage().endsWith("is null")) {
+						throw ex;
+					} else {
+						logger.println("No build details for job " + job.getJobName() + " with number " + number + " " + ex.getMessage());
+					}
 				}
 				retries++;
 			}
