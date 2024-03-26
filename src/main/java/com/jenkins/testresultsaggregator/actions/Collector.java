@@ -256,7 +256,7 @@ public class Collector {
 						job.setIsBuilding(job.getLast().isBuilding());
 						text.append("Job '" + job.getJobName() + "' found build number " + job.getLast().getNumber() + " with status");
 						if (job.getLast().isBuilding()) {
-							if (ignoreRunningJobs && compareWithPreviousRun) {
+							if (ignoreRunningJobs) {
 								int previousBuildNumberFromJenkins = 0;
 								int previousBuildNumberFromResults = 0;
 								if (job.getResults() == null) {
