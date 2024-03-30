@@ -201,7 +201,9 @@ public class TestResultsAggregatorHelper extends Notifier implements SimpleBuild
 					} else {
 						StringBuilder folders = new StringBuilder();
 						for (int i = 0; i < spliter.length - 1; i++) {
-							folders.append(spliter[i] + "/");
+							if (!Strings.isNullOrEmpty(spliter[i])) {
+								folders.append(spliter[i] + "/");
+							}
 						}
 						job.setJobNameOnly(spliter[spliter.length - 1]);
 						job.setFolder(folders.toString().replaceAll("/", "/" + JOB + "/"));
