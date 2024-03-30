@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.jenkins.testresultsaggregator.data.BuildWithDetailsAggregator;
 import com.jenkins.testresultsaggregator.data.Data;
 import com.jenkins.testresultsaggregator.data.Job;
@@ -120,7 +121,8 @@ public class Collector {
 	
 	private JobWithDetailsAggregator getDetailsMode(Job job, int mode) throws Exception {
 		JobWithDetailsAggregator response = null;
-		int retries = 1;
+		int retries = 0;
+		StringBuilder errorFound = new StringBuilder();
 		while (retries < 4 && response == null) {
 			try {
 				if (mode == 1) {
@@ -128,21 +130,27 @@ public class Collector {
 				} else {
 					response = client.get(job.getUrl(), JobWithDetailsAggregator.class);
 				}
+				errorFound = new StringBuilder();
 			} catch (Exception ex) {
 				if (ex.getMessage() != null && ex.getMessage().endsWith("is null")) {
 					throw ex;
 				} else {
-					logger.println("Error get details for job " + job.getJobName() + " " + ex.getMessage());
+					errorFound.append("Error get details for job " + job.getJobName() + " " + ex.getMessage());
 				}
 			}
 			retries++;
+			mode = (retries % 2) + 1;
+		}
+		if (!Strings.isNullOrEmpty(errorFound.toString())) {
+			logger.println("ERROR " + errorFound.toString());
 		}
 		return response;
 	}
 	
 	private BuildWithDetailsAggregator getLastBuildDetailsMode(Job job, int mode) throws Exception {
 		BuildWithDetailsAggregator response = null;
-		int retries = 1;
+		int retries = 0;
+		StringBuilder errorFound = new StringBuilder();
 		while (retries < 4 && response == null) {
 			try {
 				if (mode == 1) {
@@ -150,22 +158,28 @@ public class Collector {
 				} else {
 					response = client.get(job.getModelJob().details().getLastBuild().details().getUrl() + DEPTH, BuildWithDetailsAggregator.class);
 				}
+				errorFound = new StringBuilder();
 			} catch (Exception ex) {
 				if (ex.getMessage() != null && ex.getMessage().endsWith("is null")) {
 					throw ex;
 				} else {
-					logger.println("No last build details for job " + job.getJobName() + " " + ex.getMessage());
+					errorFound.append("No last build details for job " + job.getJobName() + " " + ex.getMessage());
 				}
 			}
 			retries++;
+			mode = (retries % 2) + 1;
+		}
+		if (!Strings.isNullOrEmpty(errorFound.toString())) {
+			logger.println("ERROR " + errorFound.toString());
 		}
 		return response;
 	}
 	
 	public BuildWithDetailsAggregator getBuildDetailsMode(Job job, Integer number, int mode) throws Exception {
 		BuildWithDetailsAggregator response = null;
+		StringBuilder errorFound = new StringBuilder();
 		if (number != null && number > 0) {
-			int retries = 1;
+			int retries = 0;
 			Build build = null;
 			while (retries < 4 && response == null) {
 				try {
@@ -179,15 +193,20 @@ public class Collector {
 							response = client.get(build.details().getUrl() + DEPTH, BuildWithDetailsAggregator.class);
 						}
 					}
+					errorFound = new StringBuilder();
 				} catch (Exception ex) {
 					if (ex.getMessage() != null && ex.getMessage().endsWith("is null")) {
 						throw ex;
 					} else {
-						logger.println("No build details for job " + job.getJobName() + " with number " + number + " " + ex.getMessage());
+						errorFound.append("No build details for job " + job.getJobName() + " with number " + number + " " + ex.getMessage());
 					}
 				}
 				retries++;
+				mode = (retries % 2) + 1;
 			}
+		}
+		if (!Strings.isNullOrEmpty(errorFound.toString())) {
+			logger.println("ERROR " + errorFound.toString());
 		}
 		return response;
 	}
