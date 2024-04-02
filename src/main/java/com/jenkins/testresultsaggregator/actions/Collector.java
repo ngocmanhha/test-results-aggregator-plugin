@@ -136,7 +136,7 @@ public class Collector {
 					throw ex;
 				} else {
 					errorFound = new StringBuilder();
-					errorFound.append("Error get details for job " + job.getJobName() + " " + ex.getMessage());
+					errorFound.append("Error get details for job '" + job.getJobName() + "' " + ex.getMessage());
 				}
 			}
 			retries++;
@@ -165,7 +165,7 @@ public class Collector {
 					throw ex;
 				} else {
 					errorFound = new StringBuilder();
-					errorFound.append("No last build details for job " + job.getJobName() + " " + ex.getMessage());
+					errorFound.append("No last build details for job '" + job.getJobName() + "' " + ex.getMessage());
 				}
 			}
 			retries++;
@@ -201,7 +201,7 @@ public class Collector {
 						throw ex;
 					} else {
 						errorFound = new StringBuilder();
-						errorFound.append("No build details for job " + job.getJobName() + " with number " + number + " " + ex.getMessage());
+						errorFound.append("No build details for job '" + job.getJobName() + "' with number " + number + " " + ex.getMessage());
 					}
 				}
 				retries++;
