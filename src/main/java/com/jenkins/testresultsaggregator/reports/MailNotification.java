@@ -109,7 +109,7 @@ public class MailNotification {
 				// Set type
 				mimeMessageBuilder.setMimeType("text/html");
 				
-				// Build
+				// Build Message
 				message = mimeMessageBuilder.buildMimeMessage();
 				message.setFrom(new InternetAddress(mailFrom));
 				useImages(messageBody, images, message);
@@ -194,6 +194,7 @@ public class MailNotification {
 				// Send Mail with no images
 				logger.println(LocalMessages.ERROR_OCCURRED.toString() + ": " + ex.getMessage());
 				logger.println(LocalMessages.SEND_MAIL_TO.toString());
+				logger.println("" + mailTo);
 				if (message != null) {
 					message = mimeMessageBuilder.buildMimeMessage();
 					message.setFrom(new InternetAddress(mailFrom));
