@@ -57,38 +57,40 @@ public class CollectorHelper {
 			jobResults.setNumberOfChanges(0);
 		}
 		jobResults.setChangesUrl(buildDetails.getUrl() + "/changes");
-		for (Object temp : actionList) {
-			HashMap<Object, Object> actions = (HashMap<Object, Object>) temp;
-			if (actions.containsKey("_class") && !actions.get("_class").equals("com.jenkins.testresultsaggregator.TestResultsAggregatorTestResultBuildAction")) {
-				// Calculate FAIL, SKIP and TOTAL Test Results
-				if (actions.containsKey(FAILCOUNT)) {
-					jobResults.setFail((Integer) actions.get(FAILCOUNT));
-				}
-				if (actions.containsKey(SKIPCOUNT)) {
-					jobResults.setSkip((Integer) actions.get(SKIPCOUNT));
-				}
-				if (actions.containsKey(TOTALCOUNT)) {
-					jobResults.setTotal((Integer) actions.get(TOTALCOUNT));
-				}
-				// Jacoco
-				if (actions.containsKey(JACOCO_BRANCH)) {
-					Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_BRANCH);
-					jobResults.setCcConditions((Integer) tempMap.get("percentage"));
-				}
-				if (actions.containsKey(JACOCO_CLASS)) {
-					Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_CLASS);
-					jobResults.setCcClasses((Integer) tempMap.get("percentage"));
-				}
-				if (actions.containsKey(JACOCO_LINES)) {
-					Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_LINES);
-					jobResults.setCcLines((Integer) tempMap.get("percentage"));
-				}
-				if (actions.containsKey(JACOCO_METHODS)) {
-					Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_METHODS);
-					jobResults.setCcMethods((Integer) tempMap.get("percentage"));
-				}
-				if (actions.containsKey(SONAR_URL)) {
-					jobResults.setSonarUrl((String) actions.get(SONAR_URL));
+		if (actionList != null) {
+			for (Object temp : actionList) {
+				HashMap<Object, Object> actions = (HashMap<Object, Object>) temp;
+				if (actions.containsKey("_class") && !actions.get("_class").equals("com.jenkins.testresultsaggregator.TestResultsAggregatorTestResultBuildAction")) {
+					// Calculate FAIL, SKIP and TOTAL Test Results
+					if (actions.containsKey(FAILCOUNT)) {
+						jobResults.setFail((Integer) actions.get(FAILCOUNT));
+					}
+					if (actions.containsKey(SKIPCOUNT)) {
+						jobResults.setSkip((Integer) actions.get(SKIPCOUNT));
+					}
+					if (actions.containsKey(TOTALCOUNT)) {
+						jobResults.setTotal((Integer) actions.get(TOTALCOUNT));
+					}
+					// Jacoco
+					if (actions.containsKey(JACOCO_BRANCH)) {
+						Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_BRANCH);
+						jobResults.setCcConditions((Integer) tempMap.get("percentage"));
+					}
+					if (actions.containsKey(JACOCO_CLASS)) {
+						Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_CLASS);
+						jobResults.setCcClasses((Integer) tempMap.get("percentage"));
+					}
+					if (actions.containsKey(JACOCO_LINES)) {
+						Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_LINES);
+						jobResults.setCcLines((Integer) tempMap.get("percentage"));
+					}
+					if (actions.containsKey(JACOCO_METHODS)) {
+						Map<String, Object> tempMap = (Map<String, Object>) actions.get(JACOCO_METHODS);
+						jobResults.setCcMethods((Integer) tempMap.get("percentage"));
+					}
+					if (actions.containsKey(SONAR_URL)) {
+						jobResults.setSonarUrl((String) actions.get(SONAR_URL));
+					}
 				}
 			}
 		}
